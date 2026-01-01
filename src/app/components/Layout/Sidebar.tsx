@@ -1,42 +1,114 @@
 "use client";
-import { Plus, MessageSquare } from "lucide-react";
+
+import { IconButton } from "@/app/utils/Icon";
+
+type ThemeKey = "glass" | "neon" | "apple" | "premium";
 
 interface SidebarProps {
-    histories: string[];
+    histories: {
+        today: string[];
+        last30: string[];
+        older: string[];
+    };
     onNewChat: () => void;
-    currentTheme: string;
-    toggleTheme: () => void;
+    uiTheme: ThemeKey;
+    toggleSidebar: () => void;
+    sidebarOpen: boolean;
 }
 
 export default function Sidebar({
     histories,
     onNewChat,
-    currentTheme,
-    toggleTheme,
+    uiTheme,
+    toggleSidebar,
+    sidebarOpen,
 }: SidebarProps) {
-    return (
-        <div className="hidden md:flex flex-col w-86 bg-gray-900 backdrop-blur-xl border-r border-gray-900 p-4 gap-3">
-            <h1 className="text-2xl font-bold text-blue-500 tracking-wide">
-                Zuno
-            </h1>
+    const themeStyle = {
+        glass: "bg-white/10 backdrop-blur-xl border-white/20",
+        neon: "bg-gray-900 border-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.6)]",
+        apple: "bg-gray-100 text-black border-gray-300",
+        premium: "bg-gray-900 border-gray-800 shadow-lg",
+    };
 
-            <button
-                onClick={onNewChat}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-            >
-                <Plus size={18} /> New Chat
-            </button>
+    const HistorySection = ({ title, items }: { title: string; items: string[] }) => {
+        if (items.length === 0) return null;
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                {histories?.map((h: string, i: number) => (
+        return (
+            <div className="space-y-1">
+                <h4 className="text-xs font-semibold text-gray-400 uppercase px-2 pt-3 tracking-wide">
+                    {title}
+                </h4>
+                {items.map((chat, i) => (
                     <button
-                        key={i}
-                        className="flex items-center gap-2 px-3 py-2 rounded bg-gray-800/50 hover:bg-gray-800 transition text-sm truncate"
+                        key={`${title}-${i}`}
+                        className="group w-full flex items-center justify-between px-4 py-3
+              text-[15px] rounded-xl hover:bg-gray-800/60 transition-colors"
                     >
-                        <MessageSquare size={16} /> {h}
+                        <span className="truncate">{chat}</span>
+                        <IconButton
+                            icon="MoreVertical"
+                            size="sm"
+                            variant="ghost"
+                            compact
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        />
                     </button>
                 ))}
             </div>
-        </div>
+        );
+    };
+
+    return (
+        <>
+            {/* SIDEBAR */}
+            <aside
+                className={`${themeStyle[uiTheme]} w-80 max-h-screen m-1 p-5 flex flex-col gap-4 rounded-4xl`}
+            >
+                {/* Brand + Close Button */}
+                <div className="flex items-center justify-between mb-3">
+                    <h1 className="text-3xl font-bold tracking-wide text-blue-500 pl-1">
+                        Zuno AI
+                    </h1>
+                    <IconButton
+                        icon="PanelRightOpen"
+                        size="lg"
+                        variant="default"
+                        compact
+                        onClick={toggleSidebar}
+                    />
+                </div>
+
+                {/* New Chat Button */}
+                <IconButton
+                    icon="MessageCirclePlus"
+                    text="New Chat"
+                    withText
+                    compact
+                    size="lg"
+                    className="w-full justify-center py-2.5 bg-gray-800 hover:bg-gray-700"
+                    textClassName="font-semibold text-base"
+                    onClick={onNewChat}
+                />
+
+                {/* History List */}
+                <div className="flex-1 overflow-y-auto no-scrollbar pr-1">
+                    <HistorySection title="Today" items={histories.today} />
+                    <HistorySection title="30 Days" items={histories.last30} />
+                    <HistorySection title="2025" items={histories.older} />
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between text-xs text-gray-400 px-3 py-2 opacity-70">
+                    <span>Anonymous</span>
+                    <IconButton
+                        icon="MoreHorizontal"
+                        size="lg"
+                        variant="ghost"
+                        compact
+                        className="opacity-70 hover:opacity-100"
+                    />
+                </div>
+            </aside>
+        </>
     );
 }

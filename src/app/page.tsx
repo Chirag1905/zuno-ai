@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./components/Layout/Sidebar";
-import MessageBubble from "./components/MessageBubble";
-import TypingIndicator from "./components/Layout/TypingIndicator";
-import ThemeToggle from "./components/ThemeToggle";
 import Header from "./components/Layout/Header";
+import MessageBubble from "./components/MessageBubble";
 import ChatInput from "./components/Layout/ChatInput";
+import TypingIndicator from "./components/Layout/TypingIndicator";
+import ChatArea from "./components/Layout/ChatArea";
 
 interface Message {
   text: string;
@@ -13,18 +13,22 @@ interface Message {
 }
 
 export default function Home() {
-  const [theme, setTheme] = useState("dark");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [uiTheme, setUiTheme] =
+    useState<"premium" | "glass" | "neon" | "apple">("premium");
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-    document.documentElement.classList.toggle("dark");
-  };
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const sendMessage = async () => {
-    if (!input) return;
+    if (!input.trim()) return;
+
     const userMsg = { text: input, isUser: true };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -33,39 +37,65 @@ export default function Home() {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMsg.text }),
+      body: JSON.stringify({ message: input }),
     });
 
     const data = await res.json();
     const botMsg = { text: data.reply, isUser: false };
+
     setTyping(false);
     setMessages((prev) => [...prev, botMsg]);
   };
 
   return (
-    <main className="flex min-h-screen">
-      <Sidebar
-        onNewChat={() => setMessages([])}
-        currentTheme={theme}
-        toggleTheme={toggleTheme}
-        histories={["My first chat", "MERN questions"]}
-      />
+    <main className="flex min-h-screen p-5 bg-gray-950 text-white overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`${sidebarOpen
+          ? "visible translate-x-0"
+          : "invisible -translate-x-full"
+          } transition-all duration-400 ease-in-out`}
+      >
+        <Sidebar
+          toggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+          uiTheme={uiTheme}
+          onNewChat={() => setMessages([])}
+          histories={{
+            today: ["Correcting React Header Component UI"],
+            last30: [
+              "JS Closures Examples",
+              "Bind/Call/Apply",
+              "Odd/Even Problem",
+              "JavaScript Arrays Deep Dive",
+              "Event Bubbling Capture",
+            ],
+            older: [
+              "Multi-Tenant DB Prisma",
+              "Kubernetes Basics",
+              "Input Component Usage",
+            ],
+          }}
+        />
+      </div>
 
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <Header />
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col relative">
+        <Header
+          toggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+          uiTheme={uiTheme}
+          setUiTheme={setUiTheme}
+        />
 
-        {/* Chat container */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((msg, i) => (
-            <MessageBubble key={i} text={msg.text} isUser={msg.isUser} />
-          ))}
+        <ChatArea messages={messages} typing={typing} uiTheme={uiTheme} />
 
-          {typing && <TypingIndicator />}
-        </div>
-
-        {/* Container with max width */}
-        <ChatInput input={input} setInput={setInput} sendMessage={sendMessage} />
+        <ChatInput
+          input={input}
+          setInput={setInput}
+          sendMessage={sendMessage}
+          uiTheme={uiTheme}
+        />
       </div>
     </main>
   );
