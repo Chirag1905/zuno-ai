@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Layout/Sidebar";
 import Header from "./components/Layout/Header";
-import MessageBubble from "./components/MessageBubble";
-import ChatInput from "./components/Layout/ChatInput";
-import TypingIndicator from "./components/Layout/TypingIndicator";
 import ChatArea from "./components/Layout/ChatArea";
 
 interface Message {
@@ -49,48 +46,45 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen p-5 bg-gray-950 text-white overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={`${sidebarOpen
-          ? "visible translate-x-0"
-          : "invisible -translate-x-full"
-          } transition-all duration-400 ease-in-out`}
-      >
-        <Sidebar
-          toggleSidebar={toggleSidebar}
-          sidebarOpen={sidebarOpen}
-          uiTheme={uiTheme}
-          onNewChat={() => setMessages([])}
-          histories={{
-            today: ["Correcting React Header Component UI"],
-            last30: [
-              "JS Closures Examples",
-              "Bind/Call/Apply",
-              "Odd/Even Problem",
-              "JavaScript Arrays Deep Dive",
-              "Event Bubbling Capture",
-            ],
-            older: [
-              "Multi-Tenant DB Prisma",
-              "Kubernetes Basics",
-              "Input Component Usage",
-            ],
-          }}
-        />
+      {/* premium radial glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-225 h-225 bg-blue-600/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/3 w-225 h-225 bg-purple-600/10 rounded-full blur-[120px]" />
       </div>
+      {/* Sidebar */}
+      <Sidebar
+        toggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+        uiTheme={uiTheme}
+        onNewChat={() => setMessages([])}
+        histories={{
+          today: ["Correcting React Header Component UI"],
+          last30: [
+            "JS Closures Examples",
+            "Bind/Call/Apply",
+            "Odd/Even Problem",
+            "JavaScript Arrays Deep Dive",
+            "Event Bubbling Capture",
+          ],
+          older: [
+            "Multi-Tenant DB Prisma",
+            "Kubernetes Basics",
+            "Input Component Usage",
+          ],
+        }}
+      />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col">
         <Header
           toggleSidebar={toggleSidebar}
           sidebarOpen={sidebarOpen}
           uiTheme={uiTheme}
           setUiTheme={setUiTheme}
         />
-
-        <ChatArea messages={messages} typing={typing} uiTheme={uiTheme} />
-
-        <ChatInput
+        <ChatArea
+          messages={messages}
+          typing={typing}
           input={input}
           setInput={setInput}
           sendMessage={sendMessage}

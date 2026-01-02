@@ -1,30 +1,52 @@
 "use client";
 
-export default function ChatInput({ input, setInput, sendMessage, uiTheme }) {
+import { useRef, useEffect } from "react";
+import { IconButton } from "@/app/utils/Icon";
 
-    const themeStyle = {
-        glass: "bg-white/10 backdrop-blur-xl border-white/20",
-        neon: "bg-gray-900 border-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]",
-        apple: "bg-white text-black border border-gray-300 shadow-sm",
-        premium: "bg-gray-900 border-gray-800 shadow-md",
-    };
+export default function ChatInput({ input, setInput, sendMessage, uiTheme }) {
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+    // 🔥 Auto-resize logic
+    useEffect(() => {
+        if (!textareaRef.current) return;
+
+        textareaRef.current.style.height = "0px";
+        const scrollHeight = textareaRef.current.scrollHeight;
+
+        // max height ~ 6 lines (like DeepSeek)
+        textareaRef.current.style.height = Math.min(scrollHeight, 160) + "px";
+    }, [input]);
 
     return (
-        <div className={`w-full px-4 py-2 rounded-3xl flex gap-2 ${themeStyle[uiTheme]}`}>
-            <textarea
-                className="flex-1 bg-transparent text-sm focus:outline-none resize-none"
-                rows={2}
-                placeholder="Type your prompt here to Zuno..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button
-                onClick={sendMessage}
-                className="bg-blue-600 hover:bg-blue-700 px-4 rounded-lg transition"
+        <div className="w-full flex justify-center">
+            <div
+                className="w-full max-w-205 flex items-end gap-3 px-5 py-2.5 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]"
             >
-                ➤
-            </button>
+                <textarea
+                    ref={textareaRef}
+                    className="flex-1 bg-transparent resize-none text-sm text-white placeholder:text-gray-400 focus:outline-none leading-6 max-h-40 overflow-y-auto"
+                    placeholder="Message Zuno"
+                    value={input}
+                    rows={1}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    }}
+                />
+
+                <IconButton
+                    icon="ArrowUp"
+                    size="lg"
+                    variant="minimal"
+                    compact
+                    iconClassName="text-blue-400"
+                    className="bg-gray-800 hover:bg-gray-700 rounded-full"
+                    onClick={sendMessage}
+                />
+            </div>
         </div>
     );
 }

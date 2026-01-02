@@ -7,12 +7,26 @@ const styles = {
 
 export default function MessageBubble({ text, isUser, uiTheme }) {
     return (
-        <div
-            className={`max-w-[75%] px-4 py-3 text-sm rounded-2xl transition
-       ${isUser ? "ml-auto bg-blue-500 text-white" : `mr-auto ${styles[uiTheme]}`}
-      `}
-        >
-            {text}
+        <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+            <div
+                //         className={`
+                //   max-w-[85%]
+                //   rounded-2xl px-4 py-2 text-sm leading-relaxed
+                //   ${isUser
+                //                 ? "bg-blue-600 text-white rounded-br-md"
+                //                 : "bg-gray-800 text-gray-200 rounded-bl-md"}
+                // `}
+                className={`
+    max-w-[75%]
+    rounded-2xl px-4 py-2 text-sm leading-relaxed
+    shadow-md
+    ${isUser
+                        ? "bg-blue-600 text-white rounded-br-md"
+                        : "bg-white/10 backdrop-blur-md text-gray-200 rounded-bl-md"}
+  `}
+            >
+                {text}
+            </div>
         </div>
     );
 }

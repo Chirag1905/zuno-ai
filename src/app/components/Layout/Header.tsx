@@ -30,7 +30,8 @@ export default function Header({ toggleSidebar, sidebarOpen, uiTheme, setUiTheme
             />
           </div>
         </div>
-      )}
+  )
+}
 
       <button
         onClick={toggleSidebar}
@@ -46,6 +47,6 @@ export default function Header({ toggleSidebar, sidebarOpen, uiTheme, setUiTheme
         <button onClick={() => setUiTheme("premium")}><Crown size={18} /></button>
       </div>
 
-    </header>
+    </header >
   );
 }
