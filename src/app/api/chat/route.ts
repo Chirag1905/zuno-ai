@@ -1,29 +1,40 @@
-import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const model = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!).getGenerativeModel({
-    model: "gemini-2.5-flash",
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
-    try {
-        const { message } = await req.json();
+    const { message } = await req.json();
 
-        const result = await model.generateContent({
-            contents: [
-                {
-                    role: "user",
-                    parts: [{ text: message }],
-                },
-            ],
-        });
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+    });
 
-        const text = result.response.text();
-        return NextResponse.json({ reply: text });
+    const stream = await model.generateContentStream(message);
 
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("Gemini API Error:", errorMessage);
-        return NextResponse.json({ reply: errorMessage }, { status: 500 });
-    }
+    const encoder = new TextEncoder();
+
+    return new Response(
+        new ReadableStream({
+            async start(controller) {
+                try {
+                    for await (const chunk of stream.stream) {
+                        const text = chunk.text();
+                        if (text) {
+                            controller.enqueue(encoder.encode(text));
+                        }
+                    }
+                    controller.close();
+                } catch (err) {
+                    controller.error(err);
+                }
+            },
+        }),
+        {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache",
+                "Transfer-Encoding": "chunked",
+            },
+        }
+    );
 }

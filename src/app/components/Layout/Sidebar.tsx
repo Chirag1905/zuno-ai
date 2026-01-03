@@ -2,7 +2,6 @@
 
 import { IconButton } from "@/app/utils/Icon";
 import { SidebarBrand } from "@/app/utils/sidebarBrand";
-import Image from "next/image";
 
 type ThemeKey = "glass" | "neon" | "apple" | "premium";
 

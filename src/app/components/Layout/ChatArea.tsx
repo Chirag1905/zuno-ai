@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import TypingIndicator from "./TypingIndicator";
 import MessageBubble from "../MessageBubble";
 import ChatInput from "./ChatInput";
+import { SidebarBrand } from "@/app/utils/sidebarBrand";
 
 interface Message {
     text: string;
@@ -39,15 +40,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     if (messages.length === 0) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-
                 {/* Logo */}
-                <div className="mb-4 flex items-center gap-2 text-2xl font-semibold">
-                    <span className="text-blue-500">⚡</span>
-                    <span>Zuno</span>
-                </div>
+                <SidebarBrand />
 
                 {/* Subtitle */}
-                <p className="mb-8 text-gray-400 text-lg">
+                <p className="mt-2 mb-8 text-gray-200 text-lg">
                     How can I help you?
                 </p>
 

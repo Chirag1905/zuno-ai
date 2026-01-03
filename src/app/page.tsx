@@ -26,22 +26,48 @@ export default function Home() {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMsg = { text: input, isUser: true };
-    setMessages((prev) => [...prev, userMsg]);
+    const userText = input;
+
+    setMessages((prev) => [...prev, { text: userText, isUser: true }]);
     setInput("");
     setTyping(true);
+
+    // create empty bot message
+    let botIndex: number;
+
+    setMessages((prev) => {
+      botIndex = prev.length;
+      return [...prev, { text: "", isUser: false }];
+    });
 
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input }),
+      body: JSON.stringify({ message: userText }),
     });
 
-    const data = await res.json();
-    const botMsg = { text: data.reply, isUser: false };
+    const reader = res.body?.getReader();
+    if (!reader) return;
+
+    const decoder = new TextDecoder();
 
     setTyping(false);
-    setMessages((prev) => [...prev, botMsg]);
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[botIndex] = {
+          ...updated[botIndex],
+          text: updated[botIndex].text + chunk,
+        };
+        return updated;
+      });
+    }
   };
 
   return (
