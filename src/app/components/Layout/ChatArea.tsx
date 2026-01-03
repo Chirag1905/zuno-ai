@@ -83,14 +83,12 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             </div>
 
             {/* STICKY INPUT */}
-            <div className="border-t border-white/10 px-4 py-3">
-                <ChatInput
-                    input={input}
-                    setInput={setInput}
-                    sendMessage={sendMessage}
-                    uiTheme={uiTheme}
-                />
-            </div>
+            <ChatInput
+                input={input}
+                setInput={setInput}
+                sendMessage={sendMessage}
+                uiTheme={uiTheme}
+            />
         </div>
     );
 };

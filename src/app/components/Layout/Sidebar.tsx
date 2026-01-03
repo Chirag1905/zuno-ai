@@ -1,6 +1,7 @@
 "use client";
 
 import { IconButton } from "@/app/utils/Icon";
+import { SidebarBrand } from "@/app/utils/sidebarBrand";
 import Image from "next/image";
 
 type ThemeKey = "glass" | "neon" | "apple" | "premium";
@@ -63,18 +64,17 @@ export default function Sidebar({
         <>
             {/* SIDEBAR */}
             <aside
-                className={`${sidebarOpen
-                    ? "visible translate-x-0 w-80"
-                    : "invisible -translate-x-full w-0"
-                    } ${themeStyle[uiTheme]}
-                     transition-all duration-400 ease-in-out
-                    max-h-screen m-1 p-5 flex flex-col gap-4 rounded-4xl`}
+                className={` ${sidebarOpen
+                    ? "translate-x-0 opacity-100 pointer-events-auto"
+                    : "-translate-x-full opacity-0 pointer-events-none"} ${themeStyle[uiTheme]} 
+                    absolute left-0 top-0 bottom-0 z-40 w-80 m-3 p-5 flex flex-col gap-4 rounded-4xl transition-all duration-500 ease-in-out`}
             >
                 {/* Brand + Close Button */}
                 <div className="flex items-center justify-between mb-3">
-                    <h1 className="text-3xl font-bold tracking-wide text-blue-500 pl-1">
+                    <SidebarBrand />
+                    {/* <h1 className="text-3xl font-bold tracking-wide text-blue-500 pl-1">
                         Zuno AI
-                    </h1>
+                    </h1> */}
                     {/* <div className="relative h-50 w-50 flex items-center">
                         <Image
                             src="/zuno_logo.png"

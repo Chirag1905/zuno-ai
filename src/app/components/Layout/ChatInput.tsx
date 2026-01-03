@@ -19,9 +19,7 @@ export default function ChatInput({ input, setInput, sendMessage, uiTheme }) {
 
     return (
         <div className="w-full flex justify-center">
-            <div
-                className="w-full max-w-205 flex items-end gap-3 px-5 py-2.5 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]"
-            >
+            <div className="w-full max-w-205 flex items-center gap-3 px-5 py-2.5 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
                 <textarea
                     ref={textareaRef}
                     className="flex-1 bg-transparent resize-none text-sm text-white placeholder:text-gray-400 focus:outline-none leading-6 max-h-40 overflow-y-auto"
