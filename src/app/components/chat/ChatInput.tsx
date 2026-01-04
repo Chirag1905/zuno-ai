@@ -1,37 +1,26 @@
 "use client";
 
-import { useRef, useEffect, type Dispatch, type SetStateAction } from "react";
-import { IconButton } from "@/app/utils/Icon";
-
-type ChatInputProps = {
-    input: string;
-    setInput: Dispatch<SetStateAction<string>>;
-    sendMessage: () => void;
-    uiTheme: string;
-    stopResponse: () => void;
-    isGenerating: boolean;
-};
+import { useChatStore, useStreamStore } from "@/app/store";
+import { useEffect, useRef } from "react";
+import { IconButton } from "../ui/Icon";
 
 export default function ChatInput({
-    input,
-    setInput,
     sendMessage,
-    uiTheme,
     stopResponse,
-    isGenerating
-}: ChatInputProps) {
-    console.log("🚀 ~ ChatInput ~ isGenerating:", isGenerating)
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+}: {
+    sendMessage: () => void;
+    stopResponse: () => void;
+}) {
+    const { input, setInput } = useChatStore();
+    const { generating } = useStreamStore();
 
-    // 🔥 Auto-resize logic
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
     useEffect(() => {
         if (!textareaRef.current) return;
-
         textareaRef.current.style.height = "0px";
-        const scrollHeight = textareaRef.current.scrollHeight;
-
-        // max height ~ 6 lines (like DeepSeek)
-        textareaRef.current.style.height = Math.min(scrollHeight, 160) + "px";
+        textareaRef.current.style.height =
+            Math.min(textareaRef.current.scrollHeight, 160) + "px";
     }, [input]);
 
     return (
@@ -45,21 +34,26 @@ export default function ChatInput({
                     rows={1}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
+                        if (
+                            e.key === "Enter" &&
+                            !e.shiftKey &&
+                            !e.nativeEvent.isComposing
+                        ) {
                             e.preventDefault();
                             sendMessage();
                         }
                     }}
+                    disabled={generating}
                 />
 
                 <IconButton
-                    icon={isGenerating ? "Square" : "ArrowUp"}
+                    icon={generating ? "Square" : "ArrowUp"}
                     size="lg"
                     variant="minimal"
                     compact
-                    iconClassName={isGenerating ? "text-red-400" : "text-blue-400"}
+                    iconClassName={generating ? "text-red-400" : "text-blue-400"}
                     className="bg-gray-800 hover:bg-gray-700 rounded-full"
-                    onClick={isGenerating ? stopResponse : sendMessage}
+                    onClick={generating ? stopResponse : sendMessage}
                 />
             </div>
         </div>

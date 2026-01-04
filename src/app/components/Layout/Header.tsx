@@ -1,9 +1,13 @@
 "use client";
-import { IconButton } from "@/app/utils/Icon";
-import ZunoLogo from "@/app/utils/zunoLogo";
+import { useUIStore } from "@/app/store";
 import { Menu, X, Droplet, Sparkles, Apple, Crown } from "lucide-react";
+import ZunoLogo from "../ui/zunoLogo";
+import { IconButton } from "../ui/Icon";
 
-export default function Header({ toggleSidebar, sidebarOpen, uiTheme, setUiTheme }) {
+export default function Header() {
+
+  const { theme, sidebarOpen, setTheme, toggleSidebar } = useUIStore();
+
   return (
     <>
       {/* LEFT FLOATING BAR (when sidebar closed) */}
@@ -40,10 +44,10 @@ export default function Header({ toggleSidebar, sidebarOpen, uiTheme, setUiTheme
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-        <button onClick={() => setUiTheme("glass")}><Droplet size={18} /></button>
-        <button onClick={() => setUiTheme("neon")}><Sparkles size={18} /></button>
-        <button onClick={() => setUiTheme("apple")}><Apple size={18} /></button>
-        <button onClick={() => setUiTheme("premium")}><Crown size={18} /></button>
+        <button onClick={() => setTheme("glass")}><Droplet size={18} /></button>
+        <button onClick={() => setTheme("neon")}><Sparkles size={18} /></button>
+        <button onClick={() => setTheme("apple")}><Apple size={18} /></button>
+        <button onClick={() => setTheme("premium")}><Crown size={18} /></button>
       </header>
     </>
   );
