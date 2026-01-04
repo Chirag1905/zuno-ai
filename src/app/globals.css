@@ -52,3 +52,46 @@ html.light {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #c7c7c7, #ffffff);
+  animation: wave 1.4s infinite ease-in-out both;
+  opacity: 0.85;
+}
+
+.dot-1 {
+  animation-delay: 0s;
+}
+
+.dot-2 {
+  animation-delay: 0.15s;
+}
+
+.dot-3 {
+  animation-delay: 0.3s;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  20% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+
+  40% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+}

@@ -1,9 +1,26 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, type Dispatch, type SetStateAction } from "react";
 import { IconButton } from "@/app/utils/Icon";
 
-export default function ChatInput({ input, setInput, sendMessage, uiTheme }) {
+type ChatInputProps = {
+    input: string;
+    setInput: Dispatch<SetStateAction<string>>;
+    sendMessage: () => void;
+    uiTheme: string;
+    stopResponse: () => void;
+    isGenerating: boolean;
+};
+
+export default function ChatInput({
+    input,
+    setInput,
+    sendMessage,
+    uiTheme,
+    stopResponse,
+    isGenerating
+}: ChatInputProps) {
+    console.log("🚀 ~ ChatInput ~ isGenerating:", isGenerating)
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     // 🔥 Auto-resize logic
@@ -36,13 +53,13 @@ export default function ChatInput({ input, setInput, sendMessage, uiTheme }) {
                 />
 
                 <IconButton
-                    icon="ArrowUp"
+                    icon={isGenerating ? "Square" : "ArrowUp"}
                     size="lg"
                     variant="minimal"
                     compact
-                    iconClassName="text-blue-400"
+                    iconClassName={isGenerating ? "text-red-400" : "text-blue-400"}
                     className="bg-gray-800 hover:bg-gray-700 rounded-full"
-                    onClick={sendMessage}
+                    onClick={isGenerating ? stopResponse : sendMessage}
                 />
             </div>
         </div>
