@@ -33,9 +33,9 @@ Icon.displayName = "Icon";
 
 // ==================== SINGLE ICON BUTTON COMPONENT ====================
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    icon: IconName;
+    icon?: IconName;
     size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
-    variant?: "default" | "ghost" | "outline" | "minimal";
+    variant?: "default" | "ghost" | "outline" | "minimal" | "optional";
     iconClassName?: string;
     withText?: boolean;
     text?: string;
@@ -93,6 +93,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 ghost: "hover:bg-gray-800/40 text-gray-300",
                 outline: "border border-gray-700 hover:bg-gray-800/40 text-gray-300",
                 minimal: "outline-none hover:bg-gray-700 text-gray-200",
+                optional: "outline-none text-gray-200",
             };
 
             return `${baseStyles} ${variantMap[variant]}`;
@@ -114,6 +115,10 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         const variantStyle = getVariantStyle();
         const roundedStyle = getRoundedStyle();
 
+        const iconElement = icon ? (
+            <Icon name={icon} size={sizeConfig.iconSize} className={iconClassName} />
+        ) : null;
+
         // Render button with text
         if (withText || text) {
             return (
@@ -126,9 +131,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                         <span className={`${sizeConfig.textSize} ${textClassName}`}>{text}</span>
                     )}
 
-                    {textPosition === "right" && (
-                        <Icon name={icon} size={sizeConfig.iconSize} className={iconClassName} />
-                    )}
+                    {textPosition === "left" && iconElement}
+
+                    {textPosition === "right" && iconElement}
 
                     {text && textPosition === "right" && (
                         <span className={`${sizeConfig.textSize} ${textClassName}`}>{text}</span>
@@ -144,7 +149,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 className={`${sizeConfig.button} ${variantStyle} ${roundedStyle} ${className}`}
                 {...props}
             >
-                <Icon name={icon} size={sizeConfig.iconSize} className={iconClassName} />
+                {iconElement ?? props.children}
             </button>
         );
     }

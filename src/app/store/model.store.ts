@@ -1,17 +1,16 @@
 import { create } from "zustand";
-
-export type LocalModel =
-    | "llama3.1"
-    | "mistral"
-    | "qwen"
-    | "deepseek";
-
 interface ModelState {
     model: LocalModel;
     setModel: (m: LocalModel) => void;
 }
 
+export type LocalModel =
+    | "llama"
+    | "mistral"
+    | "qwen"
+    | "deepseek";
+
 export const useModelStore = create<ModelState>((set) => ({
-    model: "llama3.1",
+    model: "llama",
     setModel: (model) => set({ model }),
 }));

@@ -44,24 +44,40 @@ export default function Sidebar() {
                     onClick={newSession}
                 />
                 {/* History List */}
-                <div className="flex-1 overflow-y-auto no-scrollbar pr-1">
+                <div className="flex-1 overflow-y-auto no-scrollbar text-sm pr-1">
                     {sessions.map((s) => (
                         <div
                             key={s.id}
-                            className={`flex justify-between items-center px-3 py-2 rounded-lg hover:bg-gray-800 ${s.id === activeSessionId ? "bg-blue-600/20 text-blue-300 " : "hover:bg-gray-800"}}`}
+                            className={`flex justify-between items-center px-3 py-2 rounded-xl hover:bg-gray-800 
+                                ${s.id === activeSessionId
+                                    ? "bg-blue-600/20 text-blue-300 "
+                                    : "hover:bg-gray-800"}}
+                                    `}
+                            onClick={() => switchSession(s.id)}
                         >
-                            <button
-                                onClick={() => switchSession(s.id)}
-                                className={`truncate ${s.id === activeSessionId ? "font-bold" : ""}`}
-                            >
-                                {s.title}
-                            </button>
                             <IconButton
-                                icon="Trash"
                                 size="sm"
                                 compact
-                                onClick={() => deleteSession(s.id)}
+                                variant="optional"
+                                className={`bg-transparent truncate ${s.id === activeSessionId ? "font-bold" : ""}`}
+                                text={s.title}
                             />
+                            <div className="flex gap-2">
+                                <IconButton
+                                    icon="Pencil"
+                                    size="sm"
+                                    compact
+                                    variant="minimal"
+                                    onClick={() => deleteSession(s.id)}
+                                />
+                                <IconButton
+                                    icon="Trash"
+                                    size="sm"
+                                    compact
+                                    variant="minimal"
+                                    onClick={() => deleteSession(s.id)}
+                                />
+                            </div>
                         </div>
                     ))}
                 </div>

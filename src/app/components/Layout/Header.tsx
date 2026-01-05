@@ -3,6 +3,8 @@ import { useUIStore } from "@/app/store";
 import { Menu, X, Droplet, Sparkles, Apple, Crown } from "lucide-react";
 import ZunoLogo from "../ui/zunoLogo";
 import { IconButton } from "../ui/Icon";
+import { LLMStatus } from "../ui/LLMStatus";
+import { ModelSelector } from "../ui/ModelSelector";
 
 export default function Header() {
 
@@ -36,18 +38,57 @@ export default function Header() {
       )}
 
       <header
-        className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-gray-900/60 backdrop-blur-xl border border-gray-700/60 rounded-full px-3 py-2 shadow-xl"
+        className="fixed top-4 right-4 z-50 flex items-center bg-gray-900/60 backdrop-blur-xl border border-gray-700/60 rounded-full px-1 shadow-xl"
       >
-        <button
-          onClick={toggleSidebar}
-          className="p-2 rounded-lg md:hidden bg-gray-800/60 hover:bg-gray-700 transition"
-        >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-        <button onClick={() => setTheme("glass")}><Droplet size={18} /></button>
-        <button onClick={() => setTheme("neon")}><Sparkles size={18} /></button>
-        <button onClick={() => setTheme("apple")}><Apple size={18} /></button>
-        <button onClick={() => setTheme("premium")}><Crown size={18} /></button>
+        <div className="block md:hidden">
+          <IconButton
+            icon={`${sidebarOpen ? "X" : "Menu"}`}
+            size="lg"
+            variant="minimal"
+            iconClassName="p-2 rounded-lg md:hidden bg-gray-800/60 hover:bg-gray-700 transition"
+            textClassName="text-gray-300 text-sm font-medium"
+            compact
+            onClick={toggleSidebar}
+          />
+        </div>
+        {/* <ModelSelector /> */}
+        <LLMStatus />
+        <IconButton
+          icon="Droplet"
+          size="md"
+          variant="minimal"
+          iconClassName={sidebarOpen ? "text-green-400" : "text-gray-50"}
+          textClassName="text-gray-300 text-sm font-medium"
+          compact
+          onClick={() => setTheme("glass")}
+        />
+        <IconButton
+          icon="Sparkles"
+          size="md"
+          variant="minimal"
+          iconClassName={sidebarOpen ? "text-green-400" : "text-gray-50"}
+          textClassName="text-gray-300 text-sm font-medium"
+          compact
+          onClick={() => setTheme("neon")}
+        />
+        <IconButton
+          icon="Apple"
+          size="md"
+          variant="minimal"
+          iconClassName={sidebarOpen ? "text-green-400" : "text-gray-50"}
+          textClassName="text-gray-300 text-sm font-medium"
+          compact
+          onClick={() => setTheme("apple")}
+        />
+        <IconButton
+          icon="Crown"
+          size="md"
+          variant="minimal"
+          iconClassName={sidebarOpen ? "text-green-400" : "text-gray-50"}
+          textClassName="text-gray-300 text-sm font-medium"
+          compact
+          onClick={() => setTheme("premium")}
+        />
       </header>
     </>
   );

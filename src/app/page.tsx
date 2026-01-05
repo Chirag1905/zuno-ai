@@ -4,37 +4,49 @@ import { useCallback, useEffect, useRef } from "react";
 import Sidebar from "./components/Layout/Sidebar";
 import Header from "./components/Layout/Header";
 import ChatArea from "./components/Layout/ChatArea";
-import { useChatStore, useStreamStore, useUIStore } from "./store";
+import { useChatStore, useLLMStore, useModelStore, useStreamStore, useUIStore } from "./store";
 
 export default function Home() {
   const { messages, input, activeSessionId, setInput, addMessage, updateMessage, clearMessages } = useChatStore();
 
   const { theme, sidebarOpen, setTheme, toggleSidebar } = useUIStore();
   const { typing, generating, setTyping, setGenerating } = useStreamStore();
+  const { model } = useModelStore();
+  const { online } = useLLMStore();
+  console.log("🚀 ~ Home ~ online:", online)
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const stopRef = useRef(false);
 
-  const sleep = (ms: number) =>
-    new Promise((r) => setTimeout(r, ms));
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  /* ================= SEND MESSAGE ================= */
 
   const sendMessage = async () => {
     if (!input.trim() || generating) return;
 
     const userText = input.trim();
 
+    // 1️⃣ User message
     addMessage({ text: userText, isUser: true });
     setInput("");
-    setGenerating(true);
-    setTyping(true);
-    stopRef.current = false;
 
+    // 2️⃣ Assistant placeholder
     const assistantId = addMessage({
       text: "",
       isUser: false,
     });
 
-    if (!assistantId) {
+    setGenerating(true);
+    setTyping(true);
+    stopRef.current = false;
+
+    // 3️⃣ LLM OFFLINE GUARD
+    if (!online) {
+      updateMessage(
+        assistantId,
+        "⚠️ Local LLM is offline.\n\nStart Ollama to continue."
+      );
       setGenerating(false);
       setTyping(false);
       return;
@@ -52,7 +64,10 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText }),
+        body: JSON.stringify({
+          message: userText,
+          model
+        }),
         signal: abortControllerRef.current.signal,
       });
 
@@ -72,12 +87,12 @@ export default function Home() {
       }
 
       isStreaming = true;
-
       setTyping(false);
       await sleep(280);
 
       let baseSpeed = 22;
 
+      // 🖊️ Typing animation loop
       const typeLoop = async () => {
         while (!stopRef.current && (isStreaming || buffer.length)) {
           if (!buffer.length) {
@@ -105,6 +120,7 @@ export default function Home() {
 
       typeLoop();
 
+      // 📡 Stream from Ollama
       while (!stopRef.current) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -127,6 +143,8 @@ export default function Home() {
     }
   };
 
+  /* ================= STOP RESPONSE ================= */
+
   const stopResponse = useCallback(() => {
     stopRef.current = true;
     abortControllerRef.current?.abort();
@@ -134,15 +152,18 @@ export default function Home() {
     setTyping(false);
   }, [setGenerating, setTyping]);
 
+  /* ================= EFFECTS ================= */
+
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);
 
+  // Stop generation when switching sessions
   useEffect(() => {
     stopResponse();
   }, [activeSessionId, stopResponse]);
 
-  // ESC to stop
+  // ESC key support
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && generating) stopResponse();
