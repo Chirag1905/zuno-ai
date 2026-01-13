@@ -1,17 +1,16 @@
 "use client";
 
+import { IconButton } from "@/app/components/ui/Icon";
+import { SidebarBrand } from "@/app/components/ui/sidebarBrand";
 import { useChatStore, useUIStore } from "@/app/store";
-import { SidebarBrand } from "../ui/sidebarBrand";
-import { IconButton } from "../ui/Icon";
 import { useEffect, useState } from "react";
 
 export default function Sidebar() {
     const {
-        sessions,
-        activeSessionId,
-        switchSession,
-        deleteSession,
-        newSession,
+        chatSessions,
+        activeChatId,
+        switchChat,
+        createNewChat,
     } = useChatStore();
 
     const { sidebarOpen, toggleSidebar } = useUIStore();
@@ -57,52 +56,47 @@ export default function Sidebar() {
                             withText
                             size="md"
                             className="w-full justify-center py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-3xl shadow-md hover:shadow-blue-500/40"
-                            onClick={newSession}
+                            onClick={createNewChat}
                         />
                     </div>
 
                     {/* CHAT LIST */}
                     <div className="flex-1 overflow-y-auto px-3 pb-3 no-scrollbar">
-                        {sessions.map((s) => {
-                            const active = s.id === activeSessionId;
+                        {chatSessions?.map((chat) => (
+                            <div
+                                key={chat?.id}
+                                onClick={() => switchChat(chat?.id)}
+                                className={`group flex items-center justify-between px-3 py-2 rounded-2xl cursor-pointer transition-all
+                                            ${chat?.id === activeChatId
+                                        ? "bg-blue-600/20 text-blue-300 font-bold"
+                                        : "hover:bg-white/5"
+                                    }`}
+                            >
+                                <span className="truncate text-sm flex-1">{chat?.title}</span>
 
-                            return (
-                                <div
-                                    key={s.id}
-                                    onClick={() => switchSession(s.id)}
-                                    className={`group flex items-center justify-between px-3 py-2 rounded-2xl cursor-pointer transition-all
-                                            ${active
-                                            ? "bg-blue-600/20 text-blue-300 font-bold"
-                                            : "hover:bg-white/5"
-                                        }
-                                            `}
-                                >
-                                    <span className="truncate text-sm flex-1">{s.title}</span>
+                                {/* MORE BUTTON */}
+                                <div className="opacity-0 group-hover:opacity-100 transition">
+                                    <IconButton
+                                        icon="MoreVertical"
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const rect = (
+                                                e.currentTarget as HTMLElement
+                                            ).getBoundingClientRect();
 
-                                    {/* MORE BUTTON */}
-                                    <div className="opacity-0 group-hover:opacity-100 transition">
-                                        <IconButton
-                                            icon="MoreVertical"
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                const rect = (
-                                                    e.currentTarget as HTMLElement
-                                                ).getBoundingClientRect();
+                                            setMenuPos({
+                                                x: rect.right + 2,
+                                                y: rect.top,
+                                            });
 
-                                                setMenuPos({
-                                                    x: rect.right + 2,
-                                                    y: rect.top,
-                                                });
-
-                                                setOpenMenuId(openMenuId === s.id ? null : s.id);
-                                            }}
-                                        />
-                                    </div>
+                                            setOpenMenuId(openMenuId === chat?.id ? null : chat?.id);
+                                        }}
+                                    />
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </div>
 
                     {/* FOOTER */}
@@ -144,7 +138,7 @@ export default function Sidebar() {
                             variant="ghost"
                             text="Delete"
                             onClick={() => {
-                                deleteSession(openMenuId);
+                                // deleteSession(openMenuId);
                                 setOpenMenuId(null);
                                 console.log("Delete session");
                             }}

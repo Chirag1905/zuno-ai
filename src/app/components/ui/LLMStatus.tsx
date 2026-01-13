@@ -1,8 +1,8 @@
 "use client";
 
+import { IconButton } from "@/components/ui/Icon";
 import { useLLMStore } from "@/app/store";
 import { useEffect } from "react";
-import { IconButton } from "./Icon";
 
 export function LLMStatus() {
     const { online, setOnline } = useLLMStore();
@@ -20,8 +20,8 @@ export function LLMStatus() {
         };
 
         check();
-        const id = setInterval(check, 5000);
-        return () => clearInterval(id);
+        // const id = setInterval(check, 5000);
+        // return () => clearInterval(id);
     }, [setOnline]);
 
     return (

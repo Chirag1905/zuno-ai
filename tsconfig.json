@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -13,13 +17,39 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./src/*/"]
+      // "@/*": ["./src/*/"]
+      "@/*": [
+        "src/*"
+      ],
+      "@/app/*": [
+        "src/app/*"
+      ],
+      "@/utils/*": [
+        "src/app/utils/*"
+      ],
+      "@/db/*": [
+        "src/app/db/*"
+      ],
+      "@/types/*": [
+        "src/app/types/*"
+      ],
+      "@/components/*": [
+        "src/app/components/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/store/*": [
+        "src/app/store/*"
+      ]
     }
   },
   "include": [
@@ -30,5 +60,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

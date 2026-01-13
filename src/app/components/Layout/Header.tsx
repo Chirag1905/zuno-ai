@@ -1,10 +1,9 @@
 "use client";
+import { IconButton } from "@/components/ui/Icon";
+import { LLMStatus } from "@/components/ui/LLMStatus";
+import ZunoLogo from "@/components/ui/zunoLogo";
 import { useUIStore } from "@/app/store";
-import { Menu, X, Droplet, Sparkles, Apple, Crown } from "lucide-react";
-import ZunoLogo from "../ui/zunoLogo";
-import { IconButton } from "../ui/Icon";
-import { LLMStatus } from "../ui/LLMStatus";
-import { ModelSelector } from "../ui/ModelSelector";
+// import { Menu, X, Droplet, Sparkles, Apple, Crown } from "lucide-react";
 
 export default function Header() {
 

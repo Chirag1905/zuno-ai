@@ -2,7 +2,7 @@
 
 import { useChatStore, useStreamStore } from "@/app/store";
 import { useEffect, useRef } from "react";
-import { IconButton } from "../ui/Icon";
+import { IconButton } from "@/app/components/ui/Icon";
 
 export default function ChatInput({
     sendMessage,
@@ -52,8 +52,8 @@ export default function ChatInput({
                         size="lg"
                         variant="minimal"
                         compact
-                        iconClassName={generating ? "text-red-400" : "text-blue-400"}
                         className="bg-gray-800 hover:bg-gray-700 rounded-full"
+                        iconClassName={generating ? "text-red-400" : "text-blue-400"}
                         onClick={generating ? stopResponse : sendMessage}
                     />
                 </div>

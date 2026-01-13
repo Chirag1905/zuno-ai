@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useUIStore } from "../../store";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { IconButton } from "../ui/Icon";
+import { IconButton } from "@/app/components/ui/Icon";
+import { useUIStore } from "@/app/store";
 
 const styles = {
     glass: "bg-white/10 backdrop-blur-md border border-white/20",

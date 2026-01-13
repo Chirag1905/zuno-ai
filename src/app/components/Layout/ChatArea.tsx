@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import ChatInput from "../chat/ChatInput";
-import MessageBubble from "../chat/MessageBubble";
-import TypingIndicator from "../chat/TypingIndicator";
-import { SidebarBrand } from "../ui/sidebarBrand";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore, useStreamStore } from "@/app/store";
-import { useShallow } from "zustand/shallow";
-import { IconButton } from "../ui/Icon";
+import { SidebarBrand } from "@/components/ui/sidebarBrand";
+import ChatInput from "@/components/chat/ChatInput";
+import MessageBubble from "@/components/chat/MessageBubble";
+import TypingIndicator from "@/components/chat/TypingIndicator";
+import { IconButton } from "@/components/ui/Icon";
+
+/* ================= CONSTANT ================= */
+
+// ✅ stable empty array (never recreated)
+const EMPTY_MESSAGES: readonly any[] = [];
 
 export default function ChatArea({
     sendMessage,
@@ -16,22 +20,25 @@ export default function ChatArea({
     sendMessage: () => void;
     stopResponse: () => void;
 }) {
+    // const messages = useChatStore((s) => s.getMessagesForActiveChat());
+    // const typing = useStreamStore((s) => s.typing);
+    // ✅ select ONLY primitives / stable references
+    const activeChatId = useChatStore((s) => s.activeChatId);
+    const messagesByChat = useChatStore((s) => s.messagesByChat);
     const typing = useStreamStore((s) => s.typing);
-    const bottomRef = useRef<HTMLDivElement>(null);
 
+    // ✅ derive messages with memo (stable)
+    const messages = useMemo(() => {
+        if (!activeChatId) return EMPTY_MESSAGES;
+        return messagesByChat[activeChatId] ?? EMPTY_MESSAGES;
+    }, [activeChatId, messagesByChat]);
+
+
+    console.log("🚀 ~ ChatArea ~ messages:", messages)
+
+    const bottomRef = useRef<HTMLDivElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showScrollDown, setShowScrollDown] = useState(false);
-
-    const activeSessionId = useChatStore((s) => s.activeSessionId);
-
-    const messages = useChatStore(
-        useShallow((state) => {
-            const session = state.sessions.find(
-                (s) => s.id === activeSessionId
-            );
-            return session?.messages ?? [];
-        })
-    );
 
     const updateScrollDownVisibility = useCallback(() => {
         const el = scrollRef.current;
@@ -59,19 +66,30 @@ export default function ChatArea({
         return () => el.removeEventListener("scroll", handleScroll);
     }, [updateScrollDownVisibility]);
 
-    // useEffect(() => {
-    //     const raf = requestAnimationFrame(() => {
-    //         updateScrollDownVisibility();
-    //     });
-
-    //     return () => cancelAnimationFrame(raf);
-    // }, [messages, typing, updateScrollDownVisibility]);
-
     useEffect(() => {
         if (!showScrollDown) {
             bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages, typing, showScrollDown]);
+
+    //       const updateScroll = useCallback(() => {
+    //     const el = scrollRef.current;
+    //     if (!el) return;
+
+    //     const atBottom =
+    //       el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    //     setShowScrollDown(!atBottom);
+    //   }, []);
+
+    //   useEffect(() => {
+    //     updateScroll();
+    //   }, [messages, typing, updateScroll]);
+
+    //   useEffect(() => {
+    //     if (!showScrollDown) {
+    //       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    //     }
+    //   }, [messages, typing, showScrollDown]);
 
     // ✅ EMPTY STATE (CENTERED INPUT)
     if (messages.length === 0) {
@@ -97,12 +115,11 @@ export default function ChatArea({
             >
                 <div className="w-full max-w-205 mx-auto px-2 space-y-4">
                     {messages?.map((msg, i) => {
+                        console.log("🚀 ~ ChatArea ~ msg:", msg)
                         const isLastMessage = i === messages.length - 1;
 
                         // ❌ Hide last assistant message while typing
-                        if (typing && isLastMessage && !msg.isUser) {
-                            return null;
-                        }
+                        if (typing && isLastMessage && !msg.isUser) return null;
 
                         return (
                             <MessageBubble
@@ -125,9 +142,7 @@ export default function ChatArea({
                         icon="ArrowDown"
                         size="lg"
                         variant="default"
-                        onClick={() =>
-                            bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-                        }
+                        onClick={() => bottomRef.current?.scrollIntoView({ behavior: "smooth" })}
                     />
                 </div>
             )}

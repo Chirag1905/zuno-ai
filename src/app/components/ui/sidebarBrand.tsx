@@ -1,4 +1,4 @@
-import ZunoLogo from "./zunoLogo";
+import ZunoLogo from "@/components/ui/zunoLogo";
 
 export function SidebarBrand() {
   return (

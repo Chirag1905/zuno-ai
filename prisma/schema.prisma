@@ -1,0 +1,250 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/**
+ * =========================
+ * ENUMS
+ * =========================
+ */
+
+enum Role {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+/**
+ * =========================
+ * USER & AUTH MODELS
+ * =========================
+ */
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String    @unique
+  password        String?
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  image           String?
+
+  chats    Chat[]
+  sessions Session[]
+  accounts Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  expiresAt DateTime
+  userId    String
+
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id         String @id
+  userId     String
+  providerId String
+  accountId  String
+
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  scope        String?
+  password     String?
+
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+/**
+ * =========================
+ * CHAT MODELS
+ * =========================
+ */
+
+model Chat {
+  id     String @id @default(cuid())
+  title  String
+  userId String
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  isArchived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("chat")
+}
+
+model ChatMessage {
+  id      String @id @default(cuid())
+  chatId  String
+  role    Role
+  content String
+
+  /**
+   * Optional future-proof fields
+   */
+  model    String? // e.g. gpt-4, llama3, mistral
+  tokens   Int?
+  metadata Json?
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([chatId])
+  @@index([chatId, createdAt])
+  @@map("chat_message")
+}
+
+// generator client {
+//   provider = "prisma-client"
+//   output   = "../src/generated/prisma"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+// }
+
+// enum Role {
+//   USER
+//   ASSISTANT
+//   SYSTEM
+// }
+
+// model User {
+//   id            String    @id @default(cuid())
+//   name          String
+//   email         String    @unique
+//   emailVerified Boolean   @default(false)
+//   image         String?
+//   sessions      Session[]
+//   accounts      Account[]
+
+//   chats Chat[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@map("user")
+// }
+
+// model Chat {
+//   id     String @id @default(cuid())
+//   title  String
+//   userId String
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   messages ChatMessage[]
+
+//   createdAt DateTime @default(now())
+// }
+
+// model ChatMessage {
+//   id      String @id @default(cuid())
+//   role    Role
+//   content String
+
+//   chatId String
+//   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now())
+
+//   @@index([chatId])
+// }
+
+// model Session {
+//   id        String   @id
+//   expiresAt DateTime
+//   token     String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   ipAddress String?
+//   userAgent String?
+//   userId    String
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@unique([token])
+//   @@index([userId])
+//   @@map("session")
+// }
+
+// model Account {
+//   id                    String    @id
+//   accountId             String
+//   providerId            String
+//   userId                String
+//   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   accessToken           String?
+//   refreshToken          String?
+//   idToken               String?
+//   accessTokenExpiresAt  DateTime?
+//   refreshTokenExpiresAt DateTime?
+//   scope                 String?
+//   password              String?
+//   createdAt             DateTime  @default(now())
+//   updatedAt             DateTime  @updatedAt
+
+//   @@index([userId])
+//   @@map("account")
+// }
+
+// model Verification {
+//   id         String   @id
+//   identifier String
+//   value      String
+//   expiresAt  DateTime
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+
+//   @@index([identifier])
+//   @@map("verification")
+// }
