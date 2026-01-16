@@ -1,33 +1,51 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { signOut, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
-export default function DashboardPage() {
+export default function Dashboard() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const handleSignOut = async () => {
+    const res = await authClient.signOut();
+
+    if (res?.error) {
+      console.error(res.error);
+      return;
+    }
+
+    // redirect after successful sign out
+    router.push("/signin");
+  };
 
   useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/sign-in");
-    }
-  }, [isPending, session, router]);
+    authClient.getSession().then((res) => {
+      const user = res?.data?.user;
 
-  if (isPending)
-    return <p className="text-center mt-8 text-white">Loading...</p>;
-  if (!session?.user)
-    return <p className="text-center mt-8 text-white">Redirecting...</p>;
+      if (!user) {
+        router.push("/signin");
+      } else {
+        setSession(res.data);
+      }
 
-  const { user } = session;
+      setLoading(false);
+    });
+  }, [router]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!session?.user) return null;
 
   return (
     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-4 text-white">
       <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>Welcome, {user.name || "User"}!</p>
-      <p>Email: {user.email}</p>
+      <p>Welcome, {session.user.name ?? "User"}!</p>
+      <p>Email: {session.user.email ?? "Email"}</p>
+
       <button
-        onClick={() => signOut()}
+        onClick={handleSignOut}
         className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
       >
         Sign Out
@@ -35,6 +53,95 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { authClient } from "@/lib/auth-client";
+
+// export default function Dashboard() {
+//   const router = useRouter();
+//   const [session, setSession] = useState<any>(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+//   }
+
+//   const response = await authClient.signOut();
+
+//   useEffect(() => {
+//     authClient.getSession().then((res) => {
+//       const user = res?.data?.user;
+
+//       if (!user) {
+//         router.push("/sign-in");
+//       } else {
+//         setSession(res.data);
+//       }
+
+//       setLoading(false);
+//     });
+//   }, [router]);
+
+//   if (loading) return <p>Loading...</p>;
+//   if (!session?.user) return null; // extra safety
+
+//   return (
+//     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-4 text-white">
+//       <h1 className="text-2xl font-bold">Dashboard</h1>
+//       <p>Welcome, {session.user.name ?? "User"}!</p>
+//       <p>Email: {session.user.email ?? "Email"} </p>
+//       <button
+//         onClick={() => authClient.signOut()}
+//         className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
+//       >
+//         Sign Out
+//       </button>
+//     </main>
+//   );
+// }
+
+
+// "use client";
+
+// import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
+// import { signOut, useSession } from "@/lib/auth-client";
+
+// export default function DashboardPage() {
+//   const router = useRouter();
+//   const { data: session, isPending } = useSession();
+
+//   useEffect(() => {
+//     if (!isPending && !session?.user) {
+//       router.push("/sign-in");
+//     }
+//   }, [isPending, session, router]);
+
+//   if (isPending)
+//     return <p className="text-center mt-8 text-white">Loading...</p>;
+//   if (!session?.user)
+//     return <p className="text-center mt-8 text-white">Redirecting...</p>;
+
+//   const { user } = session;
+
+//   return (
+//     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-4 text-white">
+//       <h1 className="text-2xl font-bold">Dashboard</h1>
+//       <p>Welcome, {user.name || "User"}!</p>
+//       <p>Email: {user.email}</p>
+//       <button
+//         onClick={() => signOut()}
+//         className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
+//       >
+//         Sign Out
+//       </button>
+//     </main>
+//   );
+// }
 
 // // "use client";
 
