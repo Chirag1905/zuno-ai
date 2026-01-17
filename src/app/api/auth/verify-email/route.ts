@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
 import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {
@@ -6,14 +7,30 @@ export async function POST(req: Request) {
         const { token } = await req.json();
         await auth.verifyEmail(token);
 
-        return apiResponse(true, "Email verified successfully");
-    } catch {
+        return apiResponse(
+            true,
+            "Email verified successfully",
+            null,
+            null,
+            200
+        );
+    } catch (e) {
+        if (e instanceof AuthError) {
+            return apiResponse(
+                false,
+                AUTH_ERROR_MESSAGES[e.code],
+                null,
+                { code: e.code },
+                e.status
+            );
+        }
+
         return apiResponse(
             false,
-            "Invalid or expired token",
+            AUTH_ERROR_MESSAGES.INTERNAL,
             null,
-            null,
-            400
+            { code: "INTERNAL" },
+            500
         );
     }
 }

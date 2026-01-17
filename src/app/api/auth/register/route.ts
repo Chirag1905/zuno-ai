@@ -1,15 +1,44 @@
 import { auth } from "@/lib/auth";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { getRequestMeta } from "@/lib/request";
 import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {
     try {
-        const body = await req.json();
-        await auth.register(body);
-        return apiResponse(true, "Registered successfully. Please verify your email.", null, null, 201);
+        const { email, password, name } = await req.json();
+        const meta = await getRequestMeta();
+
+        await auth.register({
+            name,
+            email,
+            password,
+            ...meta, // safe even if unused
+        });
+
+        return apiResponse(
+            true,
+            "Registered successfully. Please verify your email.",
+            null,
+            null,
+            201
+        );
     } catch (e) {
-        if (e instanceof Error && e.message === "EMAIL_EXISTS") {
-            return apiResponse(false, "Email already exists", null, null, 409);
+        if (e instanceof AuthError) {
+            return apiResponse(
+                false,
+                AUTH_ERROR_MESSAGES[e.code],
+                null,
+                { code: e.code },
+                e.status
+            );
         }
-        return apiResponse(false, "Registration failed", null, null, 500);
+
+        return apiResponse(
+            false,
+            AUTH_ERROR_MESSAGES.INTERNAL,
+            null,
+            { code: "INTERNAL" },
+            500
+        );
     }
 }

@@ -8,6 +8,7 @@ import AuthLayout from "@/app/components/Layout/AuthLayout";
 import InputField from "@/utils/InputField";
 import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
+import Link from "next/link";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -36,30 +37,35 @@ export default function SignInPage() {
         }
 
         try {
-            const { data } = await api.post("/auth/login", {
+            const loginPromise = api.post("/auth/login", {
                 email,
                 password,
             });
-            console.log("🚀 ~ handleSubmit ~ data:", data)
-            console.log("🚀 ~ handleSubmit ~ data:", data?.data?.mfaRequired)
 
-            if (data?.data?.mfaRequired) {
-                toast.success("OTP sent to your email");
+            const { data } = await toast.promise(
+                loginPromise,
+                {
+                    loading: "Logging in...",
+                    success: (res) => {
+                        if (res?.data?.data?.isTrusted) {
+                            return res?.data?.message || "From Frontend OTP sent to your email";
+                        }
+                        return res?.data?.message || "From Frontend Logged in successfully";
+                    },
+                    error: (err) =>
+                        err?.response?.data?.message ||
+                        "From Frontend Invalid email or password",
+                }
+            );
+
+            // 🔐 MFA flow
+            if (data?.data?.isTrusted) {
                 router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
                 return;
             }
 
-            // (future-proof, if you ever disable MFA)
+            // ✅ Normal login
             router.push("/dashboard");
-        } catch (err: any) {
-            const message =
-                err?.response?.data?.message || "Invalid email or password";
-
-            if (err?.response?.data?.code === "EMAIL_NOT_VERIFIED") {
-                toast.error("Please verify your email. Check your inbox.");
-            } else {
-                toast.error(message);
-            }
         } finally {
             setLoading(false);
         }
@@ -72,9 +78,9 @@ export default function SignInPage() {
             footer={
                 <p className="text-center text-sm text-neutral-400">
                     Don’t have an account?{" "}
-                    <a href="/signup" className="text-white hover:underline">
+                    <Link href="/signup" className="text-white hover:underline">
                         SignUp
-                    </a>
+                    </Link>
                 </p>
             }
         >

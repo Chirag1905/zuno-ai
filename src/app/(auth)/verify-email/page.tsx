@@ -6,39 +6,49 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Icon from "@/app/components/ui/Icon";
 
+type Status = "loading" | "success" | "error";
+
 export default function VerifyEmailPage() {
     const params = useSearchParams();
     const router = useRouter();
     const token = params.get("token");
-    const [verified, setVerified] = useState(false);
 
-    // simulate verification
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setVerified(true);
-        }, 2500);
-
-        return () => clearTimeout(timer);
-    }, []);
+    const [status, setStatus] = useState<Status>("loading");
 
     useEffect(() => {
         if (!token) {
             toast.error("Invalid verification link");
+            setStatus("error");
             return;
         }
 
+        let cancelled = false;
+
         api.post("/auth/verify-email", { token })
             .then((res) => {
+                if (cancelled) return;
                 toast.success(res.data.message || "Email verified successfully");
-                router.push("/signin");
+                setStatus("success");
+
+                // small UX delay before redirect
+                setTimeout(() => router.push("/signin"), 1500);
             })
             .catch((err) => {
+                if (cancelled) return;
                 toast.error(
                     err?.response?.data?.message ||
                     "Verification link expired or invalid"
                 );
+                setStatus("error");
             });
+
+        return () => {
+            cancelled = true;
+        };
     }, [token, router]);
+
+    const isLoading = status === "loading";
+    const isSuccess = status === "success";
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-neutral-900 to-black text-white px-4">
@@ -47,13 +57,29 @@ export default function VerifyEmailPage() {
 
                     {/* Spinner / Tick */}
                     <div className="relative flex items-center justify-center h-16 w-16">
-                        {!verified ? (
+                        {isLoading ? (
                             <div className="flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 animate-scale-in">
-                                <Icon name="CircleDashed" className="text-emerald-400 animate-spin" size={50} />
+                                <Icon
+                                    name="CircleDashed"
+                                    className="text-emerald-400 animate-spin"
+                                    size={50}
+                                />
+                            </div>
+                        ) : isSuccess ? (
+                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 border border-emerald-500 animate-scale-in">
+                                <Icon
+                                    name="CircleCheck"
+                                    className="text-emerald-400"
+                                    size={50}
+                                />
                             </div>
                         ) : (
-                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 border border-emerald-500 animate-scale-in">
-                                <Icon name="CircleCheck" className="text-emerald-400" size={50} />
+                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-red-500/20 border border-red-500 animate-scale-in">
+                                <Icon
+                                    name="CircleX"
+                                    className="text-red-400"
+                                    size={50}
+                                />
                             </div>
                         )}
                     </div>
@@ -61,44 +87,44 @@ export default function VerifyEmailPage() {
                     {/* Text */}
                     <div className="space-y-2 transition-all duration-300">
                         <h1 className="text-xl font-semibold tracking-tight">
-                            {verified ? "Email verified" : "Verifying your email"}
+                            {isLoading
+                                ? "Verifying your email"
+                                : isSuccess
+                                    ? "Email verified"
+                                    : "Verification failed"}
                         </h1>
+
                         <p className="text-sm text-neutral-400 leading-relaxed">
-                            {verified
-                                ? "Your account has been successfully verified."
-                                : "Please wait a moment while we securely verify your account."}
+                            {isLoading
+                                ? "Please wait a moment while we securely verify your account."
+                                : isSuccess
+                                    ? "Your account has been successfully verified."
+                                    : "This verification link is invalid or expired."}
                         </p>
                     </div>
 
                     {/* Status badge */}
                     <div
-                        className={`rounded-full px-4 py-1 text-xs transition-all duration-300 ${verified
+                        className={`rounded-full px-4 py-1 text-xs transition-all duration-300 ${isSuccess
                             ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-white/10 text-neutral-300"
+                            : isLoading
+                                ? "bg-white/10 text-neutral-300"
+                                : "bg-red-500/10 text-red-400"
                             }`}
                     >
-                        {verified ? (
-                            <span className="flex items-center p-2 space-x-2">
-                                <Icon name="ShieldCheck" className="text-emerald-400" size={20} />
-                                <p>Verification complete</p>
-                            </span>
-                        ) : (
-                            <span className="flex items-center p-2 space-x-2">
-                                <Icon name="ShieldCheck" className="text-emerald-400" size={20} />
-                                <p>Secure verification in progress</p>
-                            </span>
-                        )}
+                        <span className="flex items-center p-2 space-x-2">
+                            <Icon name="ShieldCheck" size={18} />
+                            <p>
+                                {isLoading
+                                    ? "Secure verification in progress"
+                                    : isSuccess
+                                        ? "Verification complete"
+                                        : "Verification failed"}
+                            </p>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
-        // <div className="min-h-screen flex items-center justify-center text-white">
-        //     <div className="text-center space-y-3">
-        //         <h1 className="text-xl font-semibold">Verifying your email…</h1>
-        //         <p className="text-neutral-400">
-        //             Please wait while we verify your account.
-        //         </p>
-        //     </div>
-        // </div>
     );
 }

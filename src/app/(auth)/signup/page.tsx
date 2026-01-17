@@ -8,6 +8,7 @@ import AuthLayout from "@/app/components/Layout/AuthLayout";
 import InputField from "@/utils/InputField";
 import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
+import Link from "next/link";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -38,20 +39,23 @@ export default function SignUpPage() {
         }
 
         try {
-            const { data } = await api.post("/auth/register", {
+            const registerPromise = api.post("/auth/register", {
                 name,
                 email,
                 password,
             });
+            await toast.promise(
+                registerPromise,
+                {
+                    loading: "Creating account...",
+                    success: (res) => res?.data?.message || "From Frontend Account created. Please verify your email.",
+                    error: (err) =>
+                        err?.response?.data?.message ||
+                        "From Frontend Failed to create account",
+                }
+            );
 
-            toast.success(
-                data?.message || "Account created. Please verify your email."
-            );
             router.push("/signin");
-        } catch (err: any) {
-            toast.error(
-                err?.response?.data?.message || "Failed to create account"
-            );
         } finally {
             setLoading(false);
         }
@@ -64,9 +68,9 @@ export default function SignUpPage() {
             footer={
                 <p className="text-center text-sm text-neutral-400">
                     Already have an account?{" "}
-                    <a href="/signin" className="text-white hover:underline">
+                    <Link href="/signin" className="text-white hover:underline">
                         SignIn
-                    </a>
+                    </Link>
                 </p>
             }
         >

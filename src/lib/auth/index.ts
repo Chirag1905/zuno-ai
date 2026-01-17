@@ -2,43 +2,17 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
-import { createSession } from "@/lib/auth/session";
+import { createSession } from "@/lib/auth/createSession";
 import { sendMfaOtp, sendEmailVerification } from "@/lib/auth/verification";
 import { AuthError } from "@/lib/auth/errors";
 import { sendEmail } from "@/lib/mail";
 import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
-
-// CONSTANTS
-const OTP_MAX_ATTEMPTS = 5;
-const OTP_LOCK_MS = 15 * 60 * 1000;
-const RESET_TOKEN_EXPIRY = 10 * 60 * 1000;
-const TRUSTED_DEVICE_EXPIRY = 30 * 24 * 60 * 60 * 1000;
+import { OTP_LOCK_MS, OTP_MAX_ATTEMPTS, RESET_TOKEN_EXPIRY } from "@/lib/auth/constants";
+import { createTrustedDevice } from "@/lib/auth/createTrustedDevice";
 
 // HELPERS
 const sha256 = (v: string) =>
     crypto.createHash("sha256").update(v).digest("hex");
-
-async function createTrustedDevice(
-    userId: string,
-) {
-    const raw = crypto.randomBytes(32).toString("hex");
-
-    await prisma.trustedDevice.create({
-        data: {
-            userId,
-            hash: sha256(raw),
-            expiresAt: new Date(Date.now() + TRUSTED_DEVICE_EXPIRY),
-        },
-    });
-
-    const cookieStore = await cookies();
-    cookieStore.set("trusted_device", raw, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: TRUSTED_DEVICE_EXPIRY / 1000,
-    });
-}
 
 async function tryTrustedSession(
     userId: string,
@@ -88,7 +62,11 @@ export const auth = {
                 },
             });
 
-            await sendEmailVerification(user.email);
+            try {
+                await sendEmailVerification(user.email);
+            } catch {
+                throw new AuthError("EMAIL_SEND_FAILED", 500);
+            }
             return { userId: user.id };
         } catch (e) {
             if (e instanceof AuthError) throw e;
@@ -97,12 +75,7 @@ export const auth = {
     },
 
     // LOGIN
-    async login({
-        email,
-        password,
-        ipAddress,
-        userAgent,
-    }: {
+    async login({ email, password, ipAddress, userAgent }: {
         email: string;
         password: string;
         ipAddress?: string;
@@ -120,15 +93,52 @@ export const auth = {
             if (!user.emailVerified)
                 throw new AuthError("EMAIL_NOT_VERIFIED", 403);
 
-            const session = await tryTrustedSession(
+            /* =========================
+            NO MFA → DIRECT LOGIN
+            ========================= */
+            if (!user.mfaEnabled) {
+                const session = await createSession({
+                    userId: user.id,
+                    ipAddress,
+                    userAgent,
+                });
+
+                return {
+                    isTrusted: false,
+                    session,
+                };
+            }
+
+            /* =========================
+            MFA ENABLED → CHECK TRUSTED DEVICE
+            ========================= */
+            const trustedSession = await tryTrustedSession(
                 user.id,
                 ipAddress,
                 userAgent
             );
-            if (session) return { user, session, mfaRequired: false };
 
-            await sendMfaOtp(user.email);
-            return { mfaRequired: true };
+            if (trustedSession) {
+                return {
+                    isTrusted: false,
+                    session: trustedSession,
+                };
+            }
+
+
+            /* =========================
+            MFA REQUIRED → SEND OTP
+            ========================= */
+            try {
+                await sendMfaOtp(user.email);
+            } catch {
+                throw new AuthError("EMAIL_SEND_FAILED", 500);
+            }
+            return {
+                isTrusted: true,
+                userId: user.id,
+                email: user.email,
+            };
         } catch (e) {
             if (e instanceof AuthError) throw e;
             throw new AuthError("INTERNAL", 500);
@@ -229,13 +239,16 @@ export const auth = {
                 },
             });
 
-            await sendEmail(email, "Reset Password", `Token: ${token}`);
+            try {
+                await sendEmail(email, "Reset Password", `Token: ${token}`);
+            } catch {
+                throw new AuthError("EMAIL_SEND_FAILED", 500);
+            }
         } catch (e) {
             if (e instanceof AuthError) throw e;
             throw new AuthError("INTERNAL", 500);
         }
     },
-
 
     // PASSWORD RESET
     async resetPassword(token: string, password: string) {
@@ -254,6 +267,7 @@ export const auth = {
             await prisma.verification.delete({ where: { id: record.id } });
         } catch (e) {
             if (e instanceof AuthError) throw e;
+            console.error("reset password error:", e);
             throw new AuthError("INTERNAL", 500);
         }
     },
@@ -278,10 +292,10 @@ export const auth = {
             await prisma.verification.delete({ where: { id: record.id } });
         } catch (e) {
             if (e instanceof AuthError) throw e;
+            console.error("verify email error:", e);
             throw new AuthError("INTERNAL", 500);
         }
     },
-
 
     // OAUTH LOGIN / REGISTER
     async oauthLogin({
@@ -345,15 +359,21 @@ export const auth = {
 
             // MFA check
             if (user?.mfaEnabled) {
-                await sendMfaOtp(user.email);
-                return { mfaRequired: true };
+                try {
+                    await sendMfaOtp(user.email);
+                } catch {
+                    throw new AuthError("EMAIL_SEND_FAILED", 500);
+                }
+                return { isTrusted: true };
             }
 
             // No MFA → session
             const session = await createSession({ userId: user.id, ipAddress, userAgent });
-            return { user, session, mfaRequired: false };
+            return { user, session, isTrusted: false };
 
-        } catch {
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+            console.error("oauthLogin error:", e);
             throw new AuthError("INTERNAL", 500);
         }
     },
@@ -457,54 +477,99 @@ export const auth = {
         } catch (e) {
             if (e instanceof AuthError) throw e;
 
-            console.error("❌ OAuth callback crash:", e);
+            console.error("OAuth callback error:", e);
             throw new AuthError("INTERNAL", 500);
         }
     },
 
-    // SESSION
+    // SESSION FETCH
     async getSession(token: string) {
-        return prisma.session.findUnique({
-            where: { token },
-            include: {
-                user: true,
-            },
-        });
+        try {
+            if (!token) {
+                throw new AuthError("UNAUTHENTICATED", 401);
+            }
+            const session = await prisma.session.findUnique({
+                where: { token },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            image: true,
+                            emailVerified: true,
+                            mfaEnabled: true,
+                        },
+                    },
+                },
+            });
+            if (!session) {
+                throw new AuthError("SESSION_NOT_FOUND", 404);
+            }
+
+            return session;
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+
+            console.error("getSession error:", e);
+            throw new AuthError("INTERNAL", 500);
+        }
     },
 
-    // async getSession(token: string) {
-    //     return prisma.session.findUnique({
-    //         where: { token },
-    //         include: {
-    //             user: {
-    //                 select: {
-    //                     id: true,
-    //                     name: true,
-    //                     email: true,
-    //                     image: true,
-    //                 },
-    //             },
-    //         },
-    //     });
-    // },
-
     // LOGOUT
-
     async logout(token: string) {
-        const cookieStore = await cookies();
-        cookieStore.delete("session");
+        try {
+            if (!token) {
+                throw new AuthError("UNAUTHENTICATED", 401);
+            }
 
-        return prisma.session.deleteMany({
-            where: { token },
-        });
+            const cookieStore = await cookies();
+
+            cookieStore.delete("session");
+
+            const result = await prisma.session.deleteMany({
+                where: { token },
+            });
+
+            // Optional strict mode
+            if (result.count === 0) {
+                throw new AuthError("SESSION_NOT_FOUND", 404);
+            }
+
+            return true;
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+
+            console.error("Logout error:", e);
+            throw new AuthError("LOGOUT_FAILED", 500);
+        }
     },
 
     // LOGOUT-ALL
     async logoutAll(userId: string) {
-        const cookieStore = await cookies();
-        cookieStore.delete("session");
+        try {
+            if (!userId) {
+                throw new AuthError("UNAUTHENTICATED", 401);
+            }
 
-        return prisma.session.deleteMany({ where: { userId } });
-    },
+            const cookieStore = await cookies();
+            cookieStore.delete("session");
+            cookieStore.delete("trusted_device");
 
+            const result = await prisma.session.deleteMany({
+                where: { userId },
+            });
+
+            if (result.count === 0) {
+                throw new AuthError("SESSION_NOT_FOUND", 404);
+            }
+
+            return true;
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+
+            console.error("Logout all error:", e);
+            throw new AuthError("LOGOUT_ALL_FAILED", 500);
+        }
+    }
 };

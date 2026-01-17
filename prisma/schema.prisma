@@ -36,7 +36,7 @@ model User {
 
   emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
-  mfaEnabled      Boolean   @default(false)
+  mfaEnabled      Boolean   @default(true)
 
   // Relations
   chats          Chat[]

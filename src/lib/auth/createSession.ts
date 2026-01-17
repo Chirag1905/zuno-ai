@@ -1,3 +1,4 @@
+import { SESSION_EXPIRY } from "@/lib/auth/constants";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
 
@@ -18,7 +19,7 @@ export async function createSession({
             userId,
             ipAddress,
             userAgent,
-            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+            expiresAt: new Date(Date.now() + SESSION_EXPIRY),
         },
     });
 }

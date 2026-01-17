@@ -44,7 +44,7 @@ export async function GET(
         /**
          * 🔐 MFA required
          */
-        if (result.mfaRequired) {
+        if (result.isTrusted) {
             redirect(`/auth/mfa?provider=${provider}`);
         }
 

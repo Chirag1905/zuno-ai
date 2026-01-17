@@ -148,14 +148,21 @@ export default function VerifyOtpPage() {
         setLoading(true);
 
         try {
-            await api.post("/auth/mfa/verify", {
+            const otpPromise = api.post("/auth/mfa/verify", {
                 email,
                 otp,
                 rememberDevice,
                 deviceName,
             });
 
-            toast.success("Logged in successfully");
+            await toast.promise(otpPromise, {
+                loading: "Verifying OTP...",
+                success: (res) =>
+                    res?.data?.message || "From Frontend OTP verified",
+                error: (err) =>
+                    err?.response?.data?.message ||
+                    "From Frontend Invalid or expired OTP",
+            });
             router.push("/dashboard");
         } catch (err: any) {
             triggerError(

@@ -19,16 +19,3 @@ export const OAUTH_PROVIDERS = {
         clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
 } satisfies Record<OAuthProvider, unknown>;
-
-// export const providers = {
-//     google: {
-//         auth: "https://accounts.google.com/o/oauth2/v2/auth",
-//         token: "https://oauth2.googleapis.com/token",
-//         userinfo: "https://www.googleapis.com/oauth2/v2/userinfo",
-//     },
-//     github: {
-//         auth: "https://github.com/login/oauth/authorize",
-//         token: "https://github.com/login/oauth/access_token",
-//         userinfo: "https://api.github.com/user",
-//     },
-// };
