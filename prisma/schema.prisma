@@ -1,17 +1,21 @@
+// =========================
+// PRISMA SCHEMA — PRODUCTION READY
+// =========================
+
+// ---------- Generator ----------
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
+// ---------- Datasource ----------
 datasource db {
   provider = "postgresql"
 }
 
-/**
- * =========================
- * ENUMS
- * =========================
- */
+// =========================
+// ENUMS
+// =========================
 
 enum Role {
   USER
@@ -19,33 +23,37 @@ enum Role {
   SYSTEM
 }
 
-/**
- * =========================
- * USER & AUTH MODELS
- * =========================
- */
+// =========================
+// USER & AUTH MODELS
+// =========================
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String    @unique
-  password        String?
+  id       String  @id @default(cuid())
+  name     String?
+  email    String  @unique
+  password String?
+  image    String?
+
   emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
-  image           String?
+  mfaEnabled      Boolean   @default(false)
 
-  chats    Chat[]
-  sessions Session[]
-  accounts Account[]
+  // Relations
+  chats          Chat[]
+  sessions       Session[]
+  accounts       Account[]
+  trustedDevices TrustedDevice[]
 
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([email])
   @@map("user")
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
   userId    String
@@ -59,12 +67,14 @@ model Session {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([expiresAt])
   @@map("session")
 }
 
 model Account {
-  id         String @id
-  userId     String
+  id     String @id @default(cuid())
+  userId String
+
   providerId String
   accountId  String
 
@@ -88,7 +98,7 @@ model Account {
 }
 
 model Verification {
-  id         String   @id
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
@@ -97,14 +107,13 @@ model Verification {
   updatedAt DateTime @updatedAt
 
   @@index([identifier])
+  @@index([expiresAt])
   @@map("verification")
 }
 
-/**
- * =========================
- * CHAT MODELS
- * =========================
- */
+// =========================
+// CHAT MODELS
+// =========================
 
 model Chat {
   id     String @id @default(cuid())
@@ -129,12 +138,12 @@ model ChatMessage {
   role    Role
   content String
 
-  /**
-   * Optional future-proof fields
-   */
-  model    String? // e.g. gpt-4, llama3, mistral
+  //Optional future-proof fields
+  // AI metadata (optional)
+  model    String?
   tokens   Int?
   metadata Json?
+  // e.g. gpt-4, llama3, mistral
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
@@ -145,106 +154,34 @@ model ChatMessage {
   @@map("chat_message")
 }
 
-// generator client {
-//   provider = "prisma-client"
-//   output   = "../src/generated/prisma"
-// }
+// =========================
+// SECURITY MODELS
+// =========================
+model TrustedDevice {
+  id        String   @id @default(cuid())
+  userId    String
+  hash      String
+  expiresAt DateTime
 
-// datasource db {
-//   provider = "postgresql"
-// }
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-// enum Role {
-//   USER
-//   ASSISTANT
-//   SYSTEM
-// }
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("trusted_device")
+}
 
-// model User {
-//   id            String    @id @default(cuid())
-//   name          String
-//   email         String    @unique
-//   emailVerified Boolean   @default(false)
-//   image         String?
-//   sessions      Session[]
-//   accounts      Account[]
+model OtpAttempt {
+  id       String    @id @default(cuid())
+  email    String
+  ip       String?
+  attempts Int       @default(0)
+  lockedAt DateTime?
 
-//   chats Chat[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@map("user")
-// }
-
-// model Chat {
-//   id     String @id @default(cuid())
-//   title  String
-//   userId String
-//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   messages ChatMessage[]
-
-//   createdAt DateTime @default(now())
-// }
-
-// model ChatMessage {
-//   id      String @id @default(cuid())
-//   role    Role
-//   content String
-
-//   chatId String
-//   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
-
-//   createdAt DateTime @default(now())
-
-//   @@index([chatId])
-// }
-
-// model Session {
-//   id        String   @id
-//   expiresAt DateTime
-//   token     String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   ipAddress String?
-//   userAgent String?
-//   userId    String
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@unique([token])
-//   @@index([userId])
-//   @@map("session")
-// }
-
-// model Account {
-//   id                    String    @id
-//   accountId             String
-//   providerId            String
-//   userId                String
-//   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   accessToken           String?
-//   refreshToken          String?
-//   idToken               String?
-//   accessTokenExpiresAt  DateTime?
-//   refreshTokenExpiresAt DateTime?
-//   scope                 String?
-//   password              String?
-//   createdAt             DateTime  @default(now())
-//   updatedAt             DateTime  @updatedAt
-
-//   @@index([userId])
-//   @@map("account")
-// }
-
-// model Verification {
-//   id         String   @id
-//   identifier String
-//   value      String
-//   expiresAt  DateTime
-//   createdAt  DateTime @default(now())
-//   updatedAt  DateTime @updatedAt
-
-//   @@index([identifier])
-//   @@map("verification")
-// }
+  @@unique([email, ip])
+  @@index([email])
+  @@index([lockedAt])
+  @@map("otp_attempt")
+}

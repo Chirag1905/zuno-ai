@@ -33,7 +33,7 @@
         "src/app/*"
       ],
       "@/utils/*": [
-        "src/app/utils/*"
+        "src/utils/*"
       ],
       "@/db/*": [
         "src/app/db/*"

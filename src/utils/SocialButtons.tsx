@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithProvider } from "@/lib/social-auth";
+// import { signInWithProvider } from "@/lib/social-auth";
 
 type Props = {
     googleLoading: boolean;
@@ -18,7 +18,8 @@ export default function SocialButtons({
     return (
         <div className="space-y-3">
             <button
-                onClick={() => signInWithProvider("google", setGoogleLoading)}
+                // onClick={() => signInWithProvider("google", setGoogleLoading)}
+                onClick={() => { window.location.href = "/api/auth/oauth/google"; setGoogleLoading(true) }}
                 disabled={googleLoading}
                 className="w-full rounded-xl border border-neutral-700 bg-neutral-900 py-2 text-white disabled:opacity-60"
             >
@@ -26,7 +27,8 @@ export default function SocialButtons({
             </button>
 
             <button
-                onClick={() => signInWithProvider("github", setGithubLoading)}
+                // onClick={() => signInWithProvider("github", setGithubLoading)}
+                onClick={() => { window.location.href = "/api/auth/oauth/github"; setGithubLoading(true) }}
                 disabled={githubLoading}
                 className="w-full rounded-xl border border-neutral-700 bg-neutral-900 py-2 text-white disabled:opacity-60"
             >

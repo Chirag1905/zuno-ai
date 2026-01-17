@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
 import AuthLayout from "@/app/components/Layout/AuthLayout";
-import InputField from "@/app/utils/InputField";
-import SocialButtons from "@/app/utils/SocialButtons";
+import InputField from "@/utils/InputField";
+import SocialButtons from "@/utils/SocialButtons";
+import api from "@/lib/axios";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -23,27 +23,44 @@ export default function SignUpPage() {
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
-        const res = await authClient.signUp.email({
-            name: formData.get("name") as string,
-            email: formData.get("email") as string,
-            password: formData.get("password") as string,
-        });
+        const name = formData.get("name") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
 
-        setLoading(false);
-
-        if (res.error) {
-            toast.error(res.error.message || "Signup failed");
+        if (!name || !email || !password) {
+            setErrors({
+                name: !name ? "Name is required" : "",
+                email: !email ? "Email is required" : "",
+                password: !password ? "Password is required" : "",
+            });
+            setLoading(false);
             return;
         }
 
-        toast.success("Account created successfully");
-        router.push("/dashboard");
-    }
+        try {
+            const { data } = await api.post("/auth/register", {
+                name,
+                email,
+                password,
+            });
+
+            toast.success(
+                data?.message || "Account created. Please verify your email."
+            );
+            router.push("/signin");
+        } catch (err: any) {
+            toast.error(
+                err?.response?.data?.message || "Failed to create account"
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <AuthLayout
-            title="Welcome back"
-            subtitle="Sign in to your account"
+            title="Create your account"
+            subtitle="Start building today"
             footer={
                 <p className="text-center text-sm text-neutral-400">
                     Already have an account?{" "}
@@ -57,10 +74,9 @@ export default function SignUpPage() {
                 <InputField
                     name="name"
                     type="text"
-                    placeholder="Email"
+                    placeholder="User Name"
                     error={errors.email}
                     disabled={loading}
-                    required
                 />
                 <InputField
                     name="email"
@@ -68,7 +84,6 @@ export default function SignUpPage() {
                     placeholder="Email"
                     error={errors.email}
                     disabled={loading}
-                    required
                 />
 
                 <InputField
@@ -77,7 +92,6 @@ export default function SignUpPage() {
                     placeholder="Password"
                     error={errors.password}
                     disabled={loading}
-                    required
                 />
 
                 <button

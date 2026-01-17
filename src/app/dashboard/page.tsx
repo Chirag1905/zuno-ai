@@ -2,47 +2,50 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+
+type User = {
+  id: string;
+  name: string | null;
+  email: string;
+  image?: string | null;
+};
 
 export default function Dashboard() {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const handleSignOut = async () => {
-    const res = await authClient.signOut();
-
-    if (res?.error) {
-      console.error(res.error);
-      return;
+    try {
+      await api.post("/auth/logout");
+      toast.success("Logged out successfully");
+      router.push("/signin");
+    } catch {
+      toast.error("Failed to logout");
     }
-
-    // redirect after successful sign out
-    router.push("/signin");
   };
 
   useEffect(() => {
-    authClient.getSession().then((res) => {
-      const user = res?.data?.user;
-
-      if (!user) {
+    api.get("/auth/session")
+      .then((res) => {
+        setUser(res.data.data.user);
+      })
+      .catch(() => {
         router.push("/signin");
-      } else {
-        setSession(res.data);
-      }
-
-      setLoading(false);
-    });
+      })
+      .finally(() => setLoading(false));
   }, [router]);
 
   if (loading) return <p>Loading...</p>;
-  if (!session?.user) return null;
+  if (!user) return null;
 
   return (
     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-4 text-white">
       <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>Welcome, {session.user.name ?? "User"}!</p>
-      <p>Email: {session.user.email ?? "Email"}</p>
+      <p>Welcome, {user.name ?? "User"} 👋</p>
+      <p>Email: {user.email ?? "Email"}</p>
 
       <button
         onClick={handleSignOut}
