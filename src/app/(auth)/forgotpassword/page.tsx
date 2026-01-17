@@ -1,23 +1,174 @@
 "use client";
 
-// import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import AuthLayout from "@/app/components/Layout/AuthLayout";
+import InputField from "@/utils/InputField";
+import Link from "next/link";
 
-export default function ForgotPassword() {
-    const [email, setEmail] = useState("");
-    const [msg, setMsg] = useState("");
+export default function ForgotPasswordPage() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-    async function submit() {
-        const res = await authClient.forgotPassword({ email });
-        if (res.error) setMsg(res.error.message);
-        else setMsg("Check your email for reset link");
-    }
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setErrors({});
+        setLoading(true);
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email") as string;
+
+        if (!email) {
+            setErrors({ email: "Email is required" });
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await toast.promise(
+                api.post("/auth/forgot-password", { email }),
+                {
+                    loading: "Sending reset link...",
+                    success: (res) => {
+                        return res?.data?.message || "Reset link sent successfully";
+                    },
+                    error: (err) =>
+                        err?.response?.data?.message || "Failed to send reset link",
+                }
+            );
+
+            router.push("/signin");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <>
-            <input value={email} onChange={e => setEmail(e.target.value)} />
-            <button onClick={submit}>Reset Password</button>
-            {msg && <p>{msg}</p>}
-        </>
+        <AuthLayout
+            title="Forgot password"
+            subtitle="Enter your email address and we’ll send you a reset link"
+            footer={
+                <p className="text-center text-sm text-neutral-400">
+                    Remember your password?{" "}
+                    <Link
+                        href="/signin"
+                        className="text-white hover:underline"
+                    >
+                        Back to sign in
+                    </Link>
+                </p>
+            }
+        >
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <InputField
+                    name="email"
+                    type="email"
+                    placeholder="Email address"
+                    error={errors.email}
+                    disabled={loading}
+                />
+                <p className="text-xs text-neutral-400 text-center">
+                    We’ll never share your email with anyone.
+                </p>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="
+                        w-full rounded-2xl
+                        bg-white text-black
+                        py-2.5 font-medium
+                        transition
+                        hover:opacity-90
+                        disabled:opacity-60
+                    "
+                >
+                    {loading ? "Sending..." : "Send reset link"}
+                </button>
+            </form>
+        </AuthLayout>
     );
 }
+
+// "use client";
+
+// import { useState } from "react";
+// import { useRouter } from "next/navigation";
+// import toast from "react-hot-toast";
+// import api from "@/lib/axios";
+// import AuthLayout from "@/app/components/Layout/AuthLayout";
+// import InputField from "@/utils/InputField";
+// import Link from "next/link";
+
+// export default function ForgotPasswordPage() {
+//     const router = useRouter();
+//     const [email, setEmail] = useState("");
+//     const [loading, setLoading] = useState(false);
+//     const [errors, setErrors] = useState<Record<string, string>>({});
+
+//     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//         e.preventDefault();
+//         setErrors({});
+//         setLoading(true);
+
+//         const formData = new FormData(e.currentTarget);
+//         const email = formData.get("email") as string;
+
+//         if (!email) {
+//             setErrors({
+//                 email: !email ? "Email is required" : "",
+//             });
+//             setLoading(false);
+//             return;
+//         }
+
+//         try {
+//             const forgotPromise = api.post("/auth/forgot-password", { email });
+//             await toast.promise(forgotPromise, {
+//                 loading: "Sending reset link...",
+//                 success: (res) =>
+//                     res?.data?.message || "If the email exists, a reset link was sent",
+//                 error: (err) =>
+//                     err?.response?.data?.message || "Failed to send reset link",
+//             });
+//             router.push("/signin");
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     return (
+//         <AuthLayout
+//             title="Forgot password"
+//             subtitle="Enter your email to receive a reset link"
+//             footer={
+//                 <p className="text-center text-sm text-neutral-400">
+//                     Don’t have an account?{" "}
+//                     <Link href="/signin" className="text-white hover:underline">
+//                         Go back to home
+//                     </Link>
+//                 </p>
+//             }
+//         >
+//             <form onSubmit={handleSubmit} className="space-y-4">
+//                 <InputField
+//                     name="email"
+//                     type="email"
+//                     placeholder="Email address"
+//                     error={errors.email}
+//                     disabled={loading}
+//                 />
+
+//                 <button
+//                     type="submit"
+//                     disabled={loading}
+//                     className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
+//                 >
+//                     {loading ? "Sending..." : "Send reset link"}
+//                 </button>
+//             </form>
+//         </AuthLayout>
+//     );
+// }

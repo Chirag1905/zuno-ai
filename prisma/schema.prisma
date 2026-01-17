@@ -23,6 +23,12 @@ enum Role {
   SYSTEM
 }
 
+enum VerificationType {
+  EMAIL_VERIFY
+  MFA_OTP
+  PASSWORD_RESET
+}
+
 // =========================
 // USER & AUTH MODELS
 // =========================
@@ -98,9 +104,10 @@ model Account {
 }
 
 model Verification {
-  id         String   @id @default(cuid())
+  id         String           @id @default(cuid())
   identifier String
   value      String
+  type       VerificationType
   expiresAt  DateTime
 
   createdAt DateTime @default(now())

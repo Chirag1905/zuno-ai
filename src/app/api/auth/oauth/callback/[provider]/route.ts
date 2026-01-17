@@ -5,6 +5,7 @@ import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
 import { getRequestMeta } from "@/lib/request";
 import { AuthError } from "@/lib/auth/errors";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { cookies } from "next/headers";
 
 export async function GET(
     req: Request,
@@ -41,16 +42,34 @@ export async function GET(
             userAgent: meta.userAgent,
         });
 
-        /**
-         * 🔐 MFA required
-         */
-        if (result.isTrusted) {
-            redirect(`/auth/mfa?provider=${provider}`);
+        if (!result) {
+            return NextResponse.json(
+                { error: "INVALID_TOKEN" },
+                { status: 400 }
+            );
         }
 
-        /**
-         * ✅ Session already created
-         */
+        // 🔐 MFA required
+        if (result.isTrusted && result.email) {
+            redirect(
+                `/verify-otp?email=${encodeURIComponent(
+                    result.email
+                )}&provider=${provider}`
+            );
+        }
+
+        // ✅ NO MFA → SET SESSION COOKIE HERE
+        if (result.session) {
+            const cookieStore = await cookies();
+
+            cookieStore.set("session", result.session.token, {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                expires: result.session.expiresAt,
+            });
+        }
+        // ✅ Session already created
         redirect("/dashboard");
 
     } catch (e) {

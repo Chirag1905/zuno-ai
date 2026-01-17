@@ -1,18 +1,10 @@
-import { cookies } from "next/headers";
-import { auth } from "@/lib/auth";
 import { apiResponse } from "@/utils/apiResponse";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { requireAuth } from "@/lib/auth/guards";
 
 export async function GET() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("session")?.value;
-
-        if (!token) {
-            return apiResponse(false, "Unauthenticated", null, null, 401);
-        }
-
-        const session = await auth.getSession(token);
+        const { session } = await requireAuth();
 
         if (!session || session.expiresAt < new Date()) {
             cookieStore.delete("session");

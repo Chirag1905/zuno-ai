@@ -1,17 +1,10 @@
-import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { apiResponse } from "@/utils/apiResponse";
+import { requireAuth } from "@/lib/auth/guards";
 
 export async function POST() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("session")?.value;
-
-        if (!token) {
-            return apiResponse(true, "Already logged out");
-        }
-
-        const session = await auth.getSession(token);
+        const { session } = await requireAuth();
 
         if (session) {
             await auth.logoutAll(session.user.id);

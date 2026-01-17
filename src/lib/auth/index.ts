@@ -141,6 +141,7 @@ export const auth = {
             };
         } catch (e) {
             if (e instanceof AuthError) throw e;
+            console.error("Login error:", e);
             throw new AuthError("INTERNAL", 500);
         }
     },
@@ -223,24 +224,48 @@ export const auth = {
         }
     },
 
-    // PASSWORD RESET (REQUEST)
-    async requestPasswordReset(email: string) {
+    // FORGOT PASSWORD
+    async forgotPassword(email: string) {
         try {
             const user = await prisma.user.findUnique({ where: { email } });
-            if (!user) return;
 
+            if (!user) {
+                throw new AuthError("EMAIL_NOT_FOUND", 404);
+            }
+
+            await prisma.verification.deleteMany({
+                where: {
+                    identifier: email,
+                    type: "PASSWORD_RESET",
+                },
+            });
             const token = crypto.randomBytes(20).toString("hex");
 
             await prisma.verification.create({
                 data: {
                     identifier: email,
                     value: token,
+                    type: "PASSWORD_RESET",
                     expiresAt: new Date(Date.now() + RESET_TOKEN_EXPIRY),
                 },
             });
+            const resetUrl = `${process.env.APP_URL}/resetpassword?token=${token}`;
 
             try {
-                await sendEmail(email, "Reset Password", `Token: ${token}`);
+                await sendEmail(
+                    email,
+                    "Reset your password",
+                    `
+You requested a password reset.
+
+Click the button below to reset your password:
+
+${resetUrl}
+
+This link will expire in 15 minutes.
+If you did not request this, please ignore this email.
+                `.trim()
+                );
             } catch {
                 throw new AuthError("EMAIL_SEND_FAILED", 500);
             }
@@ -357,20 +382,54 @@ export const auth = {
             }
 
 
-            // MFA check
-            if (user?.mfaEnabled) {
-                try {
-                    await sendMfaOtp(user.email);
-                } catch {
-                    throw new AuthError("EMAIL_SEND_FAILED", 500);
-                }
-                return { isTrusted: true };
+            /* =========================
+           NO MFA → DIRECT LOGIN
+           ========================= */
+            if (!user.mfaEnabled) {
+                const session = await createSession({
+                    userId: user.id,
+                    ipAddress,
+                    userAgent,
+                });
+
+                return {
+                    isTrusted: false,
+                    session,
+                };
             }
 
-            // No MFA → session
-            const session = await createSession({ userId: user.id, ipAddress, userAgent });
-            return { user, session, isTrusted: false };
+            /* =========================
+            MFA CHECK (OAUTH)
+            ========================= */
+            // if (user.mfaEnabled) {
+            const trustedSession = await tryTrustedSession(
+                user.id,
+                ipAddress,
+                userAgent
+            );
 
+            if (trustedSession) {
+                return {
+                    isTrusted: false,
+                    session: trustedSession,
+                };
+            }
+
+            /* =========================
+            MFA REQUIRED (OAUTH) → SEND OTP
+            ========================= */
+            try {
+                await sendMfaOtp(user.email);
+            } catch {
+                throw new AuthError("EMAIL_SEND_FAILED", 500);
+            }
+
+            return {
+                isTrusted: true,
+                userId: user.id,
+                email: user.email,
+            };
+            // }
         } catch (e) {
             if (e instanceof AuthError) throw e;
             console.error("oauthLogin error:", e);

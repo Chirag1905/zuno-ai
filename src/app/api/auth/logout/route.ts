@@ -1,15 +1,13 @@
-import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { apiResponse } from "@/utils/apiResponse";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { requireAuth } from "@/lib/auth/guards";
 
 export async function POST() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("session")?.value;
-
-        if (token) {
-            await auth.logout(token);
+        const { session } = await requireAuth();
+        if (session) {
+            await auth.logout(session.token);
         }
 
         return apiResponse(

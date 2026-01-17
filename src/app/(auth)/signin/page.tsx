@@ -101,6 +101,16 @@ export default function SignInPage() {
                     disabled={loading}
                 />
 
+                {/* ✅ Forgot password link */}
+                <div className="text-right">
+                    <Link
+                        href="/forgotpassword"
+                        className="text-sm text-white hover:underline"
+                    >
+                        Forgot password?
+                    </Link>
+                </div>
+
                 <button
                     type="submit"
                     disabled={loading}
