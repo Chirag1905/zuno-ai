@@ -65,7 +65,7 @@ export default function SignInPage() {
             }
 
             // ✅ Normal login
-            router.push("/dashboard");
+            router.push("/");
         } finally {
             setLoading(false);
         }

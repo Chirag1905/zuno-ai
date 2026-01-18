@@ -3,7 +3,17 @@
 import { IconButton } from "@/app/components/ui/Icon";
 import { SidebarBrand } from "@/app/components/ui/sidebarBrand";
 import { useChatStore, useUIStore } from "@/app/store";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import api from "@/lib/axios";
+
+type User = {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+};
 
 export default function Sidebar() {
     const {
@@ -18,12 +28,49 @@ export default function Sidebar() {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
 
+    const [footerMenuOpen, setFooterMenuOpen] = useState(false);
+    const [footerMenuPos, setFooterMenuPos] = useState<{ x: number; y: number } | null>(null);
+
+    const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const handleSignOut = async () => {
+        await toast.promise(
+            api.post("/auth/logout"),
+            {
+                loading: "Logging out...",
+                success: "Logged out successfully",
+                error: "Failed to logout",
+            }, { duration: 5000 }
+        );
+
+        router.push("/signin");
+    };
+
+    useEffect(() => {
+        api.get("/auth/session")
+            .then((res) => {
+                setUser(res.data.data.user);
+            })
+            .catch(() => {
+                router.push("/signin");
+            })
+            .finally(() => setLoading(false));
+    }, [router]);
+
     // Close menu on outside click
     useEffect(() => {
-        const close = () => setOpenMenuId(null);
+        const close = () => {
+            setOpenMenuId(null);
+            setFooterMenuOpen(false);
+        };
         window.addEventListener("click", close);
         return () => window.removeEventListener("click", close);
     }, []);
+
+    if (loading) return <p>Loading...</p>;
+    if (!user) return null;
 
     return (
         <>
@@ -100,9 +147,30 @@ export default function Sidebar() {
                     </div>
 
                     {/* FOOTER */}
-                    <div className="px-5 py-4 border-t border-white/10 flex justify-between text-xs text-gray-400">
-                        <span>Anonymous</span>
+                    {/* <div className="px-5 py-4 border-t border-white/10 flex justify-between text-xs text-gray-400">
+                        <span>{user.name ?? "User"}</span>
                         <IconButton icon="MoreHorizontal" variant="ghost" />
+                    </div> */}
+
+                    {/* FOOTER */}
+                    <div className="px-5 py-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
+                        <span className="truncate">{user.name ?? "User"}</span>
+
+                        <IconButton
+                            icon="MoreVertical"
+                            variant="ghost"
+                            onClick={(e) => {
+                                e.stopPropagation();
+
+                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                setFooterMenuPos({
+                                    x: rect.right,
+                                    y: rect.top,
+                                });
+
+                                setFooterMenuOpen((prev) => !prev);
+                            }}
+                        />
                     </div>
                 </div>
             </aside>
@@ -114,9 +182,7 @@ export default function Sidebar() {
                     style={{ top: menuPos.y, left: menuPos.x }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div
-                        className="min-w-25 p-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-[scaleIn_0.12s_ease-out]"
-                    >
+                    <div className="min-w-25 p-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-[scaleIn_0.12s_ease-out]">
                         <IconButton
                             icon="Edit2"
                             size="sm"
@@ -141,6 +207,29 @@ export default function Sidebar() {
                                 // deleteSession(openMenuId);
                                 setOpenMenuId(null);
                                 console.log("Delete session");
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* FOOTER MENU */}
+            {footerMenuOpen && footerMenuPos && (
+                <div
+                    className="fixed z-9999"
+                    style={{ top: footerMenuPos.y, left: footerMenuPos.x }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="min-w-25 p-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-[scaleIn_0.12s_ease-out]">
+                        <IconButton
+                            icon="LogOut"
+                            size="sm"
+                            variant="optional"
+                            text="Logout"
+                            className="text-red-400 hover:text-red-300"
+                            onClick={async () => {
+                                setFooterMenuOpen(false);
+                                await handleSignOut();
                             }}
                         />
                     </div>

@@ -70,7 +70,7 @@ export async function GET(
             });
         }
         // ✅ Session already created
-        redirect("/dashboard");
+        redirect("/");
 
     } catch (e) {
         if (isRedirectError(e)) {
