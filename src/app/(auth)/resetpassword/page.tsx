@@ -14,6 +14,7 @@ export default function ResetPasswordPage() {
     const token = params.get("token");
 
     const [loading, setLoading] = useState(false);
+    console.log("🚀 ~ ResetPasswordPage ~ loading:", loading)
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -27,29 +28,29 @@ export default function ResetPasswordPage() {
         setErrors({});
         setLoading(true);
 
-        const formData = new FormData(e.currentTarget);
-        const password = formData.get("password") as string;
-        const confirmPassword = formData.get("confirmPassword") as string;
-
-        if (!password || !confirmPassword) {
-            setErrors({
-                password: !password ? "Password is required" : "",
-                confirmPassword: !confirmPassword ? "Confirm Password is required" : "",
-            });
-            setLoading(false);
-            return;
-        }
-
-        if (password.length < 8) {
-            toast.error("Password must be at least 8 characters");
-            return;
-        }
-
-        if (confirmPassword !== password) {
-            toast.error("Passwords do not match");
-            return;
-        }
         try {
+            const formData = new FormData(e.currentTarget);
+            const password = formData.get("password") as string;
+            const confirmPassword = formData.get("confirmPassword") as string;
+
+            if (!password || !confirmPassword) {
+                setErrors({
+                    password: !password ? "Password is required" : "",
+                    confirmPassword: !confirmPassword ? "Confirm Password is required" : "",
+                });
+                setLoading(false);
+                return;
+            }
+
+            if (password.length < 8) {
+                toast.error("Password must be at least 8 characters");
+                return;
+            }
+
+            if (confirmPassword !== password) {
+                toast.error("Passwords do not match");
+                return;
+            }
             const resetPromise = api.post("/auth/reset-password", {
                 token,
                 password,
@@ -58,9 +59,8 @@ export default function ResetPasswordPage() {
             await toast.promise(resetPromise, {
                 loading: "Resetting password...",
                 success: (res) => res?.data?.message || "Password reset successfully",
-                error: (err) =>
-                    err?.response?.data?.message || "Failed to reset password",
-            });
+                error: (err) => err?.response?.data?.message || "Failed to reset password",
+            }, { duration: 5000 });
 
             router.push("/signin");
         } finally {
@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
                         href="/signin"
                         className="text-white hover:underline"
                     >
-                        Back to sign in
+                        SignIn
                     </Link>
                 </p>
             }

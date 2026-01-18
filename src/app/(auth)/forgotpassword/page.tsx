@@ -28,17 +28,12 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            await toast.promise(
-                api.post("/auth/forgot-password", { email }),
-                {
-                    loading: "Sending reset link...",
-                    success: (res) => {
-                        return res?.data?.message || "Reset link sent successfully";
-                    },
-                    error: (err) =>
-                        err?.response?.data?.message || "Failed to send reset link",
-                }
-            );
+            const forgotPromise = api.post("/auth/forgot-password", { email });
+            await toast.promise(forgotPromise, {
+                loading: "Sending reset link...",
+                success: (res) => res?.data?.message || "Reset link sent successfully",
+                error: (err) => err?.response?.data?.message || "Failed to send reset link",
+            }, { duration: 5000 });
 
             router.push("/signin");
         } finally {
@@ -57,7 +52,7 @@ export default function ForgotPasswordPage() {
                         href="/signin"
                         className="text-white hover:underline"
                     >
-                        Back to sign in
+                        SignIn
                     </Link>
                 </p>
             }

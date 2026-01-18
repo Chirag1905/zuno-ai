@@ -14,7 +14,7 @@ export type AuthErrorCode =
     | "LOGOUT_FAILED"
     | "LOGOUT_ALL_FAILED"
     | "ACTION_NOT_ALLOWED"
-
+    | "SAME_PASSWORD_NOT_ALLOWED"
     | "INTERNAL";
 
 export class AuthError extends Error {
@@ -44,6 +44,6 @@ export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
     LOGOUT_FAILED: "Unable to log out. Please try again",
     LOGOUT_ALL_FAILED: "Unable to log out from all devices",
     ACTION_NOT_ALLOWED: "This action is not allowed",
-
+    SAME_PASSWORD_NOT_ALLOWED: "New password must be different from the old password",
     INTERNAL: "Something went wrong. Please try again",
 };

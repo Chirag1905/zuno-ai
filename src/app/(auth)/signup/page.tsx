@@ -48,11 +48,11 @@ export default function SignUpPage() {
                 registerPromise,
                 {
                     loading: "Creating account...",
-                    success: (res) => res?.data?.message || "From Frontend Account created. Please verify your email.",
+                    success: (res) => res?.data?.message || "Account created. Please verify your email.",
                     error: (err) =>
                         err?.response?.data?.message ||
-                        "From Frontend Failed to create account",
-                }
+                        "Failed to create account",
+                }, { duration: 5000 }
             );
 
             router.push("/signin");

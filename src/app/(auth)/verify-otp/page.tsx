@@ -158,11 +158,11 @@ export default function VerifyOtpPage() {
             await toast.promise(otpPromise, {
                 loading: "Verifying OTP...",
                 success: (res) =>
-                    res?.data?.message || "From Frontend OTP verified",
+                    res?.data?.message || "OTP verified",
                 error: (err) =>
                     err?.response?.data?.message ||
-                    "From Frontend Invalid or expired OTP",
-            });
+                    "Invalid or expired OTP",
+            }, { duration: 5000 });
             router.push("/dashboard");
         } catch (err: any) {
             triggerError(

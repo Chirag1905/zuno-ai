@@ -24,23 +24,37 @@ export default function VerifyEmailPage() {
 
         let cancelled = false;
 
-        api.post("/auth/verify-email", { token })
-            .then((res) => {
-                if (cancelled) return;
-                toast.success(res.data.message || "Email verified successfully");
-                setStatus("success");
+        const verifyPromise = api.post("/auth/verify-email", { token });
 
-                // small UX delay before redirect
-                setTimeout(() => router.push("/signin"), 1500);
-            })
-            .catch((err) => {
-                if (cancelled) return;
-                toast.error(
-                    err?.response?.data?.message ||
-                    "Verification link expired or invalid"
-                );
-                setStatus("error");
-            });
+        toast.promise(
+            verifyPromise,
+            {
+                loading: "Verifying your email...",
+                success: (res) => {
+                    if (cancelled) return "";
+
+                    setStatus("success");
+
+                    // UX delay before redirect
+                    setTimeout(() => router.push("/signin"), 1500);
+
+                    return res?.data?.message || "Email verified successfully";
+                },
+                error: (err) => {
+                    if (cancelled) return "";
+
+                    setStatus("error");
+
+                    return (
+                        err?.response?.data?.message ||
+                        "Verification link expired or invalid"
+                    );
+                },
+            },
+            {
+                duration: 5000, // ⏱ toast duration
+            }
+        );
 
         return () => {
             cancelled = true;

@@ -240,6 +240,7 @@ export const auth = {
                 },
             });
             const token = crypto.randomBytes(20).toString("hex");
+            const year = new Date().getFullYear();
 
             await prisma.verification.create({
                 data: {
@@ -250,22 +251,88 @@ export const auth = {
                 },
             });
             const resetUrl = `${process.env.APP_URL}/resetpassword?token=${token}`;
+            const html = `
+<div style="background:#f4f6f8;padding:40px 0;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0"
+          style="background:#ffffff;border-radius:8px;padding:32px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.08);">
 
+          <tr>
+            <td align="center">
+              <h2 style="margin:0 0 10px;color:#111827;">Reset your password</h2>
+              <p style="margin:0;color:#6b7280;font-size:15px;">
+                We received a request to reset your account password.
+              </p>
+            </td>
+          </tr>
+
+          <!-- BUTTON -->
+          <tr>
+            <td align="center" style="padding:28px 0;">
+              <a href="${resetUrl}"
+                style="background:#2563eb;color:#ffffff;text-decoration:none;
+                padding:14px 32px;border-radius:6px;font-weight:600;
+                display:inline-block;">
+                Reset Password
+              </a>
+            </td>
+          </tr>
+
+          <!-- FALLBACK LINK -->
+          <tr>
+            <td>
+              <p style="margin:0 0 8px;font-size:14px;color:#374151;">
+                If the button doesn’t work, copy and paste this link:
+              </p>
+
+              <div style="
+                background:#f9fafb;
+                border:1px solid #e5e7eb;
+                padding:12px;
+                border-radius:6px;
+                font-size:13px;
+                color:#111827;
+                word-break:break-all;">
+                ${resetUrl}
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding-top:24px;">
+              <p style="margin:0;font-size:14px;color:#6b7280;">
+                This link expires in <strong>15 minutes</strong>.
+              </p>
+              <p style="margin:8px 0 0;font-size:14px;color:#6b7280;">
+                If you didn’t request a password reset, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding-top:28px;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">
+                © ${year} Zuno AI. Security Team
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>
+`;
             try {
-                await sendEmail(
-                    email,
-                    "Reset your password",
-                    `
-You requested a password reset.
-
-Click the button below to reset your password:
-
-${resetUrl}
-
-This link will expire in 15 minutes.
-If you did not request this, please ignore this email.
-                `.trim()
-                );
+                await sendEmail({
+                    to: email,
+                    subject: "Reset your password",
+                    html,
+                    text: `Reset your password (expires in 15 minutes): ${resetUrl}`,
+                });
             } catch {
                 throw new AuthError("EMAIL_SEND_FAILED", 500);
             }
@@ -276,7 +343,7 @@ If you did not request this, please ignore this email.
     },
 
     // PASSWORD RESET
-    async resetPassword(token: string, password: string) {
+    async resetPassword(token: string, newPassword: string) {
         try {
             const record = await prisma.verification.findFirst({
                 where: { value: token, expiresAt: { gt: new Date() } },
@@ -284,9 +351,31 @@ If you did not request this, please ignore this email.
 
             if (!record) throw new AuthError("INVALID_TOKEN", 400);
 
+            const user = await prisma.user.findUnique({
+                where: { email: record.identifier },
+                select: { password: true },
+            });
+
+            if (!user || !user.password) {
+                throw new AuthError("UNAUTHENTICATED", 401);
+            }
+
+            // 🚫 Prevent same password reuse
+            const isSamePassword = await verifyPassword(
+                user.password,
+                newPassword
+            );
+
+            if (isSamePassword) {
+                throw new AuthError("SAME_PASSWORD_NOT_ALLOWED", 400);
+            }
+
+            // ✅ Update with new password
             await prisma.user.update({
                 where: { email: record.identifier },
-                data: { password: await hashPassword(password) },
+                data: {
+                    password: await hashPassword(newPassword),
+                },
             });
 
             await prisma.verification.delete({ where: { id: record.id } });
@@ -515,9 +604,10 @@ If you did not request this, please ignore this email.
 
             const profile = JSON.parse(profileText);
 
-            const id = profile.sub || profile.id;
-            if (!id || !profile.email) {
-                console.error("❌ Invalid Google profile:", profile);
+            const rawId = profile.sub || profile.id;
+            const id = String(rawId);
+            if (!rawId || !profile.email) {
+                console.error("❌ Invalid Oauth profile:", profile);
                 throw new AuthError("INTERNAL", 500);
             }
 

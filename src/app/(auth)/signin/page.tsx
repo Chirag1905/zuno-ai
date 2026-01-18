@@ -48,14 +48,14 @@ export default function SignInPage() {
                     loading: "Logging in...",
                     success: (res) => {
                         if (res?.data?.data?.isTrusted) {
-                            return res?.data?.message || "From Frontend OTP sent to your email";
+                            return res?.data?.message || "OTP sent to your email";
                         }
-                        return res?.data?.message || "From Frontend Logged in successfully";
+                        return res?.data?.message || "Logged in successfully";
                     },
                     error: (err) =>
                         err?.response?.data?.message ||
-                        "From Frontend Invalid email or password",
-                }
+                        "Invalid email or password",
+                }, { duration: 5000 }
             );
 
             // 🔐 MFA flow
