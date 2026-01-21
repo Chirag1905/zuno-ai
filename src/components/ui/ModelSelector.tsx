@@ -14,7 +14,7 @@ const MODELS: LocalModel[] = [
 ];
 
 export default function ModelSelector() {
-    const { model, setModel } = useModelStore();
+    const { model, autoSelectedModel, setModel } = useModelStore();
 
     const activeChatId = useChatStore((s) => s.activeChatId);
     const messagesByChat = useChatStore((s) => s.messagesByChat);
@@ -33,14 +33,23 @@ export default function ModelSelector() {
                 <IconButton
                     variant="optional"
                     rounded="full"
-                    text={model}
-                    textClassName="uppercase tracking-wide text-sm"
-                    iconClassName={open ? "rotate-180 transition-transform" : "transition-transform"}
+                    text={
+                        model === "auto"
+                            ? `AUTO • ${autoSelectedModel ?? "llama"}`
+                            : model
+                    }
+                    textClassName={
+                        model === "auto"
+                            ? "uppercase tracking-wide text-sm font-bold text-blue-400"
+                            : "uppercase tracking-wide text-sm font-bold"
+                    }
+
+                    iconClassName={open ? "rotate-180 text-blue-400 transition-transform" : "text-blue-400 transition-transform"}
                     icon={open ? "ChevronUp" : "ChevronDown"}
                     iconPosition="right"
                     className="
-                        px-4 py-2
-                        bg-white/10
+                        px-4
+                        bg-white/5
                         backdrop-blur-xl
                         border border-white/10
                         shadow-[0_0_30px_rgba(0,0,0,0.45)]
@@ -61,7 +70,7 @@ export default function ModelSelector() {
                         rounded-2xl
                         bg-[#0b0b14]/80!
                         backdrop-blur-2xl
-                        border border-white/15
+                        border border-white/10
                         shadow-[0_20px_50px_rgba(0,0,0,0.6)]
                         overflow-hidden
                         z-50

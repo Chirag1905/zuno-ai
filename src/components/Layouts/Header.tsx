@@ -2,11 +2,12 @@
 import { IconButton } from "@/components/ui/Icon";
 import { LLMStatus } from "@/components/ui/LLMStatus";
 import ZunoLogo from "@/components/ui/ZunoLogo";
-import { useUIStore } from "@/store";
+import { useChatStore, useUIStore } from "@/store";
 
 export default function Header() {
 
   const { theme, sidebarOpen, setTheme, toggleSidebar } = useUIStore();
+  const createNewChat = useChatStore(s => s.createNewChat);
 
   return (
     <>
@@ -26,6 +27,7 @@ export default function Header() {
               size="lg"
               variant="minimal"
               compact
+              onClick={createNewChat}
             />
           </div>
         </div>

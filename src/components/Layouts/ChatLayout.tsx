@@ -31,8 +31,8 @@ export default function ChatLayout({
     }, [activeChatId, messagesByChat]);
 
     /* ------------------------------ Refs ------------------------------------ */
-    const scrollRef = useRef<HTMLDivElement | null>(null);
-    const bottomRef = useRef<HTMLDivElement | null>(null);
+    const scrollRef = useRef<HTMLDivElement | null>(null) as React.RefObject<HTMLDivElement>;
+    const bottomRef = useRef<HTMLDivElement | null>(null) as React.RefObject<HTMLDivElement>;
 
     /* ------------------------------ State ----------------------------------- */
     const [showScrollDown, setShowScrollDown] = useState<boolean>(false);
@@ -96,12 +96,15 @@ export default function ChatLayout({
                 ref={scrollRef}
                 className="flex-1 min-h-0 overflow-y-auto py-6"
             >
-                <ChatMessageList messages={messages} typing={typing} />
+                <ChatMessageList
+                    messages={messages}
+                    typing={typing}
+                    bottomRef={bottomRef}
+                />
             </div>
 
             {showScrollDown && (
-                <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-md
-    rounded-full hover:scale-105 transition-all"
+                <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-md rounded-full hover:scale-105 transition-all"
                 >
                     <IconButton
                         icon="ArrowDown"

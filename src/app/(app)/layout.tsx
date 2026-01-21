@@ -6,24 +6,12 @@ import { useChatStore, useUIStore } from "@/store";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
-export default function AppLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { loadChatSessions } = useChatStore();
-
     const sidebarOpen = useUIStore((s) => s.sidebarOpen);
 
-    /* -------------------- Initial Load -------------------- */
-    useEffect(() => {
-        loadChatSessions();
-    }, [loadChatSessions]);
-
-    /* -------------------- Dark Mode -------------------- */
-    useEffect(() => {
-        document.documentElement.classList.add("dark");
-    }, []);
+    useEffect(() => { loadChatSessions(); }, [loadChatSessions]);
+    useEffect(() => { document.documentElement.classList.add("dark"); }, []);
 
     return (
         <main className="h-screen w-screen relative">

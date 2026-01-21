@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { streamChat } from "@/services/stream.api";
-import { useChatStore } from "@/store";
+import { LocalModel, useChatStore, useModelStore } from "@/store";
+import { detectBestModel } from "@/utils/modelRouter";
 
 /* ================= TYPES ================= */
 
@@ -32,6 +33,18 @@ export const useStreamStore = create<StreamState>((set, get) => ({
     setGenerating: (v) => set({ generating: v }),
 
     send: async ({ chatId, model, text }) => {
+
+        const { model: selectedModel, setAutoSelectedModel } =
+            useModelStore.getState();
+
+        let finalModel = model;
+
+        // 🧠 AUTO MODE
+        if (selectedModel === "auto") {
+            finalModel = detectBestModel(text);
+            setAutoSelectedModel(finalModel as LocalModel);
+        }
+
         const { addMessage, updateMessage } = useChatStore.getState();
 
         const assistantId = addMessage(chatId, {
@@ -50,7 +63,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
         try {
             await streamChat({
                 chatId,
-                model,
+                model: finalModel,
                 message: text,
                 signal: controller.signal,
                 onChunk: (chunk) => {

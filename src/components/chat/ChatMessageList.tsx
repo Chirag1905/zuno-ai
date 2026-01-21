@@ -8,17 +8,19 @@ import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 type ChatMessageListProps = {
     messages: readonly ChatMessage[];
     typing: boolean;
+    bottomRef?: React.RefObject<HTMLDivElement>;
 };
 
 export default function ChatMessageList({
     messages,
     typing,
+    bottomRef,
 }: ChatMessageListProps) {
-    const bottomRef = useRef<HTMLDivElement>(null);
+    // const bottomRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, typing]);
+    // useEffect(() => {
+    //     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // }, [messages, typing]);
 
     return (
         <div className="w-full max-w-205 mx-auto px-2 space-y-4">

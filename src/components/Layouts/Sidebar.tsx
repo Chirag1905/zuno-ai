@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -130,7 +131,7 @@ export default function Sidebar() {
     };
 
     /* ------------------------------ Loading States ----------------------- */
-    if (loading) return <SidebarSkeleton />;
+    // if (loading) return <SidebarSkeleton />;
     if (!user) return null;
 
     /* ------------------------------ UI ----------------------------------- */
@@ -138,7 +139,7 @@ export default function Sidebar() {
         <>
             {/* SIDEBAR */}
             <aside
-                className={`fixed left-5 top-5 bottom-5 z-40 w-80 transition-all duration-500 ease-in-out
+                className={`fixed top-5 bottom-5 z-40 w-80 transition-all duration-500 ease-in-out
                         ${sidebarOpen
                         ? "translate-x-0 opacity-100"
                         : "-translate-x-full opacity-0 pointer-events-none"
