@@ -14,6 +14,20 @@ export interface ChatSession {
   title: string;
 }
 
+interface ApiMessage {
+  id: string;
+  content: string;
+  role: "USER" | "ASSISTANT";
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  status: number;
+  message: string;
+  data: T;
+  error: unknown;
+}
+
 interface ChatStore {
   chatSessions: ChatSession[];
   activeChatId: string | null;
@@ -42,8 +56,11 @@ interface ChatStore {
   loadChatSessions: () => Promise<void>;
   loadChatMessages: (chatId: string) => Promise<void>;
   ensureChatSession: () => Promise<string>;
-  createNewChat: () => Promise<void>;
+  createNewChat: () => Promise<string>;
   switchChat: (chatId: string) => Promise<void>;
+
+  updateChatTitle: (chatId: string, title: string) => Promise<void>;
+  deleteChatSession: (chatId: string) => Promise<void>;
 }
 
 /* ================= STORE ================= */
@@ -95,30 +112,38 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   /* ---------- Chats ---------- */
 
   loadChatSessions: async () => {
-    const { data } = await axios.get("/api/c");
+    const res = await axios.get<ApiResponse<ChatSession[]>>("/api/c");
+    console.log("🚀 ~ loadChatSessions:")
+    const chats = res.data.data;
 
-    if (data.length === 0) {
-      const res = await axios.post("/api/c");
+    if (!chats || chats.length === 0) {
+      const createRes = await axios.post<ApiResponse<ChatSession>>("/api/c");
+
       set({
-        chatSessions: [res.data],
-        activeChatId: res.data.id,
+        chatSessions: [createRes.data.data],
+        activeChatId: createRes.data.data.id,
       });
       return;
     }
 
     set({
-      chatSessions: data,
-      activeChatId: data[0].id,
+      chatSessions: chats,
+      activeChatId: chats[0].id,
     });
   },
 
+
   loadChatMessages: async (chatId) => {
-    const { data } = await axios.get(`/api/c/${chatId}`);
+    const res = await axios.get<
+      ApiResponse<{ messages: ApiMessage[] }>
+    >(`/api/c/${chatId}`);
+
+    const messages = res.data.data.messages;
 
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: data.messages.map((m: any) => ({
+        [chatId]: messages.map((m) => ({
           id: m.id,
           text: m.content,
           isUser: m.role === "USER",
@@ -131,294 +156,92 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const { activeChatId } = get();
     if (activeChatId) return activeChatId;
 
-    const { data } = await axios.post("/api/c");
+    const res = await axios.post<ApiResponse<ChatSession>>("/api/c");
+    const chat = res.data.data;
 
     set((state) => ({
-      chatSessions: [data, ...state.chatSessions],
-      activeChatId: data.id,
+      chatSessions: [chat, ...state.chatSessions],
+      activeChatId: chat.id,
     }));
 
-    return data.id;
+    return chat.id;
   },
 
   createNewChat: async () => {
-    const { data } = await axios.post("/api/c");
+    const res = await axios.post<ApiResponse<ChatSession>>("/api/c");
+    const chat = res.data.data;
 
     set((state) => ({
-      chatSessions: [data, ...state.chatSessions],
-      activeChatId: data.id,
+      chatSessions: [chat, ...state.chatSessions],
+      activeChatId: chat.id,
       input: "",
     }));
+
+    return chat.id;
   },
+
 
   switchChat: async (chatId) => {
     set({ activeChatId: chatId, input: "" });
     await get().loadChatMessages(chatId);
   },
+
+  /* ---------- Edit Chat ---------- */
+  updateChatTitle: async (chatId, title) => {
+    const res = await axios.patch<ApiResponse<ChatSession>>(
+      `/api/c/${chatId}`,
+      { title }
+    );
+
+    const updatedChat = res.data.data;
+
+    set((state) => ({
+      chatSessions: state.chatSessions.map((c) =>
+        c.id === chatId ? updatedChat : c
+      ),
+    }));
+  },
+
+  /* ---------- Delete Chat ---------- */
+  deleteChatSession: async (chatId) => {
+    await axios.delete<ApiResponse<null>>(`/api/c/${chatId}`);
+
+    let nextActiveChatId: string | null = null;
+
+    set((state) => {
+      const index = state.chatSessions.findIndex((c) => c.id === chatId);
+
+      const remainingChats = state.chatSessions.filter(
+        (c) => c.id !== chatId
+      );
+
+      let newActiveChatId = state.activeChatId;
+
+      // ✅ If deleted chat was active → select next or previous
+      if (state.activeChatId === chatId) {
+        newActiveChatId =
+          remainingChats[index]?.id ||       // next chat
+          remainingChats[index - 1]?.id ||   // previous chat
+          null;
+      }
+
+      nextActiveChatId = newActiveChatId;
+
+      return {
+        chatSessions: remainingChats,
+        activeChatId: newActiveChatId,
+        messagesByChat: Object.fromEntries(
+          Object.entries(state.messagesByChat).filter(
+            ([key]) => key !== chatId
+          )
+        ),
+      };
+    });
+
+    // ✅ Ensure user is never stuck without a chat
+    if (!nextActiveChatId) {
+      await get().createNewChat();
+    }
+  },
+
 }));
-
-// import { create } from "zustand";
-// import axios from "axios";
-
-// /* ================= TYPES ================= */
-
-// export interface ChatMessage {
-//   id: string;
-//   text: string;
-//   isUser: boolean;
-// }
-
-// export interface ChatSession {
-//   id: string;
-//   title: string;
-// }
-
-
-// interface ChatStore {
-//   chatSessions: ChatSession[];
-//   activeChatId: string | null;
-
-//   messagesByChat: Record<string, ChatMessage[]>;
-//   input: string;
-
-//   setInput: (value: string) => void;
-
-//   addMessage: (
-//     chatId: string,
-//     message: Omit<ChatMessage, "id">
-//   ) => string;
-
-//   updateMessage: (
-//     chatId: string,
-//     messageId: string,
-//     text: string
-//   ) => void;
-
-//   loadChatSessions: () => Promise<void>;
-//   loadChatMessages: (chatId: string) => Promise<void>;
-//   ensureChatSession: () => Promise<string>;
-//   createNewChat: () => Promise<void>;
-//   switchChat: (chatId: string) => Promise<void>;
-// }
-
-// /* ================= STORE ================= */
-
-// export const useChatStore = create<ChatStore>((set, get) => ({
-//   chatSessions: [],
-//   activeChatId: null,
-//   messagesByChat: {},
-//   input: "",
-
-//   setInput: (value) => set({ input: value }),
-
-//   /* ---------- Messages ---------- */
-
-//   addMessage: (chatId, message) => {
-//     const id = crypto.randomUUID();
-
-//     set((state) => ({
-//       messagesByChat: {
-//         ...state.messagesByChat,
-//         [chatId]: [
-//           ...(state.messagesByChat[chatId] ?? []),
-//           { id, ...message },
-//         ],
-//       },
-//     }));
-
-//     return id;
-//   },
-
-//   updateMessage: (chatId, messageId, text) =>
-//     set((state) => ({
-//       messagesByChat: {
-//         ...state.messagesByChat,
-//         [chatId]: (state.messagesByChat[chatId] ?? []).map((m) =>
-//           m.id === messageId ? { ...m, text } : m
-//         ),
-//       },
-//     })),
-
-//   /* ---------- Chats ---------- */
-
-//   loadChatSessions: async () => {
-//     const { data } = await axios.get("/api/c");
-
-//     if (data.length === 0) {
-//       const res = await axios.post("/api/c");
-//       set({
-//         chatSessions: [res.data],
-//         activeChatId: res.data.id,
-//       });
-//       return;
-//     }
-
-//     set({
-//       chatSessions: data,
-//       activeChatId: data[0].id,
-//     });
-//   },
-
-//   loadChatMessages: async (chatId) => {
-//     const { data } = await axios.get(`/api/c/${chatId}`);
-
-//     set((state) => ({
-//       messagesByChat: {
-//         ...state.messagesByChat,
-//         [chatId]: data.messages.map((m: any) => ({
-//           id: m.id,
-//           text: m.content,
-//           isUser: m.role === "USER",
-//         })),
-//       },
-//     }));
-//   },
-
-//   ensureChatSession: async () => {
-//     const { activeChatId } = get();
-//     if (activeChatId) return activeChatId;
-
-//     const { data } = await axios.post("/api/c");
-
-//     set((state) => ({
-//       chatSessions: [data, ...state.chatSessions],
-//       activeChatId: data.id,
-//     }));
-
-//     return data.id;
-//   },
-
-//   createNewChat: async () => {
-//     const { data } = await axios.post("/api/c");
-
-//     set((state) => ({
-//       chatSessions: [data, ...state.chatSessions],
-//       activeChatId: data.id,
-//       input: "",
-//     }));
-//   },
-
-//   switchChat: async (chatId) => {
-//     set({ activeChatId: chatId, input: "" });
-//     await get().loadChatMessages(chatId);
-//   },
-// }));
-
-// import { create } from "zustand";
-// import { persist } from "zustand/middleware";
-
-// /* ================= TYPES ================= */
-
-// export interface Message {
-//   id: string;
-//   text: string;
-//   isUser: boolean;
-// }
-
-// export interface ChatSession {
-//   id: string;
-//   title: string;
-//   messages: Message[];
-//   createdAt: number;
-// }
-
-// interface ChatState {
-//   sessions: ChatSession[];
-//   activeSessionId: string;
-//   input: string;
-
-//   setInput: (v: string) => void;
-
-//   addMessage: (msg: Omit<Message, "id">) => string;
-//   updateMessage: (id: string, text: string) => void;
-
-//   newSession: () => void;
-//   switchSession: (id: string) => void;
-//   deleteSession: (id: string) => void;
-// }
-
-// /* ================= HELPERS ================= */
-
-// const createSession = (): ChatSession => ({
-//   id: crypto.randomUUID(),
-//   title: "New Chat",
-//   messages: [],
-//   createdAt: Date.now(),
-// });
-
-// /* ================= STORE ================= */
-
-// export const useChatStore = create<ChatState>()(
-//   persist(
-//     (set, get) => {
-//       const initial = createSession();
-
-//       return {
-//         sessions: [initial],
-//         activeSessionId: initial.id,
-//         input: "",
-
-//         setInput: (v) => set({ input: v }),
-
-//         addMessage: (msg) => {
-//           const id = crypto.randomUUID();
-
-//           set((state) => ({
-//             sessions: state.sessions.map((s) =>
-//               s.id === state.activeSessionId
-//                 ? {
-//                   ...s,
-//                   messages: [...s.messages, { ...msg, id }],
-//                   title:
-//                     s.messages.length === 0 && msg.isUser
-//                       ? msg.text.slice(0, 40)
-//                       : s.title,
-//                 }
-//                 : s
-//             ),
-//           }));
-
-//           return id;
-//         },
-
-//         updateMessage: (id, text) =>
-//           set((state) => ({
-//             sessions: state.sessions.map((s) =>
-//               s.id === state.activeSessionId
-//                 ? {
-//                   ...s,
-//                   messages: s.messages.map((m) =>
-//                     m.id === id ? { ...m, text } : m
-//                   ),
-//                 }
-//                 : s
-//             ),
-//           })),
-
-//         newSession: () =>
-//           set((state) => {
-//             const s = createSession();
-//             return {
-//               sessions: [s, ...state.sessions],
-//               activeSessionId: s.id,
-//               input: "",
-//             };
-//           }),
-
-//         switchSession: (id) =>
-//           set({ activeSessionId: id, input: "" }),
-
-//         deleteSession: (id) =>
-//           set((state) => {
-//             const remaining = state.sessions.filter((s) => s.id !== id);
-//             const fallback = remaining[0] ?? createSession();
-//             return {
-//               sessions: remaining.length ? remaining : [fallback],
-//               activeSessionId: fallback.id,
-//             };
-//           }),
-//       };
-//     },
-//     { name: "zuno-chat-v4" }
-//   )
-// );

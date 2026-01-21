@@ -4,17 +4,29 @@ import { useChatStore, useStreamStore } from "@/app/store";
 import { useEffect, useRef } from "react";
 import { IconButton } from "@/app/components/ui/Icon";
 
+type ChatInputProps = {
+    sendMessage: () => void;
+    stopResponse: () => void;
+
+    /** Optional controlled mode (used on `/`) */
+    value?: string;
+    onChange?: (value: string) => void;
+};
+
 export default function ChatInput({
     sendMessage,
     stopResponse,
-}: {
-    sendMessage: () => void;
-    stopResponse: () => void;
-}) {
-    const { input, setInput } = useChatStore();
+    value,
+    onChange,
+}: ChatInputProps) {
+    const { input: storeInput, setInput } = useChatStore();
     const { generating } = useStreamStore();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // 🔑 decide source of truth
+    const input = value !== undefined ? value : storeInput;
+    const setValue = onChange ?? setInput;
 
     useEffect(() => {
         if (!textareaRef.current) return;
@@ -33,7 +45,7 @@ export default function ChatInput({
                         placeholder="Message Zuno"
                         value={input}
                         rows={1}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e) => setValue(e.target.value)}
                         onKeyDown={(e) => {
                             if (
                                 e.key === "Enter" &&

@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import api from "@/lib/axios";
+import ConfirmDialog from "@/app/components/ui/ConfirmDialog";
+import SidebarSkeleton from "@/app/components/ui/SidebarSkeleton";
+import { AnimatePresence, motion } from "framer-motion";
 
 type User = {
     id: string;
@@ -21,7 +24,14 @@ export default function Sidebar() {
         activeChatId,
         switchChat,
         createNewChat,
+        deleteChatSession,
+        updateChatTitle,
     } = useChatStore();
+    console.log("🚀 ~ Sidebar ~ chatSessions:", chatSessions)
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const { sidebarOpen, toggleSidebar } = useUIStore();
 
@@ -69,8 +79,31 @@ export default function Sidebar() {
         return () => window.removeEventListener("click", close);
     }, []);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <SidebarSkeleton />;
     if (!user) return null;
+
+    const handleDeleteChat = async (chatId: string | null) => {
+        if (!chatId) return;
+
+        setDeleting(true);
+        try {
+            await toast.promise(
+                Promise.resolve(deleteChatSession(chatId)),
+                {
+                    loading: "Deleting chat...",
+                    success: "Chat deleted successfully",
+                    error: "Failed to delete chat",
+                },
+                { duration: 4000 }
+            );
+        } finally {
+            setDeleting(false);
+            // ✅ ALWAYS close dialog
+            setConfirmOpen(false);
+            setChatToDelete(null);
+        }
+    };
+
 
     return (
         <>
@@ -109,48 +142,49 @@ export default function Sidebar() {
 
                     {/* CHAT LIST */}
                     <div className="flex-1 overflow-y-auto px-3 pb-3 no-scrollbar">
-                        {chatSessions?.map((chat) => (
-                            <div
-                                key={chat?.id}
-                                onClick={() => switchChat(chat?.id)}
-                                className={`group flex items-center justify-between px-3 py-2 rounded-2xl cursor-pointer transition-all
-                                            ${chat?.id === activeChatId
-                                        ? "bg-blue-600/20 text-blue-300 font-bold"
-                                        : "hover:bg-white/5"
-                                    }`}
-                            >
-                                <span className="truncate text-sm flex-1">{chat?.title}</span>
+                        <AnimatePresence mode="popLayout">
+                            {chatSessions?.map((chat) => (
+                                <motion.div
+                                    key={chat.id}
+                                    layout
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{
+                                        opacity: 0,
+                                        x: -40,
+                                        scale: 0.95,
+                                        transition: { duration: 0.18 },
+                                    }}
+                                    onClick={() => {
+                                        switchChat(chat.id);
+                                        router.push(`/c/${chat.id}`);
+                                    }}
+                                    className={`group flex items-center justify-between px-3 py-2 rounded-2xl cursor-pointer transition-all
+                ${chat.id === activeChatId
+                                            ? "bg-blue-600/20 text-blue-300 font-bold"
+                                            : "hover:bg-white/5"
+                                        }`}
+                                >
+                                    <span className="truncate text-sm flex-1">{chat.title}</span>
 
-                                {/* MORE BUTTON */}
-                                <div className="opacity-0 group-hover:opacity-100 transition">
-                                    <IconButton
-                                        icon="MoreVertical"
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            const rect = (
-                                                e.currentTarget as HTMLElement
-                                            ).getBoundingClientRect();
+                                    <div className="opacity-0 group-hover:opacity-100 transition">
+                                        <IconButton
+                                            icon="MoreVertical"
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setMenuPos({ x: rect.right + 2, y: rect.top });
+                                                setOpenMenuId(chat.id);
+                                            }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
 
-                                            setMenuPos({
-                                                x: rect.right + 2,
-                                                y: rect.top,
-                                            });
-
-                                            setOpenMenuId(openMenuId === chat?.id ? null : chat?.id);
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
                     </div>
-
-                    {/* FOOTER */}
-                    {/* <div className="px-5 py-4 border-t border-white/10 flex justify-between text-xs text-gray-400">
-                        <span>{user.name ?? "User"}</span>
-                        <IconButton icon="MoreHorizontal" variant="ghost" />
-                    </div> */}
 
                     {/* FOOTER */}
                     <div className="px-5 py-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
@@ -204,14 +238,28 @@ export default function Sidebar() {
                             variant="ghost"
                             text="Delete"
                             onClick={() => {
-                                // deleteSession(openMenuId);
+                                setChatToDelete(openMenuId);
+                                setConfirmOpen(true);
                                 setOpenMenuId(null);
-                                console.log("Delete session");
                             }}
                         />
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={confirmOpen}
+                title="Delete chat?"
+                description="This chat and all its messages will be permanently deleted."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onCancel={() => {
+                    setConfirmOpen(false);
+                    setChatToDelete(null);
+                }}
+                onConfirm={() => handleDeleteChat(chatToDelete)}
+                loading={deleting}
+            />
 
             {/* FOOTER MENU */}
             {footerMenuOpen && footerMenuPos && (
