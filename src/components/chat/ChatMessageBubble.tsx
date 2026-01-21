@@ -5,8 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { IconButton } from "@/app/components/ui/Icon";
-import { useUIStore } from "@/app/store";
+import { IconButton } from "@/components/ui/Icon";
+import { useUIStore } from "@/store";
 
 const styles = {
     glass: "bg-white/10 backdrop-blur-md border border-white/20",
@@ -74,7 +74,7 @@ function CodeBlock({
     );
 }
 
-export default function MessageBubble({
+export default function ChatMessageBubble({
     text,
     isUser,
 }: {

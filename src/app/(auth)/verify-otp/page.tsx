@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-import AuthLayout from "@/app/components/Layout/AuthLayout";
 import api from "@/lib/axios";
+import AuthCard from "@/components/Layouts/AuthCard";
 
 /* ================= DEVICE NAME ================= */
 
@@ -209,7 +209,7 @@ export default function VerifyOtpPage() {
     /* ================= UI ================= */
 
     return (
-        <AuthLayout
+        <AuthCard
             title="Verify OTP"
             subtitle={`Enter the OTP sent to ${email}`}
             footer={
@@ -273,6 +273,6 @@ export default function VerifyOtpPage() {
                         : "Verify OTP"}
                 </button>
             </form>
-        </AuthLayout>
+        </AuthCard>
     );
 }

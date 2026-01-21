@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import AuthLayout from "@/app/components/Layout/AuthLayout";
 import InputField from "@/utils/InputField";
 import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
 import Link from "next/link";
+import AuthCard from "@/components/Layouts/AuthCard";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -72,7 +72,7 @@ export default function SignInPage() {
     };
 
     return (
-        <AuthLayout
+        <AuthCard
             title="Welcome back"
             subtitle="Sign in to your account"
             footer={
@@ -128,7 +128,7 @@ export default function SignInPage() {
                 setGoogleLoading={setGoogleLoading}
                 setGithubLoading={setGithubLoading}
             />
-        </AuthLayout>
+        </AuthCard>
     );
 }
 

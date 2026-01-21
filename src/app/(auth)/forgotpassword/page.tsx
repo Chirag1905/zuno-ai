@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import AuthLayout from "@/app/components/Layout/AuthLayout";
 import InputField from "@/utils/InputField";
 import Link from "next/link";
+import AuthCard from "@/components/Layouts/AuthCard";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <AuthLayout
+        <AuthCard
             title="Forgot password"
             subtitle="Enter your email address and we’ll send you a reset link"
             footer={
@@ -83,6 +83,6 @@ export default function ForgotPasswordPage() {
                     {loading ? "Sending..." : "Send reset link"}
                 </button>
             </form>
-        </AuthLayout>
+        </AuthCard>
     );
 }

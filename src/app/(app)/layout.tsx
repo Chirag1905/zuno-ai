@@ -1,16 +1,29 @@
 "use client";
 
-import Sidebar from "@/components/Layout/Sidebar";
-import Header from "@/components/Layout/Header";
-import { useUIStore } from "@/app/store";
+import Header from "@/components/Layouts/Header";
+import Sidebar from "@/components/Layouts/Sidebar";
+import { useChatStore, useUIStore } from "@/store";
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
-export default function ClientProvider({
+export default function AppLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const { sidebarOpen } = useUIStore();
+    const { loadChatSessions } = useChatStore();
+
+    const sidebarOpen = useUIStore((s) => s.sidebarOpen);
+
+    /* -------------------- Initial Load -------------------- */
+    useEffect(() => {
+        loadChatSessions();
+    }, [loadChatSessions]);
+
+    /* -------------------- Dark Mode -------------------- */
+    useEffect(() => {
+        document.documentElement.classList.add("dark");
+    }, []);
 
     return (
         <main className="h-screen w-screen relative">

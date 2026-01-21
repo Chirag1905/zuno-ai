@@ -1,34 +1,14 @@
 import { create } from "zustand";
-import axios from "axios";
+import type {
+  ChatMessage,
+  ChatSession,
+  ApiMessage,
+} from "@/types/chat";
+import { chatService } from "@/services/chat.api";
 
 /* ================= TYPES ================= */
 
-export interface ChatMessage {
-  id: string;
-  text: string;
-  isUser: boolean;
-}
-
-export interface ChatSession {
-  id: string;
-  title: string;
-}
-
-interface ApiMessage {
-  id: string;
-  content: string;
-  role: "USER" | "ASSISTANT";
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  status: number;
-  message: string;
-  data: T;
-  error: unknown;
-}
-
-interface ChatStore {
+export interface ChatStore {
   chatSessions: ChatSession[];
   activeChatId: string | null;
 
@@ -66,6 +46,8 @@ interface ChatStore {
 /* ================= STORE ================= */
 
 export const useChatStore = create<ChatStore>((set, get) => ({
+  /* ---------- STATE ---------- */
+
   chatSessions: [],
   activeChatId: null,
   messagesByChat: {},
@@ -103,7 +85,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       },
     })),
 
-  /* ✅ STABLE SELECTOR (IMPORTANT) */
+  /** ✅ stable selector (important for performance) */
   getMessagesForActiveChat: () => {
     const { activeChatId, messagesByChat } = get();
     return activeChatId ? messagesByChat[activeChatId] ?? [] : [];
@@ -112,38 +94,33 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   /* ---------- Chats ---------- */
 
   loadChatSessions: async () => {
-    const res = await axios.get<ApiResponse<ChatSession[]>>("/api/c");
-    console.log("🚀 ~ loadChatSessions:")
+    const res = await chatService.list();
     const chats = res.data.data;
 
+    // 🧠 ensure user always has a chat
     if (!chats || chats.length === 0) {
-      const createRes = await axios.post<ApiResponse<ChatSession>>("/api/c");
-
+      const created = await chatService.create();
       set({
-        chatSessions: [createRes.data.data],
-        activeChatId: createRes.data.data.id,
+        chatSessions: [created.data.data],
+        activeChatId: created.data.data.id,
       });
       return;
     }
 
-    set({
+    set((state) => ({
       chatSessions: chats,
-      activeChatId: chats[0].id,
-    });
+      activeChatId: state.activeChatId ?? chats[0].id,
+    }));
   },
 
-
   loadChatMessages: async (chatId) => {
-    const res = await axios.get<
-      ApiResponse<{ messages: ApiMessage[] }>
-    >(`/api/c/${chatId}`);
-
+    const res = await chatService.messages(chatId);
     const messages = res.data.data.messages;
 
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: messages.map((m) => ({
+        [chatId]: messages.map((m: ApiMessage) => ({
           id: m.id,
           text: m.content,
           isUser: m.role === "USER",
@@ -156,7 +133,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const { activeChatId } = get();
     if (activeChatId) return activeChatId;
 
-    const res = await axios.post<ApiResponse<ChatSession>>("/api/c");
+    const res = await chatService.create();
     const chat = res.data.data;
 
     set((state) => ({
@@ -168,7 +145,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   createNewChat: async () => {
-    const res = await axios.post<ApiResponse<ChatSession>>("/api/c");
+    const res = await chatService.create();
     const chat = res.data.data;
 
     set((state) => ({
@@ -180,19 +157,23 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     return chat.id;
   },
 
-
   switchChat: async (chatId) => {
+    const { activeChatId, messagesByChat } = get();
+
+    if (activeChatId === chatId && messagesByChat[chatId]) {
+      set({ input: "" });
+      return;
+    }
+
     set({ activeChatId: chatId, input: "" });
-    await get().loadChatMessages(chatId);
+
+    if (!messagesByChat[chatId]) {
+      await get().loadChatMessages(chatId);
+    }
   },
 
-  /* ---------- Edit Chat ---------- */
   updateChatTitle: async (chatId, title) => {
-    const res = await axios.patch<ApiResponse<ChatSession>>(
-      `/api/c/${chatId}`,
-      { title }
-    );
-
+    const res = await chatService.updateTitle(chatId, title);
     const updatedChat = res.data.data;
 
     set((state) => ({
@@ -202,14 +183,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }));
   },
 
-  /* ---------- Delete Chat ---------- */
   deleteChatSession: async (chatId) => {
-    await axios.delete<ApiResponse<null>>(`/api/c/${chatId}`);
+    await chatService.delete(chatId);
 
     let nextActiveChatId: string | null = null;
 
     set((state) => {
-      const index = state.chatSessions.findIndex((c) => c.id === chatId);
+      const index = state.chatSessions.findIndex(
+        (c) => c.id === chatId
+      );
 
       const remainingChats = state.chatSessions.filter(
         (c) => c.id !== chatId
@@ -217,11 +199,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       let newActiveChatId = state.activeChatId;
 
-      // ✅ If deleted chat was active → select next or previous
+      // 🧠 if deleted chat was active → choose next or previous
       if (state.activeChatId === chatId) {
         newActiveChatId =
-          remainingChats[index]?.id ||       // next chat
-          remainingChats[index - 1]?.id ||   // previous chat
+          remainingChats[index]?.id ??
+          remainingChats[index - 1]?.id ??
           null;
       }
 
@@ -238,10 +220,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       };
     });
 
-    // ✅ Ensure user is never stuck without a chat
+    // 🛡 ensure app never ends without a chat
     if (!nextActiveChatId) {
       await get().createNewChat();
     }
   },
-
 }));

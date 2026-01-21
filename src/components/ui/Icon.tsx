@@ -42,7 +42,7 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
     textPosition?: "left" | "right";
     textClassName?: string;
     compact?: boolean;
-    rounded?: "full" | "lg" | "md" | "sm" | "none";
+    rounded?: "full" | "xl" | "lg" | "md" | "sm" | "none";
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -106,6 +106,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 sm: "rounded-sm",
                 md: "rounded-md",
                 lg: "rounded-lg",
+                xl: "rounded-xl",
                 full: "rounded-full",
             };
             return roundedMap[rounded];

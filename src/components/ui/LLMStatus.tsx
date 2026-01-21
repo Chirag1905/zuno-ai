@@ -1,7 +1,7 @@
 "use client";
 
 import { IconButton } from "@/components/ui/Icon";
-import { useLLMStore } from "@/app/store";
+import { useLLMStore } from "@/store";
 import { useEffect } from "react";
 
 export function LLMStatus() {

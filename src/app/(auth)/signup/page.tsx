@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import AuthLayout from "@/app/components/Layout/AuthLayout";
 import InputField from "@/utils/InputField";
 import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
 import Link from "next/link";
+import AuthCard from "@/components/Layouts/AuthCard";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -62,7 +62,7 @@ export default function SignUpPage() {
     };
 
     return (
-        <AuthLayout
+        <AuthCard
             title="Create your account"
             subtitle="Start building today"
             footer={
@@ -115,7 +115,7 @@ export default function SignUpPage() {
                 setGoogleLoading={setGoogleLoading}
                 setGithubLoading={setGithubLoading}
             />
-        </AuthLayout>
+        </AuthCard>
     );
 }
 

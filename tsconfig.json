@@ -39,16 +39,16 @@
         "src/app/db/*"
       ],
       "@/types/*": [
-        "src/app/types/*"
+        "src/types/*"
       ],
       "@/components/*": [
-        "src/app/components/*"
+        "src/components/*"
       ],
       "@/lib/*": [
         "src/lib/*"
       ],
       "@/store/*": [
-        "src/app/store/*"
+        "src/store/*"
       ]
     }
   },

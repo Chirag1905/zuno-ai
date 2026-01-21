@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { IconButton } from "@/app/components/ui/Icon";
+import { IconButton } from "@/components/ui/Icon";
 
 type ConfirmDialogProps = {
     open: boolean;
@@ -64,35 +64,26 @@ export default function ConfirmDialog({
                             {/* ACTIONS */}
                             <div className="mt-6 flex justify-end gap-3">
                                 <IconButton
+                                    icon="XCircle"
+                                    size="md"
+                                    rounded="xl"
+                                    variant="minimal"
                                     text={cancelText}
-                                    variant="ghost"
                                     onClick={onCancel}
                                 />
-
-                                {/* <IconButton
-                                    text={loading ? "Deleting..." : confirmText}
-                                    variant="optional"
-                                    className="bg-red-600/20 text-red-400 hover:bg-red-600/30"
-                                    disabled={loading}
-                                    onClick={onConfirm}
-                                /> */}
                                 <IconButton
+                                    icon={loading ? "LoaderPinwheel" : "CircleCheck"}
+                                    size="md"
+                                    rounded="xl"
                                     variant="optional"
                                     disabled={loading}
                                     onClick={onConfirm}
+                                    iconClassName={loading ? "animate-spin" : ""}
                                     className={`bg-red-600/20 text-red-400 hover:bg-red-600/30 flex items-center gap-2
-                                                ${loading ? "cursor-not-allowed opacity-80" : ""}
+                                    ${loading ? "cursor-not-allowed opacity-80" : ""}
                                     `}
-                                    text={!loading ? confirmText : ""}
-                                >
-                                    {loading && (
-                                        <>
-                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
-                                            <span className="text-base">Deleting...</span>
-                                        </>
-                                    )}
-                                </IconButton>
-
+                                    text={!loading ? confirmText : `${confirmText}ing...`}
+                                />
                             </div>
                         </div>
                     </motion.div>

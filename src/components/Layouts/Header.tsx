@@ -1,8 +1,8 @@
 "use client";
 import { IconButton } from "@/components/ui/Icon";
 import { LLMStatus } from "@/components/ui/LLMStatus";
-import ZunoLogo from "@/components/ui/zunoLogo";
-import { useUIStore } from "@/app/store";
+import ZunoLogo from "@/components/ui/ZunoLogo";
+import { useUIStore } from "@/store";
 
 export default function Header() {
 

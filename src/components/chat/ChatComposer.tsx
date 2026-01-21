@@ -1,31 +1,28 @@
 "use client";
 
-import { useChatStore, useStreamStore } from "@/app/store";
+import { IconButton } from "@/components/ui/Icon";
+import { useChatStore, useStreamStore } from "@/store";
 import { useEffect, useRef } from "react";
-import { IconButton } from "@/app/components/ui/Icon";
 
-type ChatInputProps = {
+type ChatComposerProps = {
     sendMessage: () => void;
     stopResponse: () => void;
-
-    /** Optional controlled mode (used on `/`) */
     value?: string;
     onChange?: (value: string) => void;
 };
 
-export default function ChatInput({
+export default function ChatComposer({
     sendMessage,
     stopResponse,
     value,
     onChange,
-}: ChatInputProps) {
+}: ChatComposerProps) {
     const { input: storeInput, setInput } = useChatStore();
     const { generating } = useStreamStore();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // 🔑 decide source of truth
-    const input = value !== undefined ? value : storeInput;
+    const input = value ?? storeInput;
     const setValue = onChange ?? setInput;
 
     useEffect(() => {
@@ -41,22 +38,19 @@ export default function ChatInput({
                 <div className="flex items-center gap-3 px-5 py-2.5 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
                     <textarea
                         ref={textareaRef}
-                        className="flex-1 bg-transparent resize-none text-sm text-white placeholder:text-gray-400 focus:outline-none leading-6 max-h-40 overflow-y-auto"
-                        placeholder="Message Zuno"
                         value={input}
                         rows={1}
+                        disabled={generating}
+                        placeholder="Message Zuno"
+                        // className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none leading-6 max-h-40 overflow-y-auto"
+                        className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none"
                         onChange={(e) => setValue(e.target.value)}
                         onKeyDown={(e) => {
-                            if (
-                                e.key === "Enter" &&
-                                !e.shiftKey &&
-                                !e.nativeEvent.isComposing
-                            ) {
+                            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                                 e.preventDefault();
                                 sendMessage();
                             }
                         }}
-                        disabled={generating}
                     />
 
                     <IconButton

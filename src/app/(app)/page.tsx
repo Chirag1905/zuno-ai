@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useChatStore } from "@/app/store";
-import { SidebarBrand } from "@/app/components/ui/sidebarBrand";
-import ChatInput from "@/app/components/chat/ChatInput";
-import { useRouter } from "next/router";
+import { useChatStore } from "@/store";
+import { SidebarBrand } from "@/components/ui/SidebarBrand";
+import { useRouter } from "next/navigation";
+import ChatComposer from "@/components/chat/ChatComposer";
 
 export default function Home() {
 
@@ -34,7 +34,7 @@ export default function Home() {
             <p className="mt-2 mb-8 text-gray-200 text-lg">
                 How can I help you?
             </p>
-            <ChatInput
+            <ChatComposer
                 value={localInput}
                 onChange={setLocalInput}
                 sendMessage={handleSend}

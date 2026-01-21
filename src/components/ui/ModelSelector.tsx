@@ -1,6 +1,6 @@
 "use client";
 
-import { useModelStore } from "@/app/store";
+import { useModelStore } from "@/store";
 
 export function ModelSelector() {
     const { model, setModel } = useModelStore();
