@@ -162,7 +162,6 @@ export default function Sidebar() {
                         <IconButton
                             icon="MessageCirclePlus"
                             text="New Chat"
-                            withText
                             size="md"
                             className="w-full justify-center py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-3xl shadow-md hover:shadow-blue-500/40"
                             onClick={createNewChat}

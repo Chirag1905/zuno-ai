@@ -1,6 +1,7 @@
 "use client";
 
 import { IconButton } from "@/components/ui/Icon";
+import ModelSelector from "@/components/ui/ModelSelector";
 import { useChatStore, useStreamStore } from "@/store";
 import { useEffect, useRef } from "react";
 
@@ -53,6 +54,7 @@ export default function ChatComposer({
                         }}
                     />
 
+                    <ModelSelector />
                     <IconButton
                         icon={generating ? "Square" : "ArrowUp"}
                         size="lg"

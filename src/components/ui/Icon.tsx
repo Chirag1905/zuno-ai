@@ -1,11 +1,11 @@
 "use client";
 
 import * as LucideIcons from "lucide-react";
-import { memo, forwardRef } from "react";
+import React, { memo, forwardRef } from "react";
 
 export type IconName = keyof typeof LucideIcons;
 
-// ==================== ICON COMPONENT ====================
+/* ==================== ICON ==================== */
 interface IconProps extends React.SVGProps<SVGSVGElement> {
     name: IconName;
     size?: number;
@@ -26,21 +26,28 @@ export const Icon = memo(function Icon({
         return null;
     }
 
-    return <LucideIcon width={size} height={size} className={className} {...props} />;
+    return (
+        <LucideIcon
+            width={size}
+            height={size}
+            className={className}
+            {...props}
+        />
+    );
 });
 
 Icon.displayName = "Icon";
 
-// ==================== SINGLE ICON BUTTON COMPONENT ====================
-interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+/* ==================== ICON BUTTON ==================== */
+interface IconButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: IconName;
     size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
     variant?: "default" | "ghost" | "outline" | "minimal" | "optional";
     iconClassName?: string;
-    withText?: boolean;
     text?: string;
-    textPosition?: "left" | "right";
     textClassName?: string;
+    iconPosition?: "left" | "right"; // ✅ DEFAULT LEFT
     compact?: boolean;
     rounded?: "full" | "xl" | "lg" | "md" | "sm" | "none";
 }
@@ -52,10 +59,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             size = "md",
             variant = "default",
             iconClassName = "",
-            withText = false,
             text = "",
-            textPosition = "right",
             textClassName = "",
+            iconPosition = "left", // ✅ DEFAULT
             compact = false,
             rounded = "full",
             className = "",
@@ -63,17 +69,17 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         },
         ref
     ) {
-        // Size mapping
+        /* ---------- Size ---------- */
         const getSize = () => {
             if (typeof size === "number") {
                 return {
                     button: compact ? "p-1" : "p-2",
                     iconSize: size,
-                    textSize: "text-base"
+                    textSize: "text-base",
                 };
             }
 
-            const sizeMap = {
+            const map = {
                 xs: { button: compact ? "p-0.5" : "p-1", iconSize: 12, textSize: "text-xs" },
                 sm: { button: compact ? "p-1" : "p-1.5", iconSize: 14, textSize: "text-sm" },
                 md: { button: compact ? "p-1.5" : "p-2", iconSize: 16, textSize: "text-base" },
@@ -81,14 +87,14 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 xl: { button: compact ? "p-2.5" : "p-3", iconSize: 20, textSize: "text-xl" },
             };
 
-            return sizeMap[size];
+            return map[size];
         };
 
-        // Variant styles
+        /* ---------- Variant ---------- */
         const getVariantStyle = () => {
-            const baseStyles = "transition-colors";
+            const base = "transition-colors";
 
-            const variantMap = {
+            const variants = {
                 default: "bg-gray-800/60 hover:bg-gray-700 text-gray-200",
                 ghost: "hover:bg-gray-800/40 text-gray-300",
                 outline: "border border-gray-700 hover:bg-gray-800/40 text-gray-300",
@@ -96,12 +102,12 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 optional: "outline-none text-gray-200",
             };
 
-            return `${baseStyles} ${variantMap[variant]}`;
+            return `${base} ${variants[variant]}`;
         };
 
-        // Rounded styles
+        /* ---------- Rounded ---------- */
         const getRoundedStyle = () => {
-            const roundedMap = {
+            const map = {
                 none: "rounded-none",
                 sm: "rounded-sm",
                 md: "rounded-md",
@@ -109,48 +115,45 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 xl: "rounded-xl",
                 full: "rounded-full",
             };
-            return roundedMap[rounded];
+            return map[rounded];
         };
 
         const sizeConfig = getSize();
-        const variantStyle = getVariantStyle();
-        const roundedStyle = getRoundedStyle();
 
         const iconElement = icon ? (
-            <Icon name={icon} size={sizeConfig.iconSize} className={iconClassName} />
+            <Icon
+                name={icon}
+                size={sizeConfig.iconSize}
+                className={iconClassName}
+            />
         ) : null;
 
-        // Render button with text
-        if (withText || text) {
-            return (
-                <button
-                    ref={ref}
-                    className={`flex items-center gap-2 ${sizeConfig.button} ${variantStyle} ${roundedStyle} ${className}`}
-                    {...props}
-                >
-                    {textPosition === "left" && text && (
-                        <span className={`${sizeConfig.textSize} ${textClassName}`}>{text}</span>
-                    )}
+        const hasText = Boolean(text);
 
-                    {textPosition === "left" && iconElement}
-
-                    {textPosition === "right" && iconElement}
-
-                    {text && textPosition === "right" && (
-                        <span className={`${sizeConfig.textSize} ${textClassName}`}>{text}</span>
-                    )}
-                </button>
-            );
-        }
-
-        // Render icon-only button
         return (
             <button
                 ref={ref}
-                className={`${sizeConfig.button} ${variantStyle} ${roundedStyle} ${className}`}
+                className={`
+                    flex items-center gap-2
+                    ${sizeConfig.button}
+                    ${getVariantStyle()}
+                    ${getRoundedStyle()}
+                    ${className}
+                `}
                 {...props}
             >
-                {iconElement ?? props.children}
+                {/* ICON LEFT (DEFAULT) */}
+                {iconPosition === "left" && iconElement}
+
+                {/* TEXT */}
+                {hasText && (
+                    <span className={`${sizeConfig.textSize} ${textClassName}`}>
+                        {text}
+                    </span>
+                )}
+
+                {/* ICON RIGHT */}
+                {iconPosition === "right" && iconElement}
             </button>
         );
     }
@@ -158,5 +161,5 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 
 IconButton.displayName = "IconButton";
 
-// ==================== EXPORT ALL ====================
+/* ==================== EXPORT ==================== */
 export default Icon;

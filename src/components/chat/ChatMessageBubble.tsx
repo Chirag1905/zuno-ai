@@ -47,7 +47,6 @@ function CodeBlock({
                     size="sm"
                     variant="ghost"
                     text={copied ? "Copied" : "Copy"}
-                    withText
                     textClassName="text-sm text-gray-100"
                     className="bg-black/60 hover:bg-black/10 px-2"
                     onClick={() => {

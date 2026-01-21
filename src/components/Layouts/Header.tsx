@@ -45,7 +45,6 @@ export default function Header() {
             onClick={toggleSidebar}
           />
         </div>
-        {/* <ModelSelector /> */}
         <LLMStatus />
         <IconButton
           icon="Droplet"
