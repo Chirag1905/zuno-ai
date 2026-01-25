@@ -9,6 +9,7 @@ type SendPayload = {
     chatId: string;
     model: string;
     text: string;
+    mode?: "new" | "regenerate";
 };
 
 interface StreamState {
@@ -18,8 +19,6 @@ interface StreamState {
 
     send: (payload: SendPayload) => Promise<void>;
     stop: () => void;
-    setTyping: (v: boolean) => void;
-    setGenerating: (v: boolean) => void;
 }
 
 /* ================= STORE ================= */
@@ -29,11 +28,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
     generating: false,
     abort: null,
 
-    setTyping: (v) => set({ typing: v }),
-    setGenerating: (v) => set({ generating: v }),
-
-    send: async ({ chatId, model, text }) => {
-
+    send: async ({ chatId, model, text, mode = "new" }) => {
         const { model: selectedModel, setAutoSelectedModel } =
             useModelStore.getState();
 
@@ -45,8 +40,10 @@ export const useStreamStore = create<StreamState>((set, get) => ({
             setAutoSelectedModel(finalModel as LocalModel);
         }
 
-        const { addMessage, updateMessage } = useChatStore.getState();
+        const { addMessage } = useChatStore.getState();
 
+        // 🔹 Always create a fresh assistant message
+        // (previous one is already removed for regenerate)
         const assistantId = addMessage(chatId, {
             text: "",
             isUser: false,
@@ -68,16 +65,20 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                 signal: controller.signal,
                 onChunk: (chunk) => {
                     set({ typing: false });
-                    updateMessage(chatId, assistantId, chunk);
+                    useChatStore
+                        .getState()
+                        .updateMessage(chatId, assistantId, chunk);
                 },
             });
         } catch (err) {
             if ((err as Error).name !== "AbortError") {
-                updateMessage(
-                    chatId,
-                    assistantId,
-                    "⚠️ Error generating response"
-                );
+                useChatStore
+                    .getState()
+                    .updateMessage(
+                        chatId,
+                        assistantId,
+                        "⚠️ Error generating response"
+                    );
             }
         } finally {
             set({

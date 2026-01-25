@@ -41,6 +41,7 @@ export interface ChatStore {
 
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
   deleteChatSession: (chatId: string) => Promise<void>;
+  removeLastAssistantMessage: (chatId: string) => void;
 }
 
 const mapApiMessages = (messages: ApiMessage[]) =>
@@ -190,4 +191,20 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
     if (!nextId) await get().createNewChat();
   },
+
+  removeLastAssistantMessage: (chatId) =>
+    set((state) => {
+      const messages = state.messagesByChat[chatId] ?? [];
+      if (!messages.length) return state;
+
+      const last = messages[messages.length - 1];
+      if (last.isUser) return state;
+
+      return {
+        messagesByChat: {
+          ...state.messagesByChat,
+          [chatId]: messages.slice(0, -1),
+        },
+      };
+    }),
 }));

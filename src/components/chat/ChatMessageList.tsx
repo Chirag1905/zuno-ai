@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { ChatMessage } from "@/types/chat";
 import ChatTypingIndicator from "@/components/chat/ChatTypingIndicator";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
@@ -16,24 +15,19 @@ export default function ChatMessageList({
     typing,
     bottomRef,
 }: ChatMessageListProps) {
-    // const bottomRef = useRef<HTMLDivElement>(null);
-
-    // useEffect(() => {
-    //     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    // }, [messages, typing]);
 
     return (
         <div className="w-full max-w-205 mx-auto px-2 space-y-4">
             {messages.map((msg, index) => {
-                const isLastMessage = index === messages.length - 1;
-
+                const isLast = index === messages.length - 1;
                 // Avoid rendering last assistant message when streaming
-                if (typing && isLastMessage && !msg.isUser) return null;
+                if (typing && isLast && !msg.isUser) return null;
                 return (
                     <ChatMessageBubble
                         key={`${msg.isUser}-${index}`}
                         text={msg.text}
                         isUser={msg.isUser}
+                        isLast={isLast}
                     />
                 );
             })}

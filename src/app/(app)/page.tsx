@@ -1,76 +1,14 @@
 "use client";
 
-import { useCallback } from "react";
-import { useChatStore, useLLMStore, useModelStore, useStreamStore } from "@/store";
+import { useChatStore } from "@/store";
 import { SidebarBrand } from "@/components/ui/SidebarBrand";
-import { useRouter } from "next/navigation";
 import ChatComposer from "@/components/chat/ChatComposer";
+import { useSendMessage } from "@/hooks/useSendMessage";
 
 export default function Home() {
-    const router = useRouter();
-    const {
-        input,
-        activeChatId,
-        setInput,
-        addMessage,
-        ensureChatSession,
-    } = useChatStore()
-
-    const { model } = useModelStore();
-    const { online } = useLLMStore();
-    const { send, generating } = useStreamStore();
-
-    const generateChatTitle = (text: string) => {
-        return text
-            .replace(/\n/g, " ")
-            .slice(0, 40)
-            .trim();
-    };
-
-    const sendMessage = useCallback(async () => {
-        if (!input.trim() || generating) return;
-
-        const userText = input.trim();
-        const chatId =
-            activeChatId ?? (await ensureChatSession());
-        const messages =
-            useChatStore.getState().messagesByChat[chatId] ?? [];
-
-        addMessage(chatId, { text: userText, isUser: true });
-        setInput("");
-
-        // 🔹 First message → title
-        if (messages.length === 0) {
-            const title = generateChatTitle(userText);
-            useChatStore.getState().updateChatTitle(chatId, title);
-        }
-
-        // 🔹 Redirect ONLY from home
-        if (!activeChatId) {
-            router.push(`/c/${chatId}`);
-        }
-
-        if (!online) {
-            addMessage(chatId, {
-                text: "⚠️ Local LLM is offline.\n\nStart Ollama to continue.",
-                isUser: false,
-            });
-            return;
-        }
-
-        await send({ chatId, model, text: userText, });
-    }, [
-        input,
-        generating,
-        activeChatId,
-        addMessage,
-        ensureChatSession,
-        setInput,
-        send,
-        model,
-        online,
-        router,
-    ]);
+    const input = useChatStore((s) => s.input);
+    const setInput = useChatStore((s) => s.setInput);
+    const sendMessage = useSendMessage();
     return (
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center transition-opacity duration-300 animate-fade-in">
             <SidebarBrand />

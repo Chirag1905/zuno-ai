@@ -6,7 +6,8 @@ import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { IconButton } from "@/components/ui/Icon";
-import { useUIStore } from "@/store";
+import { useStreamStore, useUIStore } from "@/store";
+import { useRegenerateMessage } from "@/hooks/useRegenerateMessage";
 
 const styles = {
     glass: "bg-white/10 backdrop-blur-md border border-white/20",
@@ -76,10 +77,14 @@ function CodeBlock({
 export default function ChatMessageBubble({
     text,
     isUser,
+    isLast,
 }: {
     text: string;
     isUser: boolean;
+    isLast: boolean;
 }) {
+    const regenerate = useRegenerateMessage();
+    const generating = useStreamStore((s) => s.generating);
     const theme = useUIStore((s) => s.theme);
     const themeClass = styles[theme];
 
@@ -210,6 +215,16 @@ export default function ChatMessageBubble({
                                 variant="ghost"
                                 className="hover:bg-white/10 hover:scale-105 active:scale-95"
                                 onClick={() => setEditing(true)}
+                            />
+                        )}
+                        {/* 🔁 REGENERATE (only last assistant message) */}
+                        {!isUser && isLast && (
+                            <IconButton
+                                icon="RefreshCcw"
+                                size="sm"
+                                variant="ghost"
+                                disabled={generating}
+                                onClick={regenerate}
                             />
                         )}
                     </div>

@@ -65,6 +65,7 @@ export function useSendMessage() {
             chatId,
             model,
             text: userText,
+            mode: "new",
         });
     }, [
         input,
