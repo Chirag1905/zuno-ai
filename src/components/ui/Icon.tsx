@@ -147,7 +147,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 
                 {/* TEXT */}
                 {hasText && (
-                    <span className={`${sizeConfig.textSize} ${textClassName}`}>
+                    <span className={`${sizeConfig.textSize} leading-none ${textClassName}`}>
                         {text}
                     </span>
                 )}

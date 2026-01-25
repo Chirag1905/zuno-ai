@@ -21,7 +21,6 @@ export default function ChatPage() {
         activeChatId,
         setInput,
         addMessage,
-        ensureChatSession,
         switchChat,
     } = useChatStore();
 
@@ -36,9 +35,9 @@ export default function ChatPage() {
     }, [chatId, switchChat]);
 
     /* -------------------- Stop on Chat Switch -------------------- */
-    useEffect(() => {
-        stop();
-    }, [activeChatId, stop]);
+    // useEffect(() => {
+    //     stop();
+    // }, [activeChatId, stop]);
 
     /* -------------------- ESC to Stop -------------------- */
     useEffect(() => {
@@ -49,6 +48,7 @@ export default function ChatPage() {
         return () => window.removeEventListener("keydown", handler);
     }, [generating, stop]);
 
+
     const generateChatTitle = (text: string) => {
         return text
             .replace(/\n/g, " ")
@@ -58,26 +58,23 @@ export default function ChatPage() {
 
     /* -------------------- Send Message -------------------- */
     const sendMessage = useCallback(async () => {
-        if (!input.trim() || generating) return;
+        if (!input.trim() || generating || !activeChatId) return;
 
-        const sessionId = await ensureChatSession();
         const userText = input.trim();
 
         const messages =
-            useChatStore.getState().messagesByChat[sessionId] ?? [];
+            useChatStore.getState().messagesByChat[activeChatId] ?? [];
 
-        const isFirstMessage = messages.length === 0;
-
-        addMessage(sessionId, { text: userText, isUser: true });
+        addMessage(activeChatId, { text: userText, isUser: true });
         setInput("");
 
-        if (isFirstMessage) {
+        if (messages.length === 0) {
             const title = generateChatTitle(userText);
-            useChatStore.getState().updateChatTitle(sessionId, title);
+            useChatStore.getState().updateChatTitle(activeChatId, title);
         }
 
         if (!online) {
-            addMessage(sessionId, {
+            addMessage(activeChatId, {
                 text: "⚠️ Local LLM is offline.\n\nStart Ollama to continue.",
                 isUser: false,
             });
@@ -85,14 +82,14 @@ export default function ChatPage() {
         }
 
         await send({
-            chatId: sessionId,
+            chatId: activeChatId,
             model,
             text: userText,
         });
     }, [
         input,
         generating,
-        ensureChatSession,
+        activeChatId,
         addMessage,
         setInput,
         send,

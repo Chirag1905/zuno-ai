@@ -3,11 +3,17 @@ import { IconButton } from "@/components/ui/Icon";
 import { LLMStatus } from "@/components/ui/LLMStatus";
 import ZunoLogo from "@/components/ui/ZunoLogo";
 import { useChatStore, useUIStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-
+  const router = useRouter();
   const { theme, sidebarOpen, setTheme, toggleSidebar } = useUIStore();
-  const createNewChat = useChatStore(s => s.createNewChat);
+  const startDraftChat = useChatStore(s => s.startDraftChat);
+
+  const handleSubmit = () => {
+    startDraftChat();
+    router.push('/');
+  };
 
   return (
     <>
@@ -27,7 +33,7 @@ export default function Header() {
               size="lg"
               variant="minimal"
               compact
-              onClick={createNewChat}
+              onClick={handleSubmit}
             />
           </div>
         </div>

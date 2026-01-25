@@ -1,38 +1,41 @@
 "use client";
 
 import { useCallback } from "react";
-import { useChatStore, useLLMStore, useModelStore, useStreamStore } from "@/store";
-import { SidebarBrand } from "@/components/ui/SidebarBrand";
 import { useRouter } from "next/navigation";
-import ChatComposer from "@/components/chat/ChatComposer";
+import {
+    useChatStore,
+    useLLMStore,
+    useModelStore,
+    useStreamStore,
+} from "@/store";
 
-export default function Home() {
+const generateChatTitle = (text: string) =>
+    text.replace(/\n/g, " ").slice(0, 40).trim();
+
+export function useSendMessage() {
     const router = useRouter();
+
     const {
         input,
         activeChatId,
         setInput,
         addMessage,
         ensureChatSession,
-    } = useChatStore()
+    } = useChatStore();
 
     const { model } = useModelStore();
     const { online } = useLLMStore();
     const { send, generating } = useStreamStore();
 
-    const generateChatTitle = (text: string) => {
-        return text
-            .replace(/\n/g, " ")
-            .slice(0, 40)
-            .trim();
-    };
-
-    const sendMessage = useCallback(async () => {
+    return useCallback(async () => {
         if (!input.trim() || generating) return;
 
         const userText = input.trim();
+
+        // 🔹 Ensure chat exists (draft → real)
         const chatId =
             activeChatId ?? (await ensureChatSession());
+
         const messages =
             useChatStore.getState().messagesByChat[chatId] ?? [];
 
@@ -45,7 +48,7 @@ export default function Home() {
             useChatStore.getState().updateChatTitle(chatId, title);
         }
 
-        // 🔹 Redirect ONLY from home
+        // 🔹 Redirect only once (from / → /c/id)
         if (!activeChatId) {
             router.push(`/c/${chatId}`);
         }
@@ -58,30 +61,21 @@ export default function Home() {
             return;
         }
 
-        await send({ chatId, model, text: userText, });
+        await send({
+            chatId,
+            model,
+            text: userText,
+        });
     }, [
         input,
         generating,
         activeChatId,
-        addMessage,
         ensureChatSession,
+        addMessage,
         setInput,
         send,
         model,
         online,
         router,
     ]);
-    return (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center transition-opacity duration-300 animate-fade-in">
-            <SidebarBrand />
-            <p className="mt-2 mb-8 text-gray-200 font-bold text-lg">
-                How can I help you?
-            </p>
-            <ChatComposer
-                value={input}
-                onChange={setInput}
-                sendMessage={sendMessage}
-            />
-        </div>
-    );
 }

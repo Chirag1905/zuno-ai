@@ -14,9 +14,11 @@ export interface ChatStore {
 
   messagesByChat: Record<string, ChatMessage[]>;
   input: string;
+  isDraftChat: boolean;
 
   /* ---------- UI ---------- */
   setInput: (value: string) => void;
+  startDraftChat: () => void;
 
   /* ---------- Messages ---------- */
   addMessage: (
@@ -30,8 +32,6 @@ export interface ChatStore {
     text: string
   ) => void;
 
-  getMessagesForActiveChat: () => ChatMessage[];
-
   /* ---------- Chats ---------- */
   loadChatSessions: () => Promise<void>;
   loadChatMessages: (chatId: string) => Promise<void>;
@@ -43,32 +43,36 @@ export interface ChatStore {
   deleteChatSession: (chatId: string) => Promise<void>;
 }
 
+const mapApiMessages = (messages: ApiMessage[]) =>
+  messages.map((m) => ({
+    id: m.id,
+    text: m.content,
+    isUser: m.role === "USER",
+  }));
+
 /* ================= STORE ================= */
 
 export const useChatStore = create<ChatStore>((set, get) => ({
-  /* ---------- STATE ---------- */
-
   chatSessions: [],
   activeChatId: null,
   messagesByChat: {},
   input: "",
+  isDraftChat: false,
 
   /* ---------- UI ---------- */
+  setInput: (input) => set({ input }),
 
-  setInput: (value) => set({ input: value }),
+  startDraftChat: () =>
+    set({ activeChatId: null, input: "", isDraftChat: true }),
 
   /* ---------- Messages ---------- */
-
   addMessage: (chatId, message) => {
     const id = crypto.randomUUID();
 
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: [
-          ...(state.messagesByChat[chatId] ?? []),
-          { id, ...message },
-        ],
+        [chatId]: [...(state.messagesByChat[chatId] ?? []), { id, ...message }],
       },
     }));
 
@@ -79,74 +83,50 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: (state.messagesByChat[chatId] ?? []).map((m) =>
+        [chatId]: state.messagesByChat[chatId]?.map((m) =>
           m.id === messageId ? { ...m, text } : m
-        ),
+        ) ?? [],
       },
     })),
 
-  /** ✅ stable selector (important for performance) */
-  getMessagesForActiveChat: () => {
-    const { activeChatId, messagesByChat } = get();
-    return activeChatId ? messagesByChat[activeChatId] ?? [] : [];
-  },
-
   /* ---------- Chats ---------- */
-
   loadChatSessions: async () => {
-    const res = await chatService.list();
-    const chats = res.data.data;
+    const { data } = await chatService.list();
+    const chats = data.data;
 
-    // 🧠 ensure user always has a chat
-    if (!chats || chats.length === 0) {
-      const created = await chatService.create();
-      set({
-        chatSessions: [created.data.data],
-        activeChatId: created.data.data.id,
-      });
-      return;
-    }
-
-    set((state) => ({
-      chatSessions: chats,
-      activeChatId: state.activeChatId ?? chats[0].id,
-    }));
+    set({ chatSessions: chats });
   },
 
   loadChatMessages: async (chatId) => {
-    const res = await chatService.messages(chatId);
-    const messages = res.data.data.messages;
+    const { data } = await chatService.messages(chatId);
 
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: messages.map((m: ApiMessage) => ({
-          id: m.id,
-          text: m.content,
-          isUser: m.role === "USER",
-        })),
+        [chatId]: mapApiMessages(data.data.messages),
       },
     }));
   },
 
   ensureChatSession: async () => {
-    const { activeChatId } = get();
-    if (activeChatId) return activeChatId;
+    const { activeChatId, isDraftChat } = get();
+    if (activeChatId && !isDraftChat) return activeChatId;
 
-    const res = await chatService.create();
-    const chat = res.data.data;
+    const { data } = await chatService.create();
+    const chat = data.data;
 
     set((state) => ({
       chatSessions: [chat, ...state.chatSessions],
       activeChatId: chat.id,
+      isDraftChat: false,
     }));
 
     return chat.id;
   },
 
   createNewChat: async () => {
-    const res = await chatService.create();
-    const chat = res.data.data;
+    const { data } = await chatService.create();
+    const chat = data.data;
 
     set((state) => ({
       chatSessions: [chat, ...state.chatSessions],
@@ -160,7 +140,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   switchChat: async (chatId) => {
     const { activeChatId, messagesByChat } = get();
 
-    if (activeChatId === chatId && messagesByChat[chatId]) {
+    if (activeChatId === chatId) {
       set({ input: "" });
       return;
     }
@@ -173,12 +153,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   updateChatTitle: async (chatId, title) => {
-    const res = await chatService.updateTitle(chatId, title);
-    const updatedChat = res.data.data;
+    const { data } = await chatService.updateTitle(chatId, title);
+    const updated = data.data;
 
     set((state) => ({
       chatSessions: state.chatSessions.map((c) =>
-        c.id === chatId ? updatedChat : c
+        c.id === chatId ? updated : c
       ),
     }));
   },
@@ -186,43 +166,28 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   deleteChatSession: async (chatId) => {
     await chatService.delete(chatId);
 
-    let nextActiveChatId: string | null = null;
+    let nextId: string | null = null;
 
     set((state) => {
-      const index = state.chatSessions.findIndex(
-        (c) => c.id === chatId
-      );
+      const index = state.chatSessions.findIndex((c) => c.id === chatId);
+      const remaining = state.chatSessions.filter((c) => c.id !== chatId);
 
-      const remainingChats = state.chatSessions.filter(
-        (c) => c.id !== chatId
-      );
-
-      let newActiveChatId = state.activeChatId;
-
-      // 🧠 if deleted chat was active → choose next or previous
       if (state.activeChatId === chatId) {
-        newActiveChatId =
-          remainingChats[index]?.id ??
-          remainingChats[index - 1]?.id ??
+        nextId =
+          remaining[index]?.id ??
+          remaining[index - 1]?.id ??
           null;
       }
 
-      nextActiveChatId = newActiveChatId;
-
       return {
-        chatSessions: remainingChats,
-        activeChatId: newActiveChatId,
+        chatSessions: remaining,
+        activeChatId: nextId,
         messagesByChat: Object.fromEntries(
-          Object.entries(state.messagesByChat).filter(
-            ([key]) => key !== chatId
-          )
+          Object.entries(state.messagesByChat).filter(([id]) => id !== chatId)
         ),
       };
     });
 
-    // 🛡 ensure app never ends without a chat
-    if (!nextActiveChatId) {
-      await get().createNewChat();
-    }
+    if (!nextId) await get().createNewChat();
   },
 }));

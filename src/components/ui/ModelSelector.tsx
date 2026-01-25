@@ -32,6 +32,7 @@ export default function ModelSelector() {
             <Popover.Trigger asChild>
                 <IconButton
                     variant="optional"
+                    size="sm"
                     rounded="full"
                     text={
                         model === "auto"
@@ -95,7 +96,7 @@ export default function ModelSelector() {
                                 textClassName="uppercase tracking-wide"
                                 iconClassName="text-blue-400"
                                 className={`
-                                    w-full justify-between px-4 py-2.5
+                                    w-full justify-between px-4 py-2
                                     ${active
                                         ? "bg-white/10 text-white"
                                         : "text-white/70 hover:bg-white/10"

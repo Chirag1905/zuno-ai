@@ -13,7 +13,6 @@ export function LLMStatus() {
                 const res = await fetch("/api/llm/health");
                 const data = await res.json();
                 setOnline(data.online);
-                console.log("🚀 ~ check ~ data:", data.online)
             } catch {
                 setOnline(false);
             }

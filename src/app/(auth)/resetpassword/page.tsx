@@ -14,7 +14,6 @@ export default function ResetPasswordPage() {
     const token = params.get("token");
 
     const [loading, setLoading] = useState(false);
-    console.log("🚀 ~ ResetPasswordPage ~ loading:", loading)
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {

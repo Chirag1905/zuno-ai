@@ -26,10 +26,11 @@ export default function Sidebar() {
     const {
         chatSessions,
         activeChatId,
-        createNewChat,
+        startDraftChat,
         updateChatTitle,
         deleteChatSession,
     } = useChatStore();
+    console.log("🚀 ~ Sidebar ~ activeChatId:", activeChatId)
 
     const router = useRouter();
     const { sidebarOpen, toggleSidebar } = useUIStore();
@@ -54,6 +55,11 @@ export default function Sidebar() {
     const [editingChatId, setEditingChatId] = useState<string | null>(null);
     const [titleDraft, setTitleDraft] = useState<string>("");
     const [updatingTitle, setUpdatingTitle] = useState<boolean>(false);
+
+    const handleSubmit = () => {
+        startDraftChat();
+        router.push('/');
+    };
 
     /* ------------------------------ Auth -------------------------------- */
     const handleSignOut = useCallback(async () => {
@@ -159,18 +165,18 @@ export default function Sidebar() {
                     </div>
 
                     {/* NEW CHAT */}
-                    <div className="px-3 py-4">
+                    <div className="p-4">
                         <IconButton
                             icon="MessageCirclePlus"
                             text="New Chat"
                             size="md"
                             className="w-full justify-center py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-3xl shadow-md hover:shadow-blue-500/40"
-                            onClick={createNewChat}
+                            onClick={handleSubmit}
                         />
                     </div>
 
                     {/* CHAT LIST */}
-                    <div className="flex-1 overflow-y-auto px-3 pb-3 no-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-3 pb-3 no-scrollbar space-y-2">
                         <AnimatePresence mode="popLayout">
                             {chatSessions?.map((chat) => (
                                 <motion.div

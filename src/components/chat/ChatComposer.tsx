@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 type ChatComposerProps = {
     sendMessage: () => void;
-    stopResponse: () => void;
+    stopResponse?: () => void;
     value?: string;
     onChange?: (value: string) => void;
 };
