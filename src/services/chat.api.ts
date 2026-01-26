@@ -3,18 +3,18 @@ import { ApiResponse } from "@/types/api";
 import { ApiMessage, ChatSession } from "@/types/chat";
 
 export const chatService = {
-    list: () =>
+    getChats: () =>
         api.get<ApiResponse<ChatSession[]>>("/c"),
 
-    create: () =>
+    createChat: () =>
         api.post<ApiResponse<ChatSession>>("/c"),
 
-    messages: (chatId: string) =>
+    getChatMessages: (chatId: string) =>
         api.get<ApiResponse<{ messages: ApiMessage[] }>>(`/c/${chatId}`),
 
-    updateTitle: (chatId: string, title: string) =>
+    updateChatTitle: (chatId: string, title: string) =>
         api.patch<ApiResponse<ChatSession>>(`/c/${chatId}`, { title }),
 
-    delete: (chatId: string) =>
+    deleteChat: (chatId: string) =>
         api.delete<ApiResponse<null>>(`/c/${chatId}`),
 };

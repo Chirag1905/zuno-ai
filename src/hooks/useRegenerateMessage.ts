@@ -26,8 +26,8 @@ export function useRegenerateMessage() {
         if (!messages || messages.length < 2) return;
 
         // 🔹 Find last user message
-        const lastUser = [...messages].reverse().find((m) => m.isUser);
-        if (!lastUser) return;
+        const lastUserMessage = [...messages].reverse().find((m) => m.isUser);
+        if (!lastUserMessage) return;
 
         // 🔹 Stop current stream
         stop();
@@ -41,7 +41,7 @@ export function useRegenerateMessage() {
         await send({
             chatId: activeChatId,
             model,
-            text: lastUser.text,
+            text: lastUserMessage.text,
             mode: "regenerate",
         });
     }, [

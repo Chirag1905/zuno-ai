@@ -30,21 +30,21 @@ export function useSendMessage() {
     return useCallback(async () => {
         if (!input.trim() || generating) return;
 
-        const userText = input.trim();
+        const userPrompt = input.trim();
 
         // 🔹 Ensure chat exists (draft → real)
         const chatId =
             activeChatId ?? (await ensureChatSession());
 
-        const messages =
+        const existingMessages =
             useChatStore.getState().messagesByChat[chatId] ?? [];
 
-        addMessage(chatId, { text: userText, isUser: true });
+        addMessage(chatId, { text: userPrompt, isUser: true });
         setInput("");
 
         // 🔹 First message → title
-        if (messages.length === 0) {
-            const title = generateChatTitle(userText);
+        if (existingMessages.length === 0) {
+            const title = generateChatTitle(userPrompt);
             useChatStore.getState().updateChatTitle(chatId, title);
         }
 
@@ -64,7 +64,7 @@ export function useSendMessage() {
         await send({
             chatId,
             model,
-            text: userText,
+            text: userPrompt,
             mode: "new",
         });
     }, [

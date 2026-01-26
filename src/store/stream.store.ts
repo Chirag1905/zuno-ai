@@ -44,7 +44,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
 
         // 🔹 Always create a fresh assistant message
         // (previous one is already removed for regenerate)
-        const assistantId = addMessage(chatId, {
+        const assistantMessageId = addMessage(chatId, {
             text: "",
             isUser: false,
         });
@@ -67,7 +67,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                     set({ typing: false });
                     useChatStore
                         .getState()
-                        .updateMessage(chatId, assistantId, chunk);
+                        .updateMessage(chatId, assistantMessageId, chunk);
                 },
             });
         } catch (err) {
@@ -76,7 +76,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                     .getState()
                     .updateMessage(
                         chatId,
-                        assistantId,
+                        assistantMessageId,
                         "⚠️ Error generating response"
                     );
             }

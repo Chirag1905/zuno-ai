@@ -73,7 +73,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set((state) => ({
       messagesByChat: {
         ...state.messagesByChat,
-        [chatId]: [...(state.messagesByChat[chatId] ?? []), { id, ...message }],
+        [chatId]: [
+          ...(state.messagesByChat[chatId] ?? []),
+          { id, ...message },
+        ],
       },
     }));
 
@@ -92,14 +95,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   /* ---------- Chats ---------- */
   loadChatSessions: async () => {
-    const { data } = await chatService.list();
+    const { data } = await chatService.getChats();
     const chats = data.data;
 
     set({ chatSessions: chats });
   },
 
   loadChatMessages: async (chatId) => {
-    const { data } = await chatService.messages(chatId);
+    const { data } = await chatService.getChatMessages(chatId);
 
     set((state) => ({
       messagesByChat: {
@@ -113,7 +116,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const { activeChatId, isDraftChat } = get();
     if (activeChatId && !isDraftChat) return activeChatId;
 
-    const { data } = await chatService.create();
+    const { data } = await chatService.createChat();
     const chat = data.data;
 
     set((state) => ({
@@ -126,7 +129,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   createNewChat: async () => {
-    const { data } = await chatService.create();
+    const { data } = await chatService.createChat();
     const chat = data.data;
 
     set((state) => ({
@@ -154,7 +157,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   updateChatTitle: async (chatId, title) => {
-    const { data } = await chatService.updateTitle(chatId, title);
+    const { data } = await chatService.updateChatTitle(chatId, title);
     const updated = data.data;
 
     set((state) => ({
@@ -165,7 +168,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   deleteChatSession: async (chatId) => {
-    await chatService.delete(chatId);
+    await chatService.deleteChat(chatId);
 
     let nextId: string | null = null;
 

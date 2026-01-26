@@ -1,17 +1,21 @@
 "use client";
 
-import Header from "@/components/Layouts/Header";
-import Sidebar from "@/components/Layouts/Sidebar";
+import Header from "@/components/user/Layouts/Header";
+import Sidebar from "@/components/user/Layouts/Sidebar";
 import { useChatStore, useUIStore } from "@/store";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import "../globals.css";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const { loadChatSessions } = useChatStore();
     const sidebarOpen = useUIStore((s) => s.sidebarOpen);
 
     useEffect(() => { loadChatSessions(); }, [loadChatSessions]);
-    useEffect(() => { document.documentElement.classList.add("dark"); }, []);
+    // useEffect(() => { document.documentElement.classList.add("dark"); }, []);
 
     return (
         <main className="h-screen w-screen relative">
@@ -35,7 +39,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                     <div className="w-full max-w-4xl flex flex-col overflow-hidden rounded-4xl">
                         <Header />
-                        {children}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={pathname}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                className="flex-1 flex flex-col"
+                            >
+                                {children}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>

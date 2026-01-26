@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams } from "next/navigation";
 
 import {
@@ -9,8 +9,8 @@ import {
     useModelStore,
     useStreamStore,
 } from "@/store";
-import ChatLayout from "@/components/Layouts/ChatLayout";
 import { useSendMessage } from "@/hooks/useSendMessage";
+import ChatLayout from "@/components/user/Layouts/ChatLayout";
 
 export default function ChatPage() {
 
