@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
 import api from "@/lib/axios";
-import AuthCard from "@/components/Layouts/AuthCard";
+import AuthCard from "@/components/user/Layouts/AuthCard";
 
 /* ================= DEVICE NAME ================= */
 

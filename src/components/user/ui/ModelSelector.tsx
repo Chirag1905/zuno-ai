@@ -49,12 +49,12 @@ export default function ModelSelector() {
                     icon={open ? "ChevronUp" : "ChevronDown"}
                     iconPosition="right"
                     className="
-                        px-4
-                        bg-white/5
+                        px-4 py-2.5
+                       bg-gray-800
                         backdrop-blur-xl
                         border border-white/10
                         shadow-[0_0_30px_rgba(0,0,0,0.45)]
-                        hover:bg-white/15
+                        hover:bg-gray-900
                     "
                 />
             </Popover.Trigger>

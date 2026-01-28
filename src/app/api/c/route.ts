@@ -6,7 +6,10 @@ import { apiResponse } from "@/utils/apiResponse";
 
 export async function GET() {
     try {
+        const { session } = await requireAuth();
+        const userId = session.user.id;
         const chats = await prisma.chat.findMany({
+            where: { userId },
             orderBy: { createdAt: "desc" },
             select: {
                 id: true,

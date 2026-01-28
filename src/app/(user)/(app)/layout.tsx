@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import "../globals.css";
+// import "../../globals.css";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -19,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <main className="h-screen w-screen relative">
+            <Toaster position="top-right" />
             {/* Background glow */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div
@@ -32,12 +33,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             <div className="relative flex h-full p-4">
                 <Sidebar />
-
                 <div
                     className={`relative flex-1 flex justify-center transition-all duration-500
           ${sidebarOpen ? "pl-72" : "pl-0"}`}
                 >
-                    <div className="w-full max-w-4xl flex flex-col overflow-hidden rounded-4xl">
+                    <div className="w-full max-w-4xl flex flex-col overflow-hidden rounded-4xl min-h-0">
                         <Header />
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -46,7 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -6 }}
                                 transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="flex-1 flex flex-col"
+                                className="flex-1 flex flex-col min-h-0"
                             >
                                 {children}
                             </motion.div>
@@ -54,8 +54,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
             </div>
-
-            <Toaster position="top-right" />
         </main>
     );
 }

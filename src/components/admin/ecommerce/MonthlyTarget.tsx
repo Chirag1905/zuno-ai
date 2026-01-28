@@ -2,7 +2,7 @@
 import { ApexOptions } from "apexcharts";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Dot } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { Dropdown } from "@/components/admin/ui/dropdown/Dropdown";
 import { DropdownItem } from "@/components/admin/ui/dropdown/DropdownItem";
 
@@ -11,8 +11,19 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function MonthlyTarget() {
-  const series = [75.55];
+type MonthlyTargetProps = {
+  data: {
+    target: number;
+    revenue: number;
+    today: number;
+    progress: number;
+    growth: number;
+  };
+};
+
+export default function MonthlyTarget({ data }: MonthlyTargetProps) {
+  const series = [data.progress];
+
   const options: ApexOptions = {
     colors: ["#465FFF"],
     chart: {
@@ -44,9 +55,7 @@ export default function MonthlyTarget() {
             fontWeight: "600",
             offsetY: -40,
             color: "#1D2939",
-            formatter: function (val) {
-              return val + "%";
-            },
+            formatter: (val) => `${val}%`,
           },
         },
       },
@@ -85,7 +94,7 @@ export default function MonthlyTarget() {
           </div>
           <div className="relative inline-block">
             <button onClick={toggleDropdown} className="dropdown-toggle">
-              <Dot className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+              <EllipsisVertical className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
             </button>
             <Dropdown
               isOpen={isOpen}
@@ -109,22 +118,23 @@ export default function MonthlyTarget() {
             </Dropdown>
           </div>
         </div>
-        <div className="relative ">
+        <div className="relative">
           <div className="max-h-82.5">
             <ReactApexChart
               options={options}
               series={series}
               type="radialBar"
-              height={330}
+              height={385}
             />
           </div>
 
           <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
-            +10%
+            {data.growth >= 0 ? "+" : ""}
+            {data.growth}% vs last month
           </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-95 text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
+          You earn ${data.today.toLocaleString()} today, it&apos;s higher than last month. Keep up your
           good work!
         </p>
       </div>
@@ -135,7 +145,7 @@ export default function MonthlyTarget() {
             Target
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
+            ${data.target / 1000}K
             <svg
               width="16"
               height="16"
@@ -160,7 +170,7 @@ export default function MonthlyTarget() {
             Revenue
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
+            ${Math.round(data.revenue / 1000)}K
             <svg
               width="16"
               height="16"
@@ -185,7 +195,7 @@ export default function MonthlyTarget() {
             Today
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
+            ${Math.round(data.today / 1000)}K
             <svg
               width="16"
               height="16"

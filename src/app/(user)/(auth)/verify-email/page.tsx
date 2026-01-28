@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import Icon from "@/components/ui/Icon";
+import Icon from "@/components/user/ui/Icon";
 
 type Status = "loading" | "success" | "error";
 

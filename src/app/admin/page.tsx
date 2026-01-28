@@ -7,59 +7,51 @@ import StatisticsChart from "@/components/admin/ecommerce/StatisticsChart";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Admin Dashboard - Zuno AI",
-    description: "Admin dashboard overview for Zuno AI",
+    title: "Analytics • Admin Panel | Zuno AI",
+    description: "View analytics, sales, revenue, demographics and orders",
 };
 
-export default function AdminDashboard() {
+async function getDashboardData() {
+    const res = await fetch(`${process.env.APP_URL}/api/admin/dashboard`, {
+        cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch dashboard");
+
+    const json = await res.json();
+    return json.data;
+}
+
+export default async function DashboardPage() {
+    const dashboardData = await getDashboardData();
+
     return (
-        <div className="grid grid-cols-12 gap-4 md:gap-6">
-            <div className="col-span-12 space-y-6 xl:col-span-7">
-                <EcommerceMetrics />
-                <MonthlySalesChart />
+        <div className="grid grid-cols-12 px-10 gap-4 md:gap-6">
+            <div className="col-span-12 xl:col-span-7 space-y-6">
+                <EcommerceMetrics data={dashboardData.overview} />
+                <MonthlySalesChart data={dashboardData.monthlySales} />
             </div>
 
             <div className="col-span-12 xl:col-span-5">
-                <MonthlyTarget />
+                <MonthlyTarget data={dashboardData.MonthlyTarget} />
             </div>
 
             <div className="col-span-12">
-                <StatisticsChart />
+                <StatisticsChart
+                    subscriptions={dashboardData.subscriptionsPerMonth}
+                    revenue={dashboardData.revenuePerMonth}
+                />
             </div>
 
             <div className="col-span-12 xl:col-span-5">
-                <DemographicCard />
+                <DemographicCard data={dashboardData.demographics} />
             </div>
 
             <div className="col-span-12 xl:col-span-7">
-                <RecentOrders />
+                <RecentOrders
+                    payments={dashboardData.recentPayments}
+                />
             </div>
         </div>
     );
 }
-
-
-// import prisma from "@/lib/prisma";
-
-// export default async function AdminDashboard() {
-//     const [users, chats] = await Promise.all([
-//         prisma.user.count(),
-//         prisma.chat.count(),
-//     ]);
-
-//     return (
-//         <div className="grid grid-cols-2 gap-6">
-//             <Stat title="Users" value={users} />
-//             <Stat title="Chats" value={chats} />
-//         </div>
-//     );
-// }
-
-// function Stat({ title, value }) {
-//     return (
-//         <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-//             <h2 className="text-gray-400">{title}</h2>
-//             <p className="text-3xl font-bold">{value}</p>
-//         </div>
-//     );
-// }

@@ -5,13 +5,14 @@ import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {
     try {
-        const { email, password, name } = await req.json();
+        const { email, password, name, country } = await req.json();
         const meta = await getRequestMeta();
 
         await auth.register({
             name,
             email,
             password,
+            country,
             ...meta, // safe even if unused
         });
 

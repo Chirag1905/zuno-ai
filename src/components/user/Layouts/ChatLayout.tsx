@@ -35,43 +35,43 @@ export default function ChatLayout({
     const bottomRef = useRef<HTMLDivElement | null>(null) as React.RefObject<HTMLDivElement>;
 
     /* ------------------------------ State ----------------------------------- */
-    const [showScrollDown, setShowScrollDown] = useState<boolean>(false);
-    /* ------------------------------ Callbacks -------------------------------- */
-    const updateScrollDownVisibility = useCallback((): void => {
-        const el = scrollRef.current;
-        if (!el) return;
+    // const [showScrollDown, setShowScrollDown] = useState<boolean>(false);
+    const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
 
-        const THRESHOLD_PX = 120;
-
-        const isOverflowing = el.scrollHeight > el.clientHeight;
-        const atBottom =
-            el.scrollHeight - el.scrollTop - el.clientHeight < THRESHOLD_PX;
-
-        setShowScrollDown(isOverflowing && !atBottom);
-    }, []);
-
-    const scrollToBottom = useCallback((): void => {
+    /* ------------------------------ Helpers ---------------------------------- */
+    const scrollToBottom = useCallback(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, []);
+    /* ------------------------------ Scroll Tracking -------------------------- */
+    const handleScroll = useCallback(() => {
+        const el = scrollRef.current;
+        if (!el) return;
 
-    /* ------------------------------ Effects ---------------------------------- */
+        const THRESHOLD = 120;
+
+        const atBottom =
+            el.scrollHeight - el.scrollTop - el.clientHeight < THRESHOLD;
+
+        setIsAtBottom(atBottom);
+    }, []);
+
     useEffect(() => {
         const el = scrollRef.current;
         if (!el) return;
 
-        const handleScroll = () => updateScrollDownVisibility();
-
         el.addEventListener("scroll", handleScroll);
-        handleScroll(); // initial calculation
+        handleScroll(); // initial check
 
         return () => el.removeEventListener("scroll", handleScroll);
-    }, [updateScrollDownVisibility]);
+    }, [handleScroll]);
 
+    /* ------------------------------ Auto Scroll ------------------------------ */
     useEffect(() => {
-        if (!showScrollDown) {
+        // ONLY auto-scroll if user is already at bottom
+        if (isAtBottom) {
             scrollToBottom();
         }
-    }, [messages, typing, showScrollDown, scrollToBottom]);
+    }, [messages, typing, isAtBottom, scrollToBottom]);
 
     /* ------------------------------ Empty State ------------------------------ */
     if (messages.length === 0) {
@@ -94,7 +94,7 @@ export default function ChatLayout({
         <div className="relative flex-1 flex flex-col overflow-hidden transition-opacity duration-300 animate-fade-in">
             <div
                 ref={scrollRef}
-                className="flex-1 min-h-0 overflow-y-auto py-6"
+                className="flex-1 min-h-0 overflow-y-auto py-6 chat-scroll"
             >
                 <ChatMessageList
                     messages={messages}
@@ -103,7 +103,7 @@ export default function ChatLayout({
                 />
             </div>
 
-            {showScrollDown && (
+            {!isAtBottom && (
                 <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-md rounded-full hover:scale-105 transition-all"
                 >
                     <IconButton

@@ -43,7 +43,7 @@ export default function ChatComposer({
     return (
         <div className="w-full pb-4">
             <div className="w-full max-w-210 mx-auto px-2">
-                <div className="flex flex-col gap-2 px-5 py-3 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
+                <div className="flex flex-col gap-2 px-5 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
 
                     {/* TOP ROW */}
                     <div className={`flex gap-3 py-2.5 ${isMultiline ? "items-start" : "items-center"}`}>
@@ -53,7 +53,7 @@ export default function ChatComposer({
                             rows={1}
                             disabled={generating}
                             placeholder="Message Zuno"
-                            className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none leading-6 max-h-40 overflow-y-auto"
+                            className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none leading-6 max-h-40 overflow-y-auto chat-input-scroll"
                             onChange={(e) => setValue(e.target.value)}
                             onKeyDown={(e) => {
                                 if (
@@ -76,7 +76,7 @@ export default function ChatComposer({
                                     size="lg"
                                     variant="minimal"
                                     compact
-                                    className="bg-gray-800 hover:bg-gray-700 rounded-full"
+                                    className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
                                     iconClassName={
                                         generating ? "text-red-400" : "text-blue-400"
                                     }
@@ -95,7 +95,7 @@ export default function ChatComposer({
                                 size="lg"
                                 variant="minimal"
                                 compact
-                                className="bg-gray-800 hover:bg-gray-700 rounded-full"
+                                className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
                                 iconClassName={
                                     generating ? "text-red-400" : "text-blue-400"
                                 }

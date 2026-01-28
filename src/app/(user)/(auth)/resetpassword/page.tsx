@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Link from "next/link";
 import InputField from "@/utils/InputField";
-import AuthCard from "@/components/Layouts/AuthCard";
+import AuthCard from "@/components/user/Layouts/AuthCard";
 
 export default function ResetPasswordPage() {
     const router = useRouter();

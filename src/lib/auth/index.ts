@@ -45,11 +45,18 @@ async function tryTrustedSession(
 ============================ */
 export const auth = {
     // REGISTER
-    async register({ email, password, name }: {
-        email: string;
-        password: string;
-        name?: string;
-    }) {
+    async register(
+        {
+            email,
+            password,
+            name,
+            country,
+        }: {
+            email: string;
+            password: string;
+            name?: string;
+            country?: string;
+        }) {
         try {
             const exists = await prisma.user.findUnique({ where: { email } });
             if (exists) throw new AuthError("EMAIL_EXISTS", 409);
@@ -58,6 +65,7 @@ export const auth = {
                 data: {
                     email,
                     name,
+                    country: country ?? null,
                     password: await hashPassword(password),
                 },
             });

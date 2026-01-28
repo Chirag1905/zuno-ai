@@ -21,38 +21,67 @@ body {
   font-weight: normal;
 }
 
-/* html {
-  @apply bg-gray-950 text-white transition-colors;
+/* ================================
+   Chat Scrollbar (Visible & Clean)
+   ================================ */
+/* force overlay / visible scrollbar and smooth touch scrolling */
+.chat-scroll {
+  -webkit-overflow-scrolling: touch;
+  /* smooth on iOS */
+  scrollbar-width: thin;
+  /* firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
 }
 
-/* html.light {
-  @apply bg-gray-100 text-gray-900;
-} 
-*/
-/* html {
-  @apply bg-gray-950 text-gray-100;
+/* Ensure track is present so scrollbar has visible area */
+.chat-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-html.light {
-  @apply bg-white text-gray-900;
-} */
-
-/* Chat scrollbar (Premium) */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
+.chat-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+/* Stronger thumb — uses !important in case other CSS hides it */
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35) !important;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  /* keeps width consistent */
+  background-clip: padding-box;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+.chat-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ================================
+   Chat Input (Textarea) Scrollbar
+   ================================ */
+
+.chat-input-scroll {
+  scrollbar-width: thin;
+  /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+}
+
+/* Chrome / Edge / Safari */
+.chat-input-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-input-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-input-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+.chat-input-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.55);
 }
 
 .dot {

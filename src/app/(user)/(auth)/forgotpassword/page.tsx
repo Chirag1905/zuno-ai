@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import InputField from "@/utils/InputField";
 import Link from "next/link";
-import AuthCard from "@/components/Layouts/AuthCard";
+import AuthCard from "@/components/user/Layouts/AuthCard";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();

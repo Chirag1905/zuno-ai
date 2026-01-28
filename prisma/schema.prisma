@@ -45,6 +45,7 @@ model User {
   email    String  @unique
   password String?
   image    String?
+  country  String?
 
   role UserRole @default(USER)
 
@@ -140,10 +141,10 @@ model Chat {
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages ChatMessage[]
 
-  isArchived Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isArchived  Boolean  @default(false)
+  isStreaming Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([userId])
   @@map("chat")
@@ -155,12 +156,16 @@ model ChatMessage {
   role    Role
   content String
 
-  //Optional future-proof fields
-  // AI metadata (optional)
+  // 🗂 versioning (SELF RELATION)
+  version  Int           @default(1)
+  parentId String?
+  parent   ChatMessage?  @relation("MessageVersions", fields: [parentId], references: [id])
+  children ChatMessage[] @relation("MessageVersions")
+
+  // AI metadata
   model    String?
   tokens   Int?
   metadata Json?
-  // e.g. gpt-4, llama3, mistral
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 

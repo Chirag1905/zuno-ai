@@ -1,23 +1,16 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-hot-toast";
-
-// import { IconButton } from "@/components/ui/Icon";
-// import { SidebarBrand } from "@/components/ui/SidebarBrand";
-// import ConfirmDialog from "@/components/ui/ConfirmDialog";
-// import SidebarSkeleton from "@/components/ui/SidebarSkeleton";
-
 import { useChatStore, useUIStore } from "@/store";
 import api from "@/lib/axios";
-
 import type { User } from "@/types/user";
 import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
 import { IconButton } from "@/components/user/ui/Icon";
 import ConfirmDialog from "@/components/user/ui/ConfirmDialog";
+import SidebarSkeleton from "@/components/user/ui/SidebarSkeleton";
 
 type MenuPosition = {
     x: number;
@@ -33,7 +26,6 @@ export default function Sidebar() {
         updateChatTitle,
         deleteChatSession,
     } = useChatStore();
-    console.log("🚀 ~ Sidebar ~ activeChatId:", activeChatId)
 
     const router = useRouter();
     const { sidebarOpen, toggleSidebar } = useUIStore();
@@ -140,7 +132,7 @@ export default function Sidebar() {
     };
 
     /* ------------------------------ Loading States ----------------------- */
-    // if (loading) return <SidebarSkeleton />;
+    if (loading) return <SidebarSkeleton />;
     if (!user) return null;
 
     /* ------------------------------ UI ----------------------------------- */

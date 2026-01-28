@@ -1,0 +1,17 @@
+<svg width="21" height="21" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clipCanada">
+      <circle cx="10.5" cy="10.5" r="10"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clipCanada)">
+    <rect width="5" height="21" x="0" fill="#D52B1E"/>
+    <rect width="11" height="21" x="5" fill="#FFFFFF"/>
+    <rect width="5" height="21" x="16" fill="#D52B1E"/>
+    <!-- simplified maple leaf -->
+    <polygon
+      points="10.5,5 11.5,8 14,8 12,10 13,14 10.5,12.5 8,14 9,10 7,8 9.5,8"
+      fill="#D52B1E"
+    />
+  </g>
+</svg>

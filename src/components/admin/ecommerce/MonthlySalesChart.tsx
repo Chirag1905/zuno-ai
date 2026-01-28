@@ -2,7 +2,7 @@
 import { ApexOptions } from "apexcharts";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Dot } from "lucide-react";
+import { Dot, EllipsisVertical } from "lucide-react";
 import { Dropdown } from "@/components/admin/ui/dropdown/Dropdown";
 import { DropdownItem } from "@/components/admin/ui/dropdown/DropdownItem";
 
@@ -11,7 +11,14 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function MonthlySalesChart() {
+type MonthlySalesChartProps = {
+  data: {
+    month: string;
+    value: number;
+  }[];
+};
+
+export default function MonthlySalesChart({ data }: MonthlySalesChartProps) {
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -39,26 +46,9 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
+      categories: data.map((d) => d.month),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     legend: {
       show: true,
@@ -94,7 +84,7 @@ export default function MonthlySalesChart() {
   const series = [
     {
       name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      data: data.map((d) => d.value),
     },
   ];
   const [isOpen, setIsOpen] = useState(false);
@@ -116,7 +106,7 @@ export default function MonthlySalesChart() {
 
         <div className="relative inline-block">
           <button onClick={toggleDropdown} className="dropdown-toggle">
-            <Dot className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+            <EllipsisVertical className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
           </button>
           <Dropdown
             isOpen={isOpen}

@@ -10,6 +10,7 @@ const VectorMap = dynamic(
 // Define the component props
 interface CountryMapProps {
   mapColor?: string;
+  activeCountries: string[];
 }
 
 type MarkerStyle = {
@@ -19,19 +20,43 @@ type MarkerStyle = {
   };
 };
 
-type Marker = {
-  latLng: [number, number];
-  name: string;
-  style?: {
-    fill: string;
-    borderWidth: number;
-    borderColor: string;
-    stroke?: string;
-    strokeOpacity?: number;
-  };
+// type Marker = {
+//   latLng: [number, number];
+//   name: string;
+//   style?: {
+//     fill: string;
+//     borderWidth: number;
+//     borderColor: string;
+//     stroke?: string;
+//     strokeOpacity?: number;
+//   };
+// };
+
+const COUNTRY_COORDS: Record<string, [number, number]> = {
+  India: [20.5937, 78.9629],
+  US: [37.0902, -95.7129],
+  UK: [55.3781, -3.4360],
+  Canada: [56.1304, -106.3468],
+  Australia: [-25.2744, 133.7751],
+  Germany: [51.1657, 10.4515],
+  France: [46.2276, 2.2137],
+  Singapore: [1.3521, 103.8198],
 };
 
-const CountryMap: React.FC<CountryMapProps> = ({ mapColor }) => {
+const CountryMap: React.FC<CountryMapProps> = ({ mapColor, activeCountries }) => {
+
+  const markers = activeCountries
+    .filter((country) => COUNTRY_COORDS[country])
+    .map((country) => ({
+      latLng: COUNTRY_COORDS[country],
+      name: country,
+      style: {
+        fill: "#465FFF",
+        borderWidth: 1,
+        borderColor: "white",
+      },
+    }));
+
   return (
     <VectorMap
       map={worldMill}
@@ -45,40 +70,41 @@ const CountryMap: React.FC<CountryMapProps> = ({ mapColor }) => {
         } as MarkerStyle
       }
       markersSelectable={true}
-      markers={
-        [
-          {
-            latLng: [37.2580397, -104.657039],
-            name: "United States",
-            style: {
-              fill: "#465FFF",
-              borderWidth: 1,
-              borderColor: "white",
-              stroke: "#383f47",
-            },
-          },
-          {
-            latLng: [20.7504374, 73.7276105],
-            name: "India",
-            style: { fill: "#465FFF", borderWidth: 1, borderColor: "white" },
-          },
-          {
-            latLng: [53.613, -11.6368],
-            name: "United Kingdom",
-            style: { fill: "#465FFF", borderWidth: 1, borderColor: "white" },
-          },
-          {
-            latLng: [-25.0304388, 115.2092761],
-            name: "Sweden",
-            style: {
-              fill: "#465FFF",
-              borderWidth: 1,
-              borderColor: "white",
-              strokeOpacity: 0,
-            },
-          },
-        ] as Marker[]
-      }
+      // markers={
+      //   [
+      //     {
+      //       latLng: [37.2580397, -104.657039],
+      //       name: "United States",
+      //       style: {
+      //         fill: "#465FFF",
+      //         borderWidth: 1,
+      //         borderColor: "white",
+      //         stroke: "#383f47",
+      //       },
+      //     },
+      //     {
+      //       latLng: [20.7504374, 73.7276105],
+      //       name: "India",
+      //       style: { fill: "#465FFF", borderWidth: 1, borderColor: "white" },
+      //     },
+      //     {
+      //       latLng: [53.613, -11.6368],
+      //       name: "United Kingdom",
+      //       style: { fill: "#465FFF", borderWidth: 1, borderColor: "white" },
+      //     },
+      //     {
+      //       latLng: [-25.0304388, 115.2092761],
+      //       name: "Sweden",
+      //       style: {
+      //         fill: "#465FFF",
+      //         borderWidth: 1,
+      //         borderColor: "white",
+      //         strokeOpacity: 0,
+      //       },
+      //     },
+      //   ] as Marker[]
+      // }
+      markers={markers}
       zoomOnScroll={false}
       zoomMax={12}
       zoomMin={1}

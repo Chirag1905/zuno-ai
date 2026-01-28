@@ -3,87 +3,90 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
-import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserStar, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents } from "lucide-react";
+import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserStar, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch } from "lucide-react";
 import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
 import ZunoLogo from "@/components/user/ui/ZunoLogo";
 import SidebarWidget from "@/components/admin/layout/SidebarWidget";
 import { IconButton } from "@/components/user/ui/Icon";
 
+type SubItem = {
+  name: string;
+  path: string;
+  icon: React.ReactNode;
+  iconKey: keyof typeof ICONS;
+  pro?: boolean;
+  new?: boolean;
+};
+
 type NavItem = {
   name: string;
   icon: React.ReactNode;
+  iconKey: keyof typeof ICONS;
   path?: string;
-  subItems?: { name: string; icon: React.ReactNode; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: SubItem[];
 };
+
+type PinnedItem = {
+  name: string;
+  path: string;
+  iconKey: keyof typeof ICONS;
+};
+
+const ICONS = {
+  dashboard: <LayoutDashboard />,
+  tableOfContents: <TableOfContents />,
+  analytics: <BarChart3 />,
+  users: <Users />,
+  addUser: <UserPlus />,
+  roles: <UserCog />,
+  subscriptions: <Store />,
+  plans: <CreditCard />,
+} as const;
 
 // Menu for Admin
 const NavItems: NavItem[] = [
   {
     name: "Dashboard",
     icon: <LayoutDashboard />,
-    subItems: [
-      {
-        name: "Overview",
-        icon: <TableOfContents size={16} />,
-        path: "/admin",
-      },
-      {
-        name: "Analytics",
-        icon: <BarChart3 size={16} />,
-        path: "/admin/analytics",
-      },
-    ],
+    iconKey: "dashboard",
+    path: "/admin"
+    // subItems: [
+    //   {
+    //     name: "Overview",
+    //     path: "/admin",
+    //     icon: <TableOfContents size={16} />,
+    //     iconKey: "tableOfContents",
+    //   },
+    //   {
+    //     name: "Analytics",
+    //     path: "/admin/analytics",
+    //     icon: <BarChart3 size={16} />,
+    //     iconKey: "analytics",
+    //   },
+    // ],
   },
   {
     name: "Users",
     icon: <Users />,
+    iconKey: "users",
     subItems: [
       {
         name: "All Users",
-        icon: <Users size={16} />,
         path: "/admin/users",
+        icon: <Users size={16} />,
+        iconKey: "users",
       },
       {
         name: "Add User",
-        icon: <UserPlus size={16} />,
         path: "/admin/users/add",
+        icon: <UserPlus size={16} />,
+        iconKey: "addUser",
       },
       {
         name: "Roles",
-        icon: <UserCog size={16} />,
         path: "/admin/users/roles",
-      },
-    ],
-  },
-  {
-    name: "Sub Admin",
-    icon: <UserStar />,
-    subItems: [
-      {
-        name: "All Sub Admins",
-        icon: <Users size={16} />,
-        path: "/admin/subAdmin",
-      },
-      {
-        name: "Permissions",
         icon: <UserCog size={16} />,
-        path: "/admin/subAdmin/permissions",
-      },
-    ],
-  },
-  {
-    name: "Subscriptions",
-    icon: <Store />,
-    subItems: [
-      {
-        name: "Plans",
-        icon: <CreditCard size={16} />,
-        path: "/admin/subscriptions",
-      },
-      {
-        name: "Transactions",
-        icon: <BarChart3 size={16} />,
-        path: "/admin/subscriptions/transactions",
+        iconKey: "roles",
       },
     ],
   },
@@ -102,7 +105,7 @@ const Sidebar: React.FC = () => {
   const isCollapsed = !isExpanded && !isHovered && !isMobileOpen;
 
   // STATE FOR PINNED ITEMS
-  const [pinnedItems, setPinnedItems] = useState<{ name: string; path: string; icon: React.ReactNode }[]>([]);
+  const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>([]);
 
   // Load pinned items from localStorage
   useEffect(() => {
@@ -118,16 +121,13 @@ const Sidebar: React.FC = () => {
   }, [pinnedItems]);
 
   // FUNCTIONS FOR PIN ACTION
-  const togglePin = (item: { name: string; path: string; icon: React.ReactNode }) => {
+
+  const togglePin = (item: PinnedItem) => {
     setPinnedItems((prev) => {
       const exists = prev.find((p) => p.path === item.path);
-      if (exists) {
-        // Unpin
-        return prev.filter((p) => p.path !== item.path);
-      } else {
-        // Pin
-        return [...prev, item];
-      }
+      return exists
+        ? prev.filter((p) => p.path !== item.path)
+        : [...prev, item];
     });
   };
 
@@ -207,7 +207,11 @@ const Sidebar: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              togglePin({ name: subItem.name, path: subItem.path, icon: nav.icon });
+                              togglePin({
+                                name: subItem.name,
+                                path: subItem.path,
+                                iconKey: subItem.iconKey,
+                              });
                             }}
                             variant="optional"
                             compact
@@ -222,43 +226,50 @@ const Sidebar: React.FC = () => {
               )}
             </div>
           ) : (
-            nav.path && (
-              <div className="flex items-center justify-between">
-                <Link
-                  href={nav.path}
-                  className={`menu-item group
-    ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"}
-    ${isCollapsed ? "justify-center px-0" : "justify-between"}
-  `}
-                >
-                  <span className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""}`}>
-                    <span className={isActive(nav.path)
-                      ? "menu-item-icon-active"
-                      : "menu-item-icon-inactive"}
-                    >
-                      {nav.icon}
+            nav.path && (() => {
+              const path = nav.path; // ✅ now TS knows it's string
+
+              return (
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={path}
+                    className={`menu-item group
+          ${isActive(path) ? "menu-item-active" : "menu-item-inactive"}
+          ${isCollapsed ? "justify-center px-0" : "justify-between"}
+        `}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className={isActive(path)
+                        ? "menu-item-icon-active"
+                        : "menu-item-icon-inactive"}
+                      >
+                        {nav.icon}
+                      </span>
+
+                      {!isCollapsed && (
+                        <span className="menu-item-text">{nav.name}</span>
+                      )}
                     </span>
 
                     {!isCollapsed && (
-                      <span className="menu-item-text">{nav.name}</span>
+                      <IconButton
+                        icon={isPinned(path) ? "PinOff" : "Pin"}
+                        onClick={() =>
+                          togglePin({
+                            name: nav.name,
+                            path,
+                            iconKey: nav.iconKey,
+                          })
+                        }
+                        variant="optional"
+                        compact
+                        iconClassName={isPinned(path) ? "text-brand-500" : "text-brand-400"}
+                      />
                     )}
-                  </span>
-
-                  {/* Pin ONLY when expanded */}
-                  {!isCollapsed && (
-                    <IconButton
-                      icon={isPinned(nav.path) ? "PinOff" : "Pin"}
-                      onClick={() =>
-                        togglePin({ name: nav.name, path: nav.path, icon: nav.icon })
-                      }
-                      variant="optional"
-                      compact
-                      iconClassName={isPinned(nav.path) ? "text-brand-500" : "text-brand-400"}
-                    />
-                  )}
-                </Link>
-              </div>
-            )
+                  </Link>
+                </div>
+              );
+            })()
           )}
         </li>
       ))}
@@ -324,7 +335,7 @@ const Sidebar: React.FC = () => {
           {pinnedItems.length > 0 && (
             <div className="mb-6">
               <h2 className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
-                Quick Access
+                {isExpanded || isHovered || isMobileOpen ? "Quick Access" : <ScanSearch />}
               </h2>
               <ul className="flex flex-col gap-3">
                 {pinnedItems.map((item) => (
@@ -334,8 +345,11 @@ const Sidebar: React.FC = () => {
                       className={`menu-item group ${isActive(item.path) ? "menu-item-active" : "menu-item-inactive"}`}
                     >
                       <p className="flex items-center gap-3">
-                        <span className={isActive(item.path) ? "menu-item-icon-active" : "menu-item-icon-inactive"}>
-                          {item.icon}
+                        <span className={isActive(item.path)
+                          ? "menu-item-icon-active"
+                          : "menu-item-icon-inactive"}
+                        >
+                          {ICONS[item.iconKey]}
                         </span>
                         {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">{item.name}</span>}
                       </p>
