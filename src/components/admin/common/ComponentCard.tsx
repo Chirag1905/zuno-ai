@@ -1,5 +1,5 @@
+import Button from "@/components/admin/ui/button/Button";
 import React from "react";
-import Button from "../ui/button/Button";
 
 interface ComponentCardProps {
   title: string;

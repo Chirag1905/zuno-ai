@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 import api from "@/lib/axios";
 import AuthCard from "@/components/user/Layouts/AuthCard";
+import axios from "axios";
 
 /* ================= DEVICE NAME ================= */
 
@@ -164,11 +165,15 @@ export default function VerifyOtpPage() {
                     "Invalid or expired OTP",
             }, { duration: 5000 });
             router.push("/");
-        } catch (err: any) {
-            triggerError(
-                err?.response?.data?.message ||
-                "Invalid or expired OTP"
-            );
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                triggerError(
+                    err.response?.data?.message ||
+                    "Invalid or expired OTP"
+                );
+            } else {
+                triggerError("Invalid or expired OTP");
+            }
         } finally {
             setLoading(false);
         }

@@ -1,11 +1,12 @@
 "use client";
-import Checkbox from "../form/input/Checkbox";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import Button from "../ui/button/Button";
+
+import Label from "@/components/admin/form/Label";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Link from "next/link";
 import { useState } from "react";
+import Input from "@/components/admin/form/input/InputField";
+import Checkbox from "@/components/admin/form/input/Checkbox";
+import Button from "@/components/admin/ui/button/Button";
 
 export default function SignInForm() {
 

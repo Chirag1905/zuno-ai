@@ -10,8 +10,8 @@ import {
   EventClickArg,
   EventContentArg,
 } from "@fullcalendar/core";
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
+import { useModal } from "@/hooks/useModal";
+import { Modal } from "@/components/admin/ui/modal";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -87,12 +87,12 @@ const Calendar: React.FC = () => {
         prevEvents.map((event) =>
           event.id === selectedEvent.id
             ? {
-                ...event,
-                title: eventTitle,
-                start: eventStartDate,
-                end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
-              }
+              ...event,
+              title: eventTitle,
+              start: eventStartDate,
+              end: eventEndDate,
+              extendedProps: { calendar: eventLevel },
+            }
             : event
         )
       );
@@ -148,7 +148,7 @@ const Calendar: React.FC = () => {
       <Modal
         isOpen={isOpen}
         onClose={closeModal}
-        className="max-w-[700px] p-6 lg:p-10"
+        className="max-w-175 p-6 lg:p-10"
       >
         <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
           <div>
@@ -201,9 +201,8 @@ const Calendar: React.FC = () => {
                           />
                           <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
                             <span
-                              className={`h-2 w-2 rounded-full bg-white ${
-                                eventLevel === key ? "block" : "hidden"
-                              }`}  
+                              className={`h-2 w-2 rounded-full bg-white ${eventLevel === key ? "block" : "hidden"
+                                }`}
                             ></span>
                           </span>
                         </span>

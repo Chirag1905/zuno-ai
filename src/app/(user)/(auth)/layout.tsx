@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import "../../globals.css";
-import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
     title: "Zuno",
@@ -19,7 +17,6 @@ export default function AuthLayout({
 }) {
     return (
         <>
-            <Toaster position="top-right" />
             {children}
         </>
     );

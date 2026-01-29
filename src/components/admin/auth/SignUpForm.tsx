@@ -1,10 +1,10 @@
 "use client";
-import Checkbox from "../form/input/Checkbox";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
+import Label from "@/components/admin/form/Label";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Link from "next/link";
 import React, { useState } from "react";
+import Input from "@/components/admin/form/input/InputField";
+import Checkbox from "@/components/admin/form/input/Checkbox";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);

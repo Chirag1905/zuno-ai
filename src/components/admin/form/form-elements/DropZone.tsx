@@ -1,7 +1,8 @@
 "use client";
+import ComponentCard from "@/components/admin/common/ComponentCard";
 import React from "react";
-import ComponentCard from "../../common/ComponentCard";
-import { useDropzone } from "react-dropzone";
+// import ComponentCard from "../../common/ComponentCard";
+// import { useDropzone } from "react-dropzone";
 
 const DropzoneComponent: React.FC = () => {
   const onDrop = (acceptedFiles: File[]) => {

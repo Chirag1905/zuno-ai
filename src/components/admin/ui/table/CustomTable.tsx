@@ -1,32 +1,44 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from ".";
 import { Skeleton } from "antd";
 import { toast } from "react-hot-toast";
-import { ApiResponse } from "@/types/api";
+import { PaginatedResponse } from "@/types/api";
 import CustomPagination from "@/components/admin/pagination/CustomPagination";
 import { IconButton } from "@/components/user/ui/Icon";
 import Input from "@/components/admin/form/input/InputField";
 import Empty from "@/components/admin/utils/Empty";
+import { useSearchParams } from "next/navigation";
 
 // Types
 interface RowWithId {
   id: string | number;
 }
 
+function isDataKey<T extends object>(
+  key: ColumnKey<T>
+): key is keyof T {
+  return key !== "__srNo";
+}
+
+type ColumnKey<T> = keyof T | "__srNo";
 interface TableColumn<T extends RowWithId> {
-  key: keyof T;
+  key: ColumnKey<T>;
   label: string;
   className?: string;
-  render?: (value: T[keyof T], row: T, index: number) => React.ReactNode;
+  render?: (
+    value: T[keyof T] | undefined,
+    row: T,
+    index: number
+  ) => React.ReactNode;
 }
 
 interface TableProps<T extends RowWithId> {
   title?: string;
   buttonName?: string;
   columns: TableColumn<T>[];
-  paginatedData: ApiResponse<T>;
+  paginatedData: PaginatedResponse<T>;
   onAdd?: () => void;
   onEdit?: (id: string) => void;
   onDelete: (id: string) => void;
@@ -77,6 +89,7 @@ export default function CustomTable<T extends RowWithId>({
   copyableFields = [],
 }: TableProps<T>) {
 
+  const searchParams = useSearchParams();
   // Extract data from API response
   const data = Array.isArray(paginatedData?.data) ? paginatedData.data : [];
   const paginationMeta = paginatedData?.meta?.pagination;
@@ -129,6 +142,11 @@ export default function CustomTable<T extends RowWithId>({
   const isCopyable = (key: string) => copyableFields.includes(key);
   const hasData = data?.length > 0;
 
+  useEffect(() => {
+    const search = searchParams.get("search") ?? "";
+    setLocalSearchQuery(search);
+  }, [searchParams]);
+
   return (
     <div className="relative rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/5 dark:bg-white/3">
       {/* Header */}
@@ -152,7 +170,9 @@ export default function CustomTable<T extends RowWithId>({
                 name="Search"
                 type="text"
                 placeholder={`Search ${title}s...`}
+                value={localSearchQuery}
                 disabled={loading}
+                onChange={(e) => handleSearchInput(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10.5 pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:bg-dark-900 xl:w-75"
               />
             </div>
@@ -202,7 +222,10 @@ export default function CustomTable<T extends RowWithId>({
                   {sorting &&
                     onSort &&
                     col.key !== "email" &&
-                    col.key !== "isActive" && (
+                    col.key !== "isActive" &&
+                    col.key !== "emailVerifiedAt" &&
+                    col.key !== "createdAt" &&
+                     (
                       <IconButton
                         icon="ArrowDownUp"
                         onClick={() => handleSortClick(String(col?.key))}
@@ -253,22 +276,27 @@ export default function CustomTable<T extends RowWithId>({
                       className={`whitespace-nowrap border-r border-gray-100 px-4 py-4 text-theme-sm font-medium text-gray-800 dark:border-white/5 dark:text-white ${col.className ?? ""}`}
                     >
                       {col.render ? (
-                        col.render(row[col.key], row, idx)
-                      ) : String(col.key) === "isActive" ? (
-                        renderStatus(row[col.key])
-                      ) : isCopyable(String(col.key)) ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <span>{String(row[col.key])}</span>
-                          <IconButton
-                            icon="Copy"
-                            onClick={() => handleCopy(String(row[col.key]), String(col.key))}
-                            variant="default"
-                            compact
-                            className="text-gray-500 hover:text-brand-500 dark:text-gray-400"
-                          />
-                        </div>
+                        col.render(
+                          isDataKey(col.key) ? row[col.key] : undefined,
+                          row,
+                          idx
+                        )
+                      ) : isDataKey(col.key) ? (
+                        isCopyable(col.key) ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <span>{String(row[col.key])}</span>
+                            <IconButton
+                              icon="Copy"
+                              onClick={() => handleCopy(String(row[col.key]), col.key)}
+                              variant="default"
+                              compact
+                            />
+                          </div>
+                        ) : (
+                          String(row[col.key])
+                        )
                       ) : (
-                        String(row[col.key])
+                        idx + 1
                       )}
                     </TableCell>
                   ))}

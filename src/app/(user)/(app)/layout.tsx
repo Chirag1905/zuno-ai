@@ -6,8 +6,6 @@ import { useChatStore, useUIStore } from "@/store";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Toaster } from "react-hot-toast";
-// import "../../globals.css";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -19,7 +17,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <main className="h-screen w-screen relative">
-            <Toaster position="top-right" />
             {/* Background glow */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div

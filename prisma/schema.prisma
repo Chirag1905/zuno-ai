@@ -35,6 +35,20 @@ enum VerificationType {
   PASSWORD_RESET
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 // =========================
 // USER & AUTH MODELS
 // =========================
@@ -210,10 +224,15 @@ model OtpAttempt {
 
 model Plan {
   id       String @id @default(cuid())
-  name     String
-  price    Int // in cents
-  currency String @default("USD")
+  name     String @unique
+  price    Float // in cents
+  currency String @default("INR")
   interval String // monthly / yearly
+
+  isFree   Boolean @default(false) // ⭐ ADD THIS
+  isActive Boolean @default(true)
+
+  stripePriceId String?
 
   maxChats    Int?
   maxMessages Int?
@@ -230,12 +249,21 @@ model Subscription {
   userId String
   planId String
 
-  status    String // active, canceled, past_due
-  startedAt DateTime
-  endsAt    DateTime?
+  status SubscriptionStatus
 
-  provider               String // stripe, razorpay
+  startedAt DateTime
+  endsAt    DateTime? // NULL for FREE
+
+  // 🔁 PERIOD SYSTEM
+  periodStart        DateTime
+  periodIntervalDays Int // 7 for FREE, 30 for paid
+
+  // PAYMENT (NULL for FREE)
+  provider               String?
   providerSubscriptionId String?
+
+  billingInterval String
+  tokensRemaining Int
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan Plan @relation(fields: [planId], references: [id])
@@ -243,16 +271,15 @@ model Subscription {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
-  @@index([status])
+  @@index([userId, status])
 }
 
 model Payment {
-  id            String @id @default(cuid())
+  id            String        @id @default(cuid())
   userId        String
   amount        Int
   currency      String
-  status        String
+  status        PaymentStatus
   provider      String
   providerTxnId String
 

@@ -71,7 +71,27 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                 },
             });
         } catch (err) {
-            if ((err as Error).name !== "AbortError") {
+            const error = err as any;
+
+            // 🔥 TOKEN LIMIT / BILLING ERROR
+            if (error.status === 402 && error.redirect) {
+                useChatStore
+                    .getState()
+                    .updateMessage(
+                        chatId,
+                        assistantMessageId,
+                        "⚠️ You’ve reached your token limit.\nRedirecting to pricing…"
+                    );
+
+                setTimeout(() => {
+                    window.location.href = error.redirect;
+                }, 1200);
+
+                return;
+            }
+
+            // 🧯 NORMAL ERROR
+            if (error.name !== "AbortError") {
                 useChatStore
                     .getState()
                     .updateMessage(
@@ -80,7 +100,8 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                         "⚠️ Error generating response"
                     );
             }
-        } finally {
+        }
+        finally {
             set({
                 generating: false,
                 typing: false,

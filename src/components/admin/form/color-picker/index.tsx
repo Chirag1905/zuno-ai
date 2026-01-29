@@ -1,2 +1,2 @@
-export { default as ColorPicker } from './ColorPicker';
-export { default } from './ColorPicker';
+export { default as ColorPicker } from '@/components/admin/form/color-picker/ColorPicker';
+export { default } from '@/components/admin/form/color-picker/ColorPicker';

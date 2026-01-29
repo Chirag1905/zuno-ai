@@ -1,11 +1,16 @@
 "use client";
 import React, { useState } from 'react';
-import ComponentCard from '../../common/ComponentCard';
-import Label from '../Label';
-import Input from '../input/InputField';
-import Select from '../Select';
+// import ComponentCard from '../../common/ComponentCard';
+// import Label from '../Label';
+// import Input from '../input/InputField';
+// import Select from '../Select';
 import { ChevronDownIcon, EyeCloseIcon, EyeIcon, TimeIcon } from '../../../icons';
-import DatePicker from '../date-picker';
+import ComponentCard from '@/components/admin/common/ComponentCard';
+import Label from '@/components/admin/form/Label';
+import Input from '@/components/admin/form/input/InputField';
+import Select from '@/components/admin/form/Select';
+import DatePicker from '@/components/admin/form/date-picker';
+// import DatePicker from '../date-picker';
 
 export default function DefaultInputs() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,13 +37,13 @@ export default function DefaultInputs() {
           <Label>Select Input</Label>
           <div className="relative">
             <Select
-            options={options}
-            placeholder="Select an option"
-            onChange={handleSelectChange}
-            className="dark:bg-dark-900"
-          />
-             <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-              <ChevronDownIcon/>
+              options={options}
+              placeholder="Select an option"
+              onChange={handleSelectChange}
+              className="dark:bg-dark-900"
+            />
+            <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+              <ChevronDownIcon />
             </span>
           </div>
         </div>
@@ -94,9 +99,9 @@ export default function DefaultInputs() {
             <Input
               type="text"
               placeholder="Card number"
-              className="pl-[62px]"
+              className="pl-15.5"
             />
-            <span className="absolute left-0 top-1/2 flex h-11 w-[46px] -translate-y-1/2 items-center justify-center border-r border-gray-200 dark:border-gray-800">
+            <span className="absolute left-0 top-1/2 flex h-11 w-11.5 -translate-y-1/2 items-center justify-center border-r border-gray-200 dark:border-gray-800">
               <svg
                 width="20"
                 height="20"

@@ -45,10 +45,9 @@ export default function ConfirmDialog({
                         exit={{ opacity: 0, scale: 0.95 }}
                     >
                         <div
-                            className="w-full max-w-md rounded-3xl border border-white/10 
+                            className="w-105 max-w-[90vw] rounded-3xl border border-white/10 
                             bg-linear-to-b from-gray-900/95 to-gray-950/95 
-                            backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.8)]
-                            p-6"
+                            backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.8)] p-6"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* TITLE */}

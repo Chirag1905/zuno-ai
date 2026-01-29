@@ -3,29 +3,35 @@
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-
-
 import toast from "react-hot-toast";
-import { Modal } from "antd";
 import { userType } from "@/app/admin/users/_components/userType";
 import CustomTable from "@/components/admin/ui/table/CustomTable";
 import PageBreadcrumb from "@/components/admin/common/PageBreadCrumb";
+import { PaginatedResponse } from "@/types/api";
+import ConfirmDialog from "@/components/user/ui/ConfirmDialog";
 
 const UserModal = dynamic(() => import("./userModal"), {
     ssr: false,
 });
 
+interface Props {
+    initialData: PaginatedResponse<userType>;
+}
 
-export default function UserCSR({ initialData }: { initialData: userType }) {
+export default function UserCSR({ initialData }: Props) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const page = initialData?.meta?.pagination?.page || 1;
-    const limit = initialData?.meta?.pagination?.limit || 10;
+    const page = initialData?.meta?.pagination?.page ?? 1;
+    const limit = initialData?.meta?.pagination?.limit ?? 10;
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [editData, setEditData] = useState<userType | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -33,42 +39,49 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
         🚀 Memoized URL update function
     ====================================================== */
     const updateURL = useCallback(
-        (params: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: string }) => {
+        (params: Record<string, string | number | undefined>) => {
             const newParams = new URLSearchParams(searchParams.toString());
 
             Object.entries(params).forEach(([key, value]) => {
-                if (value === undefined) return;
-                if (!value) newParams.delete(key);
-                else newParams.set(key, String(value));
+                if (value === undefined || value === "") {
+                    newParams.delete(key);
+                } else {
+                    newParams.set(key, String(value));
+                }
             });
 
-            const query = newParams.toString();
-            router.push(query ? `?${query}` : "?");
+            router.push(`?${newParams.toString()}`);
         },
-        [searchParams, router]
+        [router, searchParams]
     );
 
-    /* ======================================================
-        🔹 Memoized Column Definition (Prevents re-renders)
-    ====================================================== */
-    interface Column {
-        key: keyof userType;
-        label: string;
-        render?: (value: unknown, row: userType, index: number) => React.ReactNode;
-        className?: string;
-    }
-
-    const columns: Column[] = useMemo(
+    /* =======================
+       TABLE COLUMNS
+    ======================= */
+    const columns = useMemo(
         () => [
             {
-                key: "id",
+                key: "__srNo",
                 label: "Sr No",
-                render: (_value: unknown, _row: userType, index: number) => (page - 1) * limit + index + 1,
-                className: "w-20 whitespace-normal break-words",
+                render: (_: unknown, __: userType, index: number) =>
+                    (page - 1) * limit + index + 1,
             },
-            { key: "name", label: "Name", className: "w-40 whitespace-normal break-words" },
-            { key: "email", label: "Email", className: "w-fit whitespace-normal break-words" },
-            { key: "role", label: "Role", className: "w-25 whitespace-normal break-words" },
+            { key: "name", label: "Name" },
+            { key: "email", label: "Email" },
+            { key: "role", label: "Role" },
+            { key: "country", label: "Country" },
+            {
+                key: "emailVerified",
+                label: "Verified",
+                render: (v: boolean) => (v ? "Yes" : "No"),
+            },
+            {
+                key: "mfaEnabled",
+                label: "MFA",
+                render: (v: boolean) => (v ? "Enabled" : "Disabled"),
+            },
+            { key: "emailVerifiedAt", label: "Email Verified At" },
+            { key: "createdAt", label: "Created At" },
         ],
         [page, limit]
     );
@@ -82,15 +95,31 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
 
     const handleSearch = useCallback(
         (value: string) => {
+            console.log("search calledk")
             if (searchTimeout.current) clearTimeout(searchTimeout.current);
-            searchTimeout.current = setTimeout(() => updateURL({ page: 1, search: value }), 500);
+            searchTimeout.current = setTimeout(() => {
+                updateURL({ page: 1, search: value });
+            }, 400);
         },
         [updateURL]
     );
 
-    const handleSort = useCallback((sortBy: string, sortOrder: "asc" | "desc") => {
-        updateURL({ sortBy, sortOrder });
-    }, [updateURL]);
+    const handleSort = useCallback(
+        (sortBy: string, sortOrder: "asc" | "desc") => {
+            const allowed = ["createdAt", "name", "role", "country", "emailVerified", "mfaEnabled"] as const;
+
+            const isAllowedSortKey = (
+                key: string
+            ): key is (typeof allowed)[number] => {
+                return (allowed as readonly string[]).includes(key);
+            };
+
+            if (isAllowedSortKey(sortBy)) {
+                updateURL({ sortBy, sortOrder });
+            }
+        },
+        [updateURL]
+    );
 
     /* ======================================================
         🔹 Modal Handlers
@@ -101,57 +130,57 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
         setModalOpen(true);
     };
 
-    const handleEdit = useCallback(
-        async (id: string) => {
-            const res = await fetch(`/api/users/${id}`);
-            const result = await res.json();
+    const handleEdit = useCallback(async (id: string) => {
+        const res = await fetch(`/api/admin/users/${id}`);
+        const result = await res.json();
 
-            if (result.success) {
-                setEditData(result.data);
-                setErrors({});
-                setModalOpen(true);
-            }
-        },
-        []
-    );
+        if (result.success) {
+            setEditData(result.data);
+            setErrors({});
+            setModalOpen(true);
+        }
+    }, []);
 
     /* ======================================================
         ❌ Delete Handler (Optimized)
     ====================================================== */
-    const handleDelete = useCallback(
-        (id: string) => {
-            Modal.confirm({
-                title: "Are you sure you want to delete?",
-                content: "This action cannot be undone.",
-                okText: "Yes, Delete",
-                okType: "danger",
-                cancelText: "Cancel",
+    const handleDelete = useCallback((id: string) => {
+        setUserToDelete(id);
+        setConfirmOpen(true);
+    }, []);
 
-                async onOk() {
-                    const promise = (async () => {
-                        const response = await fetch(`/api/users/${id}`, { method: "DELETE" });
-                        const result = await response.json();
+    const confirmDelete = async () => {
+        if (!userToDelete) return;
 
-                        if (!response.ok || !result.success) {
-                            throw result?.message || "Delete failed";
-                        }
+        setDeleting(true);
 
-                        updateURL({ page: 1, limit });
-                        return result;
-                    })();
-
-                    toast.promise(promise, {
-                        loading: "Deleting...",
-                        success: "Deleted successfully!",
-                        error: "Failed to delete!",
-                    });
-
-                    return promise;
-                },
+        const promise = (async () => {
+            const response = await fetch(`/api/admin/users/${userToDelete}`, {
+                method: "DELETE",
             });
-        },
-        [updateURL, limit]
-    );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw result?.message || "Delete failed";
+            }
+
+            updateURL({ page: 1, limit });
+            return result;
+        })();
+
+        try {
+            await toast.promise(promise, {
+                loading: "Deleting...",
+                success: "Deleted successfully!",
+                error: "Failed to delete!",
+            });
+        } finally {
+            setDeleting(false);
+            setConfirmOpen(false);
+            setUserToDelete(null);
+        }
+    };
 
     /* ======================================================
         🔹 Submit Handler (Optimized & Cleaned)
@@ -159,29 +188,35 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
     const handleSubmit = useCallback(
         async (form: userType) => {
             const promise = (async () => {
-                const url = form.id ? `/api/users/${form.id}` : `/api/users`;
-                const method = form.id ? "PUT" : "POST";
+                const isEdit = Boolean(form.id);
+
+                const url = isEdit
+                    ? `/api/admin/users/${form.id}`
+                    : `/api/admin/users`;
+
+                const method = isEdit ? "PUT" : "POST";
+
+                // 🔹 Send only allowed fields
+                const payload = {
+                    name: form.name,
+                    email: form.email,
+                    role: form.role,
+                    country: form.country,
+                    mfaEnabled: form.mfaEnabled,
+                    emailVerified: form.emailVerified,
+                    password: form.password || undefined, // optional
+                };
 
                 const res = await fetch(url, {
                     method,
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(form),
+                    body: JSON.stringify(payload),
                 });
 
                 const result = await res.json();
 
-                // Validation
-                if (result.status === 422 && result.error) {
-                    const formatted: Record<string, string> = {};
-                    for (const key in result.error) {
-                        formatted[key] = result.error[key][0];
-                    }
-                    setErrors(formatted);
-                    throw "validation-error";
-                }
-
                 if (!res.ok || !result.success) {
-                    throw result.message || "Failed to save!";
+                    throw result.message || "Failed to save user";
                 }
 
                 setErrors({});
@@ -191,9 +226,9 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
             })();
 
             toast.promise(promise, {
-                loading: form.id ? "Updating..." : "Creating...",
-                success: form.id ? "Updated successfully!" : "Created successfully!",
-                error: () => "Something went wrong!",
+                loading: form.id ? "Updating user..." : "Creating user...",
+                success: form.id ? "User updated!" : "User created!",
+                error: "Something went wrong!",
             });
 
             return promise;
@@ -220,22 +255,36 @@ export default function UserCSR({ initialData }: { initialData: userType }) {
                         />
                     )}
                     {!isModalOpen && (
-                        <CustomTable
-                            title="User"
-                            columns={columns}
-                            copyableFields={["email"]}
-                            paginatedData={initialData}
-                            onAdd={handleAdd}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onPageChange={handlePageChange}
-                            onRowsPerPageChange={handleRowsPerPageChange}
-                            onSearchChange={handleSearch}
-                            onSort={handleSort}
-                            enableSearch
-                            sorting
-                            filter
-                        />
+                        <>
+                            <CustomTable<userType>
+                                title="User"
+                                columns={columns}
+                                copyableFields={["email"]}
+                                paginatedData={initialData}
+                                onAdd={handleAdd}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onPageChange={handlePageChange}
+                                onRowsPerPageChange={handleRowsPerPageChange}
+                                onSearchChange={handleSearch}
+                                onSort={handleSort}
+                                enableSearch
+                                sorting
+                            />
+                            <ConfirmDialog
+                                open={confirmOpen}
+                                title="Delete user?"
+                                description="This user will be permanently deleted. This action cannot be undone."
+                                confirmText="Delete"
+                                cancelText="Cancel"
+                                loading={deleting}
+                                onCancel={() => {
+                                    setConfirmOpen(false);
+                                    setUserToDelete(null);
+                                }}
+                                onConfirm={confirmDelete}
+                            />
+                        </>
                     )}
                 </Suspense>
             </div>

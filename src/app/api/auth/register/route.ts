@@ -8,21 +8,9 @@ export async function POST(req: Request) {
         const { email, password, name, country } = await req.json();
         const meta = await getRequestMeta();
 
-        await auth.register({
-            name,
-            email,
-            password,
-            country,
-            ...meta, // safe even if unused
-        });
+        await auth.register({ name, email, password, country, ...meta });
 
-        return apiResponse(
-            true,
-            "Registered successfully. Please verify your email.",
-            null,
-            null,
-            201
-        );
+        return apiResponse(true, "Registered successfully. Please verify your email.", null, null, 201);
     } catch (e) {
         if (e instanceof AuthError) {
             return apiResponse(

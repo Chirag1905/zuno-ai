@@ -74,7 +74,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </label>
-      
+
       {/* Color Display Button - Match input field styling */}
       <button
         type="button"
@@ -82,7 +82,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
         className="flex items-center gap-2 w-full py-2.5 px-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 dark:border-gray-600 hover:border-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm"
       >
         <div
-          className="w-5 h-5 rounded border border-gray-400 dark:border-gray-500 flex-shrink-0"
+          className="w-5 h-5 rounded border border-gray-400 dark:border-gray-500 shrink-0"
           style={{ backgroundColor: selectedColor }}
         />
         <span className="text-gray-700 dark:text-gray-300 font-mono text-sm flex-1 text-left">
@@ -105,7 +105,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           <div className="px-3 py-2 bg-gray-50 dark:bg-gray-750 border-b border-gray-200 dark:border-gray-700">
             <h4 className="text-xs font-semibold text-gray-800 dark:text-gray-200">Choose Color</h4>
           </div>
-          
+
           <div className="p-3">
             {/* Color Palette Section */}
             <div className="mb-3">
@@ -115,11 +115,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                     key={color}
                     type="button"
                     onClick={() => handleColorSelect(color)}
-                    className={`w-6 h-6 rounded shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 ${
-                      selectedColor === color 
-                        ? 'ring-2 ring-blue-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-800 shadow-md scale-105' 
-                        : 'hover:ring-1 hover:ring-gray-300'
-                    }`}
+                    className={`w-6 h-6 rounded shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 ${selectedColor === color
+                      ? 'ring-2 ring-blue-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-800 shadow-md scale-105'
+                      : 'hover:ring-1 hover:ring-gray-300'
+                      }`}
                     style={{ backgroundColor: color }}
                     title={color}
                   />

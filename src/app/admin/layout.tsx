@@ -1,19 +1,4 @@
-// import AdminShell from "@/app/admin/_components/AdminShell";
-
-// export default function AdminLayout({
-//     children,
-// }: {
-//     children: React.ReactNode;
-// }) {
-//     // await requireSuperAdmin();
-//     return (
-//         <AdminShell>{children}</AdminShell>
-//     );
-// }
-
-
-
-import { Toaster } from 'react-hot-toast';
+// import { Toaster } from 'react-hot-toast';
 import { Metadata } from 'next';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { SidebarProvider } from '@/context/SidebarContext';
@@ -43,20 +28,6 @@ export default function RootLayout({
     return (
         <main className={`${outfit.className} custom-scrollbar dark:bg-gray-900`}>
             <ThemeProvider>
-                <Toaster
-                    position="top-right"
-                    toastOptions={{
-                        loading: {
-                            duration: Infinity,
-                        },
-                        success: {
-                            duration: 5000, // success toast visible for 5s
-                        },
-                        error: {
-                            duration: 3000,
-                        },
-                    }}
-                />
                 <SidebarProvider>
                     <AdminProvider>
                         {children}

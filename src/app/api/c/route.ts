@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import { apiResponse } from "@/utils/apiResponse";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { CHAT_ERROR_MESSAGES } from "@/lib/errors/chat.error";
 
 /* ================= GET ALL CHATS ================= */
 
@@ -25,12 +27,24 @@ export async function GET() {
             null,
             200
         );
-    } catch (error) {
+    } catch (e) {
+        if (e instanceof AuthError) {
+            return apiResponse(
+                false,
+                AUTH_ERROR_MESSAGES[e.code],
+                null,
+                { code: e.code },
+                e.status // ✅ 401, 403, etc
+            );
+        }
+
+        console.error("[GET_CHATS_ERROR]", e);
+
         return apiResponse(
             false,
-            "Failed to fetch chats",
+            CHAT_ERROR_MESSAGES.CHAT_INTERNAL,
             null,
-            error,
+            { code: "CHAT_INTERNAL" },
             500
         );
     }
@@ -41,40 +55,31 @@ export async function GET() {
 export async function POST() {
     try {
         const { session } = await requireAuth();
-        const userId = session?.user?.id;
-
-        if (!userId) {
-            return apiResponse(
-                false,
-                "Unauthorized",
-                null,
-                "User not authenticated",
-                401
-            );
-        }
 
         const chat = await prisma.chat.create({
             data: {
                 title: "New Chat",
-                user: {
-                    connect: { id: userId },
-                },
+                userId: session.user.id,
             },
         });
 
-        return apiResponse(
-            true,
-            "Chat created successfully",
-            chat,
-            null,
-            201
-        );
-    } catch (error) {
+        return apiResponse(true, "Chat created successfully", chat, null, 201);
+    } catch (e) {
+        if (e instanceof AuthError) {
+            return apiResponse(
+                false,
+                AUTH_ERROR_MESSAGES[e.code],
+                null,
+                { code: e.code },
+                e.status
+            );
+        }
+
         return apiResponse(
             false,
-            "Failed to create chat",
+            CHAT_ERROR_MESSAGES.CHAT_CREATE_FAILED,
             null,
-            error,
+            { code: "CHAT_CREATE_FAILED" },
             500
         );
     }

@@ -1,3 +1,4 @@
+import { requireSuperAdmin } from "@/lib/auth/guards";
 import prisma from "@/lib/prisma";
 import { apiResponse } from "@/utils/apiResponse";
 
@@ -18,6 +19,7 @@ function emptyMonthlyArray() {
 /* ---------------- API ---------------- */
 export async function GET() {
     try {
+        await requireSuperAdmin();
         const now = new Date();
         const year = now.getUTCFullYear();
 

@@ -4,6 +4,7 @@ import Backdrop from "@/components/admin/layout/Backdrop";
 import Header from "@/components/admin/layout/Header";
 import Sidebar from "@/components/admin/layout/Sidebar";
 import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
+import { Toaster } from "react-hot-toast";
 
 
 /* ---------------- INNER SHELL (uses hook) ---------------- */
@@ -18,6 +19,20 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex min-h-screen">
+            {/* <Toaster
+                position="top-right"
+                toastOptions={{
+                    loading: {
+                        duration: Infinity,
+                    },
+                    success: {
+                        duration: 5000, // success toast visible for 5s
+                    },
+                    error: {
+                        duration: 3000,
+                    },
+                }}
+            /> */}
             <Sidebar />
             <Backdrop />
             <div

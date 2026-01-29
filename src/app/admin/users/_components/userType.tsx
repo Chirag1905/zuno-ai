@@ -1,7 +1,17 @@
 export interface userType {
-    id: number;
-    name: string;
+    id: string;
+    name?: string | null;
     email: string;
-    password: string;
-    role: string;
+    passsword?: string;
+    country?: string | null;
+    image?: string | null;
+
+    role: "USER" | "ADMIN" | "SUPER_ADMIN";
+
+    emailVerified: boolean;
+    emailVerifiedAt?: string | null;
+    mfaEnabled: boolean;
+
+    createdAt?: string;
+    updatedAt?: string;
 };

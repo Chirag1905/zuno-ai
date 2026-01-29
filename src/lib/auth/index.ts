@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/mail";
 import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
 import { OTP_LOCK_MS, OTP_MAX_ATTEMPTS, RESET_TOKEN_EXPIRY } from "@/lib/auth/constants";
 import { createTrustedDevice } from "@/lib/auth/createTrustedDevice";
+import { assignFreePlan } from "@/lib/billing/assignFreePlan";
 
 // HELPERS
 const sha256 = (v: string) =>
@@ -69,7 +70,7 @@ export const auth = {
                     password: await hashPassword(password),
                 },
             });
-
+            await assignFreePlan(user.id);
             try {
                 await sendEmailVerification(user.email);
             } catch {
@@ -656,6 +657,8 @@ export const auth = {
                             image: true,
                             emailVerified: true,
                             mfaEnabled: true,
+                            role: true,
+                            country: true,
                         },
                     },
                 },

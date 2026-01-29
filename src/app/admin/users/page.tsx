@@ -1,6 +1,4 @@
-import { userType } from "./_components/userType";
-import UserCSR from "./_components/userCSR";
-import { UserResponse } from "@/types/user";
+import UserCSR from "@/app/admin/users/_components/userCSR";
 
 interface PageProps {
     searchParams: Promise<{
@@ -8,61 +6,57 @@ interface PageProps {
         limit?: string;
         search?: string;
         sortBy?: string;
-        sortOrder?: string;
+        sortOrder?: "asc" | "desc";
+        role?: "USER" | "ADMIN" | "SUPER_ADMIN";
     }>;
 }
 
 export default async function UserSSR({ searchParams }: PageProps) {
-
     const params = await searchParams;
+
     const page = Number(params.page) || 1;
     const limit = Number(params.limit) || 10;
-    const search = params.search || "";
-    const sortBy = params.sortBy || undefined;
-    const sortOrder = params.sortOrder || undefined;
+    const search = params.search ?? "";
+    const sortBy = params.sortBy ?? "createdAt";
+    const sortOrder = params.sortOrder ?? "desc";
+    const role = params.role;
+
+    let result;
 
     try {
-        const query = new URLSearchParams();
-        query.set("page", String(page));
-        query.set("limit", String(limit));
+        const query = new URLSearchParams({
+            page: String(page),
+            limit: String(limit),
+            sortBy,
+            sortOrder,
+        });
+
         if (search) query.set("search", search);
-        if (sortBy) query.set("sortBy", sortBy);
-        if (sortOrder) query.set("sortOrder", sortOrder);
+        if (role) query.set("role", role);
 
         const res = await fetch(
-            `http://localhost:3000/api/users?${query.toString()}`,
+            `${process.env.APP_URL}/api/admin/users?${query.toString()}`,
             { cache: "no-store" }
         );
 
-        if (!res.ok) {
-            throw new Error("Failed to fetch subadmins");
-        }
-
-        const result: UserResponse<userType> = await res.json();
-        return <UserCSR initialData={result} />;
+        result = await res.json();
     } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error occurred.';
-        console.log("🚀 ~ SSR ~ message:", message);
-        return (
-            <UserCSR
-                initialData={{
-                    data: [],
-                    meta: {
-                        pagination: {
-                            page: page,
-                            totalPages: 0,
-                            totalItems: 0,
-                            limit: limit,
-                            hasNextPage: false,
-                            hasPrevPage: false,
-                        },
-                    },
-                    error: message,
-                    message: "No data found.",
-                    status: 404,
-                    success: false,
-                }}
-            />
-        );
+        result = {
+            success: false,
+            status: 500,
+            message: "Failed to load users",
+            error: error instanceof Error ? error.message : "Unknown error",
+            data: [],
+            meta: {
+                pagination: {
+                    page,
+                    limit,
+                    total: 0,
+                    totalPages: 0,
+                },
+            },
+        };
     }
+
+    return <UserCSR initialData={result} />;
 }

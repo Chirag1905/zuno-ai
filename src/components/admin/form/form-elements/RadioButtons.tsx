@@ -1,7 +1,7 @@
 "use client";
+import ComponentCard from "@/components/admin/common/ComponentCard";
+import Radio from "@/components/admin/form/input/Radio";
 import React, { useState } from "react";
-import ComponentCard from "../../common/ComponentCard";
-import Radio from "../input/Radio";
 
 export default function RadioButtons() {
   const [selectedValue, setSelectedValue] = useState<string>("option2");
