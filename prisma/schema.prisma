@@ -281,7 +281,7 @@ model Payment {
   currency      String
   status        PaymentStatus
   provider      String
-  providerTxnId String
+  providerTxnId String        @unique
 
   createdAt DateTime @default(now())
 

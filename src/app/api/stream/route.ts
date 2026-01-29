@@ -100,10 +100,18 @@ export async function POST(req: NextRequest) {
         take: MAX_CONTEXT_MESSAGES,
     });
 
+    // const context = recentMessages
+    //     .reverse()
+    //     .map((m) => m.content)
+    //     .join("\n\n");
+
     const context = recentMessages
         .reverse()
-        .map((m) => m.content)
-        .join("\n\n");
+        .map((m) => `${m.role}: ${m.content}`)
+        .join("\n");
+
+    const finalPrompt = `${context}\nUSER: ${message}\nASSISTANT:`;
+
 
     /* ============================
        7️⃣ SUBSCRIPTION + TOKENS
@@ -139,12 +147,13 @@ export async function POST(req: NextRequest) {
             "http://127.0.0.1:11434/api/generate",
             {
                 model: MODEL_MAP[model] ?? MODEL_MAP.llama,
-                prompt: context,
+                // prompt: context,
+                prompt: finalPrompt,
                 stream: true,
             },
             {
                 responseType: "stream",
-                timeout: 5000,
+                timeout: 60000,
                 signal: abortController.signal,
             }
         );
