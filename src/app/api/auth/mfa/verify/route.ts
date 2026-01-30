@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { getRequestMeta } from "@/lib/request";
 import { apiResponse } from "@/utils/apiResponse";
 import { cookies } from "next/headers";

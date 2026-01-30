@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {

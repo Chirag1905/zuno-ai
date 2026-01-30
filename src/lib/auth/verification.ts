@@ -20,7 +20,7 @@ export async function sendEmailVerification(email: string) {
     },
   });
 
-  const link = `${process.env.APP_URL}/verify-email?token=${token}`;
+  const link = `${process.env.APP_URL}/send-verification?token=${token}`;
 
   const html = `
 <div style="background:#f4f6f8;padding:40px 0;font-family:Arial,Helvetica,sans-serif;">

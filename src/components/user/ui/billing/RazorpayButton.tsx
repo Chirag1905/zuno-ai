@@ -1,83 +1,117 @@
 "use client";
 
+import { IconButton } from "@/components/user/ui/Icon";
+
 declare global {
     interface Window {
-        Razorpay: any;
+        Razorpay: new (options: RazorpayOptions) => {
+            open: () => void;
+        };
     }
 }
 
-export default function RazorpayButton({ plan }: { plan: any }) {
-    async function handleRazorpay() {
-        const res = await fetch("/api/billing/razorpay/checkout", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ planId: plan.id }),
-        });
+interface RazorpayOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: RazorpayResponse) => void;
+}
 
-        const data = await res.json();
+interface RazorpayResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+}
 
-        if (!res.ok || !data?.success) {
-            alert(data?.message || "Razorpay checkout failed");
-            return;
-        }
+interface RazorpayButtonProps {
+    plan: {
+        id: string;
+        name: string;
+    };
+    className?: string;
+}
 
-        const { key, amount, currency, orderId } = data.data;
+export default function RazorpayButton({
+    plan,
+    className = "",
+}: RazorpayButtonProps) {
+    const handleRazorpay = async (): Promise<void> => {
+        try {
+            const res = await fetch("/api/billing/razorpay/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planId: plan.id }),
+            });
 
-        if (!window.Razorpay) {
-            alert("Razorpay SDK not loaded");
-            return;
-        }
+            const data = await res.json();
 
-        const rzp = new window.Razorpay({
-            key,
-            amount,
-            currency,
-            name: "Zuno AI",
-            description: plan.name,
-            order_id: orderId,
+            if (!res.ok || !data?.success) {
+                throw new Error(data?.message || "Razorpay checkout failed");
+            }
 
-            handler: async (response: any) => {
-                const verifyRes = await fetch(
-                    "/api/billing/razorpay/verify",
-                    {
+            if (!window.Razorpay) {
+                throw new Error("Razorpay SDK not loaded");
+            }
+
+            const { key, amount, currency, orderId } = data.data;
+
+            const rzp = new window.Razorpay({
+                key,
+                amount,
+                currency,
+                name: "Zuno AI",
+                description: plan.name,
+                order_id: orderId,
+
+                handler: async (response: RazorpayResponse) => {
+                    const verifyRes = await fetch("/api/billing/razorpay/verify", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             planId: plan.id,
-                            razorpay_payment_id:
-                                response.razorpay_payment_id,
-                            razorpay_order_id:
-                                response.razorpay_order_id,
-                            razorpay_signature:
-                                response.razorpay_signature,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
                         }),
+                    });
+
+                    const verifyData = await verifyRes.json();
+
+                    if (verifyRes.ok && verifyData.success) {
+                        window.location.href = "/billing/success";
+                    } else {
+                        throw new Error(
+                            verifyData.message || "Payment verification failed"
+                        );
                     }
-                );
+                },
+            });
 
-                const verifyData = await verifyRes.json();
-
-                if (verifyRes.ok && verifyData.success) {
-                    window.location.href = "/billing/success";
-                } else {
-                    alert(
-                        verifyData.message ||
-                        "Payment verification failed"
-                    );
-                }
-            },
-        });
-
-        rzp.open();
+            rzp.open();
+        } catch (err: any) {
+            console.error(err);
+            alert(err.message || "Razorpay payment failed");
+        }
     }
 
     return (
-        <button
+        <IconButton
             onClick={handleRazorpay}
-            className="w-full rounded-lg border border-white/20 py-3 transition hover:bg-white/10"
-        >
-            Pay with Razorpay
-        </button>
+            icon="Wallet"
+            text="Pay with Razorpay"
+            size="sm"
+            rounded="xl"
+            variant="outline"
+            className={`
+        w-full py-3 justify-center
+        border border-white/20
+        hover:bg-white/10
+        transition
+        ${className}
+      `}
+        />
     );
 }

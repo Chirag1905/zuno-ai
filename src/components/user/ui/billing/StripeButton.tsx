@@ -1,24 +1,60 @@
 "use client";
 
-import { createStripeCheckout } from "@/lib/billing/billing";
 import { useState } from "react";
+import { createStripeCheckout } from "@/lib/billing/billing";
+import { IconButton } from "@/components/user/ui/Icon";
 
-export default function StripeButton({ plan }: { plan: any }) {
+interface StripeButtonProps {
+    plan: {
+        id: string;
+        name: string;
+    };
+    className?: string;
+}
+
+export default function StripeButton({
+    plan,
+    className = "",
+}: StripeButtonProps) {
     const [loading, setLoading] = useState(false);
 
     async function handleStripe() {
-        setLoading(true);
-        const res = await createStripeCheckout(plan.id);
-        window.location.href = res.data.url;
+        if (loading) return;
+
+        try {
+            setLoading(true);
+            const res = await createStripeCheckout(plan.id);
+
+            if (!res?.data?.url) {
+                throw new Error("Stripe checkout URL missing");
+            }
+
+            window.location.href = res.data.url;
+        } catch (err) {
+            console.error(err);
+            alert("Stripe checkout failed. Please try again.");
+            setLoading(false);
+        }
     }
 
     return (
-        <button
+        <IconButton
             onClick={handleStripe}
             disabled={loading}
-            className="w-full rounded-lg bg-black py-3 font-medium transition hover:opacity-90 disabled:opacity-50"
-        >
-            {loading ? "Redirecting..." : "Pay with Stripe"}
-        </button>
+            icon="CreditCard"
+            text={loading ? "Redirecting…" : "Pay with Stripe"}
+            size="sm"
+            rounded="xl"
+            variant="optional"
+            className={`
+        w-full py-3 justify-center
+        bg-linear-to-r from-purple-500 to-pink-500
+        font-semibold shadow-lg
+        hover:scale-[1.02] hover:shadow-pink-500/40
+        disabled:opacity-60 disabled:cursor-not-allowed
+        transition
+        ${className}
+      `}
+        />
     );
 }

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 
-async function main() {
+const main = async () => {
     console.log("🌱 Seeding plans...");
 
     await prisma.plan.upsert({
@@ -23,7 +23,7 @@ async function main() {
         update: {},
         create: {
             name: "PRO",
-            price: 19.99, // $19.99
+            price: 199,
             currency: "INR",
             interval: "monthly",
             maxTokens: 100000,
@@ -37,12 +37,12 @@ async function main() {
         update: {},
         create: {
             name: "PREMIUM",
-            price: 49.99, // $49.99
+            price: 499,
             currency: "INR",
             interval: "monthly",
-            maxTokens: 500000,
-            maxChats: null,     // unlimited
-            maxMessages: null,  // unlimited
+            maxTokens: null,
+            maxChats: null,
+            maxMessages: null,
         },
     });
 

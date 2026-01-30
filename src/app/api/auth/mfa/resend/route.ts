@@ -1,4 +1,4 @@
-import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { sendMfaOtp } from "@/lib/auth/verification";
 import { apiResponse } from "@/utils/apiResponse";
 

@@ -15,6 +15,8 @@ export type AuthErrorCode =
     | "LOGOUT_ALL_FAILED"
     | "ACTION_NOT_ALLOWED"
     | "SAME_PASSWORD_NOT_ALLOWED"
+    | "EMAIL_ALREADY_VERIFIED"
+
     | "INTERNAL";
 
 export class AuthError extends Error {
@@ -31,6 +33,7 @@ export class AuthError extends Error {
 export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
     EMAIL_EXISTS: "Email already exists",
     EMAIL_NOT_VERIFIED: "Please verify your email",
+    EMAIL_ALREADY_VERIFIED: "Email already verified",
     EMAIL_SEND_FAILED: "Unable to send email. Try again later",
     EMAIL_NOT_FOUND: "Email not found",
     INVALID_CREDENTIALS: "Invalid email or password",

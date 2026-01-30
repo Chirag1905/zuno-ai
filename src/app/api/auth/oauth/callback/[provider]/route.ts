@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
 import { getRequestMeta } from "@/lib/request";
-import { AuthError } from "@/lib/auth/errors";
+import { AuthError } from "@/lib/errors/auth.error";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
 

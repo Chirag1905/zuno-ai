@@ -9,6 +9,7 @@ import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
 import Link from "next/link";
 import AuthCard from "@/components/user/Layouts/AuthCard";
+import { IconButton } from "@/components/user/ui/Icon";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -71,6 +72,19 @@ export default function SignInPage() {
         }
     };
 
+    const resendVerification = async () => {
+        try {
+            await toast.promise(
+                api.post("/auth/resend-verification", { email }),
+                {
+                    loading: "Resending verification email...",
+                    success: "Verification email sent!",
+                    error: "Failed to resend email",
+                }
+            );
+        } catch { }
+    };
+
     return (
         <AuthCard
             title="Welcome back"
@@ -102,7 +116,16 @@ export default function SignInPage() {
                 />
 
                 {/* ✅ Forgot password link */}
-                <div className="text-right">
+                <div className="flex items-center justify-end gap-2">
+                    {/* resend email button */}
+                    <IconButton
+                        icon="RotateCw"
+                        variant="outline"
+                        size="xs"
+                        text="Resend Email"
+                        onClick={resendVerification}
+                        className="text-white"
+                    />
                     <Link
                         href="/forgotpassword"
                         className="text-sm text-white hover:underline"

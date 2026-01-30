@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
-import { AuthError } from "@/lib/auth/errors";
 import { redirect } from "next/navigation";
+import { AuthError } from "@/lib/errors/auth.error";
 
 export async function requireSuperAdmin() {
     const cookieStore = await cookies();

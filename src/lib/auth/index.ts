@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/createSession";
 import { sendMfaOtp, sendEmailVerification } from "@/lib/auth/verification";
-import { AuthError } from "@/lib/auth/errors";
+import { AuthError } from "@/lib/errors/auth.error";
 import { sendEmail } from "@/lib/mail";
 import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
 import { OTP_LOCK_MS, OTP_MAX_ATTEMPTS, RESET_TOKEN_EXPIRY } from "@/lib/auth/constants";
@@ -420,6 +420,27 @@ export const auth = {
         }
     },
 
+    // RESEND VERIFICATION
+    async resendVerification(email: string) {
+        try {
+            const user = await prisma.user.findUnique({ where: { email } });
+
+            if (!user) throw new AuthError("EMAIL_NOT_FOUND", 404);
+            if (user.emailVerified) throw new AuthError("EMAIL_ALREADY_VERIFIED", 400);
+
+            await prisma.verification.deleteMany({
+                where: { identifier: email, type: "EMAIL_VERIFY" },
+            });
+
+            await sendEmailVerification(email);
+
+            return true;
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+            console.error("resend verification error:", e);
+            throw new AuthError("INTERNAL", 500);
+        }
+    },
     // OAUTH LOGIN / REGISTER
     async oauthLogin({
         provider,

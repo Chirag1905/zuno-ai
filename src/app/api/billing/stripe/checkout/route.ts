@@ -30,6 +30,9 @@ export async function POST(req: Request) {
                     quantity: 1,
                 },
             ],
+            metadata: {
+                planId: plan.id,
+            },
             success_url: `${process.env.APP_URL}/billing/success`,
             cancel_url: `${process.env.APP_URL}/billing/cancel`,
         });
@@ -48,8 +51,8 @@ export async function POST(req: Request) {
         return apiResponse(true, "Checkout created", {
             url: checkout.url,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Stripe checkout error:", error);
-        return apiResponse(false, error.message, null, null, 500);
+        return apiResponse(false, error instanceof Error ? error.message : "Unknown error", null, null, 500);
     }
 }

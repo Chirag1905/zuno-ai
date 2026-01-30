@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 
 export async function POST(req: Request) {
     const body = await req.text();
-    const sig = headers().get("stripe-signature")!;
+    const h = await headers();
+    const sig = h.get("stripe-signature")!;
 
     let event;
     try {
@@ -20,15 +21,30 @@ export async function POST(req: Request) {
     if (event.type === "checkout.session.completed") {
         const session = event.data.object as any;
 
+        // ✅ FIX: Get planId from metadata
+        const planId = session.metadata?.planId;
+
+        if (!planId) {
+            console.error("❌ Stripe webhook missing planId in metadata");
+            return new Response("Missing metadata", { status: 400 });
+        }
+
         const payment = await prisma.payment.findFirst({
             where: { providerTxnId: session.id },
         });
 
         if (!payment) return new Response("Payment not found", { status: 404 });
 
-        const plan = await prisma.plan.findFirst({
-            where: { price: payment.amount },
+        const plan = await prisma.plan.findUnique({
+            where: { id: planId },
         });
+
+        if (!plan) return new Response("Plan not found", { status: 404 });
+
+        // ✅ FIX: Dynamic Duration
+        const isYearly = plan.interval === "yearly";
+        const intervalDays = isYearly ? 365 : 30;
+        const billingInterval = isYearly ? "yearly" : "monthly";
 
         await prisma.$transaction([
             prisma.payment.update({
@@ -46,14 +62,14 @@ export async function POST(req: Request) {
                     status: "ACTIVE",
 
                     startedAt: new Date(),
-                    endsAt: new Date(Date.now() + 30 * 86400000),
+                    endsAt: new Date(Date.now() + intervalDays * 86400000),
 
                     periodStart: new Date(),
-                    periodIntervalDays: 30,
+                    periodIntervalDays: intervalDays,
 
                     tokensRemaining: plan.maxTokens!,
-                    provider: "razorpay",
-                    billingInterval: "monthly",
+                    provider: "stripe", // ✅ FIX: Correct provider name
+                    billingInterval: billingInterval,
                 },
             }),
         ]);

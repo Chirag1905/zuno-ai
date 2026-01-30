@@ -24,7 +24,7 @@ export default function VerifyEmailPage() {
 
         let cancelled = false;
 
-        const verifyPromise = api.post("/auth/verify-email", { token });
+        const verifyPromise = api.post("/auth/send-verification", { token });
 
         toast.promise(
             verifyPromise,

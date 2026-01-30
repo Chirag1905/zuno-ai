@@ -3,7 +3,7 @@ import { apiResponse } from "@/utils/apiResponse";
 import { IdSchema, UpdateChatSchema } from "@/app/api/c/validation";
 import prisma from "@/lib/prisma";
 import { CHAT_ERROR_MESSAGES } from "@/lib/errors/chat.error";
-import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/auth/errors";
+import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { requireAuth } from "@/lib/auth/guards";
 
 /* ================= GET CHAT MESSAGES ================= */

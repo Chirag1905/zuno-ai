@@ -1,16 +1,19 @@
 import { auth } from "@/lib/auth";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
-import { getRequestMeta } from "@/lib/request";
 import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {
     try {
-        const { email, password, name, country } = await req.json();
-        const meta = await getRequestMeta();
+        const { token } = await req.json();
+        await auth.resendVerification(token);
 
-        await auth.register({ name, email, password, country, ...meta });
-
-        return apiResponse(true, "Registered successfully. Please verify your email.", null, null, 201);
+        return apiResponse(
+            true,
+            "Email Resend-Verification successfully",
+            null,
+            null,
+            200
+        );
     } catch (e) {
         if (e instanceof AuthError) {
             return apiResponse(
