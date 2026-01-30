@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         );
     } catch (e) {
         if (e instanceof AuthError) {
-            return apiResponse(
+            return apiResponse( 
                 false,
                 AUTH_ERROR_MESSAGES[e.code],
                 null,

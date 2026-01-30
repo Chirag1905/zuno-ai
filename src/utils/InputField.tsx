@@ -2,6 +2,7 @@
 
 import Icon from "@/components/user/ui/Icon";
 import { useState } from "react";
+import type { InputHTMLAttributes } from "react";
 
 type Props = {
     name: string;
@@ -10,7 +11,7 @@ type Props = {
     required?: boolean;
     disabled?: boolean;
     error?: string;
-};
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "name" | "type">;
 
 export default function InputField({
     name,
@@ -19,6 +20,7 @@ export default function InputField({
     required,
     disabled,
     error,
+    ...rest // 👈 captures onChange, value, onBlur, etc
 }: Props) {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === "password";
@@ -32,6 +34,7 @@ export default function InputField({
                     placeholder={placeholder}
                     required={required}
                     disabled={disabled}
+                    {...rest} // 👈 safely forwarded
                     className={`w-full rounded-xl bg-white/5 border px-3 py-2 text-white pr-12
             ${error ? "border-red-500" : "border-neutral-700"}
           `}
@@ -41,7 +44,7 @@ export default function InputField({
                     <button
                         type="button"
                         onClick={() => setShowPassword((p) => !p)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
                     >
                         {showPassword ? <Icon name="EyeOff" /> : <Icon name="Eye" />}
                     </button>

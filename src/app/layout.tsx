@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { Geist, Geist_Mono, Outfit } from "next/font/google";
 
 const outfit = Outfit({

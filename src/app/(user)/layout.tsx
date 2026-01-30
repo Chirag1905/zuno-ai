@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
 // import "../globals.css";
-import "@/app/globals.css"
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
     title: "Zuno",

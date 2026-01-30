@@ -4,8 +4,8 @@ import { apiResponse } from "@/utils/apiResponse";
 
 export async function POST(req: Request) {
     try {
-        const { token } = await req.json();
-        await auth.resendVerification(token);
+        const { email } = await req.json();
+        await auth.resendVerification(email);
 
         return apiResponse(
             true,

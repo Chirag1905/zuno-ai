@@ -13,7 +13,8 @@ import { IconButton } from "@/components/user/ui/Icon";
 
 export default function SignInPage() {
     const router = useRouter();
-
+    const [emailValue, setEmailValue] = useState("");
+    const [emailNotVerified, setEmailNotVerified] = useState(false);
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [githubLoading, setGithubLoading] = useState(false);
@@ -48,15 +49,26 @@ export default function SignInPage() {
                 {
                     loading: "Logging in...",
                     success: (res) => {
+                        setEmailNotVerified(false);
                         if (res?.data?.data?.isTrusted) {
                             return res?.data?.message || "OTP sent to your email";
                         }
                         return res?.data?.message || "Logged in successfully";
                     },
-                    error: (err) =>
-                        err?.response?.data?.message ||
-                        "Invalid email or password",
-                }, { duration: 5000 }
+                    error: (err) => {
+                        const code = err?.response?.data?.error?.code;
+                        console.log("🚀 ~ handleSubmit ~ code:", code)
+
+                        if (code === "EMAIL_NOT_VERIFIED") {
+                            setEmailNotVerified(true);
+                            return err?.response?.data?.message || "Email not verified. Please verify your email.";
+                        }
+
+                        setEmailNotVerified(false);
+                        return err?.response?.data?.message || "Invalid email or password";
+                    },
+                },
+                { duration: 5000 }
             );
 
             // 🔐 MFA flow
@@ -75,11 +87,15 @@ export default function SignInPage() {
     const resendVerification = async () => {
         try {
             await toast.promise(
-                api.post("/auth/resend-verification", { email }),
+                api.post("/auth/verification/resend-verification", { email: emailValue }),
                 {
                     loading: "Resending verification email...",
-                    success: "Verification email sent!",
-                    error: "Failed to resend email",
+                    success: (res) => {
+                        return res?.data?.message || "Verification email sent!";
+                    },
+                    error: (err) => {
+                        return err?.response?.data?.message || "Failed to resend email";
+                    },
                 }
             );
         } catch { }
@@ -105,6 +121,8 @@ export default function SignInPage() {
                     placeholder="Email"
                     error={errors.email}
                     disabled={loading}
+                    value={emailValue}
+                    onChange={(e) => setEmailValue(e.target.value)}
                 />
 
                 <InputField
@@ -118,14 +136,17 @@ export default function SignInPage() {
                 {/* ✅ Forgot password link */}
                 <div className="flex items-center justify-end gap-2">
                     {/* resend email button */}
-                    <IconButton
-                        icon="RotateCw"
-                        variant="outline"
-                        size="xs"
-                        text="Resend Email"
-                        onClick={resendVerification}
-                        className="text-white"
-                    />
+                    {emailNotVerified && (
+                        <IconButton
+                            icon="RotateCw"
+                            variant="outline"
+                            size="xs"
+                            text="Resend Email"
+                            onClick={resendVerification}
+                            type="button"
+                            className="text-white"
+                        />
+                    )}
                     <Link
                         href="/forgotpassword"
                         className="text-sm text-white hover:underline"
