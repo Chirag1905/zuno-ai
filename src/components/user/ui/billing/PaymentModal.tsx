@@ -8,16 +8,19 @@ type Plan = {
     id: string;
     name: string;
     price: number;
+
 };
 
 export default function PaymentModal({
     plan,
     open,
     onClose,
+    featured,
 }: {
     plan: Plan;
     open: boolean;
     onClose: () => void;
+    featured?: boolean;
 }) {
     if (!open) return null;
 
@@ -54,7 +57,7 @@ export default function PaymentModal({
                 >
                     <div>
                         <p className="text-2xl font-bold text-white">
-                            ${(plan.price / 100).toFixed(2)}
+                            ₹{new Intl.NumberFormat("en-IN").format(plan.price)}
                             <span className="text-sm font-medium text-gray-400"> / month</span>
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
@@ -62,9 +65,11 @@ export default function PaymentModal({
                         </p>
                     </div>
 
-                    <span className="rounded-full bg-purple-500/10 px-3 py-1 text-xs text-purple-300">
-                        Most Popular
-                    </span>
+                    {featured && (
+                        <span className="rounded-full bg-purple-500/10 px-3 py-1 text-xs text-purple-300">
+                            Most Popular
+                        </span>
+                    )}
                 </div>
 
                 {/* PAYMENT ACTIONS */}

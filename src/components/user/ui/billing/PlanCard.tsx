@@ -16,36 +16,40 @@ export default function PlanCard({
 
     return (
         <div
-            className={`relative flex flex-col rounded-2xl border p-8 text-white transition shadow-xl min-h-[460px]
-        ${featured
-                    ? "border-purple-500/60 bg-linear-to-b from-purple-500/15 to-pink-500/5 scale-[1.03] shadow-purple-500/40"
-                    : "border-white/10 bg-white/5 hover:-translate-y-2 hover:shadow-purple-500/30"
-                }
-      `}
+            className={`relative flex flex-col rounded-[28px] border p-8 text-white min-h-[480px] transition-all
+      ${featured
+                    ? "border-purple-500/60 bg-linear-to-br from-purple-500/20 to-pink-500/10 scale-[1.05] shadow-[0_30px_80px_rgba(168,85,247,0.45)]"
+                    : "border-white/10 bg-white/4 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(168,85,247,0.25)]"
+                }`}
         >
             {/* BADGE */}
             {featured && (
-                <span className="absolute -top-3 right-6 rounded-full bg-linear-to-r from-purple-500 to-pink-500 px-4 py-1 text-xs font-semibold shadow-md">
+                <span className="absolute -top-3 right-6 rounded-full bg-linear-to-r from-purple-500 to-pink-500 px-4 py-1 text-xs font-semibold shadow-lg">
                     Most Popular
                 </span>
             )}
 
-            {/* PLAN TITLE */}
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-300">
+            {/* TITLE */}
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                 {plan.name}
-            </h2>
+            </p>
 
             {/* PRICE */}
-            <div className="mt-3">
-                <span className="text-4xl font-bold">
+            <div className="mt-4">
+                {/* <span className="text-4xl font-extrabold">
                     {isFree ? "Free" : `$${(plan.price / 100).toFixed(2)}`}
+                </span> */}
+                <span className="text-4xl font-extrabold">
+                    {isFree
+                        ? "Free"
+                        : `₹${new Intl.NumberFormat("en-IN").format(plan.price)}`}
                 </span>
                 {!isFree && (
                     <span className="ml-2 text-sm text-gray-400">/ month</span>
                 )}
             </div>
 
-            {/* SHORT DESC */}
+            {/* DESCRIPTION */}
             <p className="mt-3 text-sm text-gray-400">
                 {plan.name === "FREE" && "Get started and explore the basics"}
                 {plan.name === "PRO" && "Best for regular usage and professionals"}
@@ -57,39 +61,12 @@ export default function PlanCard({
 
             {/* FEATURES */}
             <ul className="space-y-3 text-sm text-gray-300 flex-1">
-                <li className="flex items-center gap-2">
-                    <span className="text-purple-400">✔</span>
-                    {plan.maxTokens ?? "Unlimited"} Tokens
-                </li>
-
-                <li className="flex items-center gap-2">
-                    <span className="text-purple-400">✔</span>
-                    {plan.maxChats ?? "Unlimited"} Chats
-                </li>
-
-                <li className="flex items-center gap-2">
-                    <span className="text-purple-400">✔</span>
-                    Faster response speed
-                </li>
-
-                <li className="flex items-center gap-2">
-                    <span className="text-purple-400">✔</span>
-                    Priority queue access
-                </li>
-
-                {plan.name !== "FREE" && (
-                    <li className="flex items-center gap-2">
-                        <span className="text-purple-400">✔</span>
-                        Email support
-                    </li>
-                )}
-
-                {plan.name === "PREMIUM" && (
-                    <li className="flex items-center gap-2">
-                        <span className="text-purple-400">✔</span>
-                        Dedicated support
-                    </li>
-                )}
+                <li>✔ {plan.maxTokens ?? "Unlimited"} Tokens</li>
+                <li>✔ {plan.maxChats ?? "Unlimited"} Chats</li>
+                <li>✔ Faster response speed</li>
+                <li>✔ Priority queue access</li>
+                {plan.name !== "FREE" && <li>✔ Email support</li>}
+                {plan.name === "PREMIUM" && <li>✔ Dedicated support</li>}
             </ul>
 
             {/* CTA */}
@@ -98,9 +75,9 @@ export default function PlanCard({
                 size="sm"
                 rounded="xl"
                 variant="minimal"
-                className={`mt-8 w-full py-3 text-sm justify-center ${isFree
-                    ? "bg-gray-700 opacity-60 cursor-not-allowed"
-                    : "bg-linear-to-r from-purple-500 to-pink-500 font-semibold shadow-lg hover:scale-[1.02] hover:shadow-pink-500/40 transition"
+                className={`mt-8 w-full py-3 justify-center ${isFree
+                    ? "bg-gray-700/60 cursor-not-allowed"
+                    : "bg-linear-to-r from-purple-500 to-pink-500 font-semibold shadow-lg hover:scale-[1.03] hover:shadow-pink-500/50 transition"
                     }`}
                 onClick={!isFree ? onSelect : undefined}
                 disabled={isFree}

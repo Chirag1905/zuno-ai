@@ -16,18 +16,18 @@ export default function PricingPage() {
     return (
         <>
             {/* HEADER */}
-            <div className="mt-4 text-center space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold text-white">
+            <div className="text-center space-y-4">
+                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white">
                     Choose your plan
                 </h1>
-                <p className="text-neutral-400">
+                <p className="text-neutral-400 text-sm md:text-base">
                     Simple pricing. Cancel anytime.
                 </p>
             </div>
 
-            {/* PRICING CONTAINER */}
-            <div className="mt-4 rounded-3xl backdrop-blur-xl p-10 md:p-14 shadow-2xl">
-                <div className="grid gap-10 md:grid-cols-3">
+            {/* PRICING GRID */}
+            <div className="mt-14">
+                <div className="grid gap-8 md:grid-cols-3 items-stretch">
                     {plans.map((plan) => (
                         <PlanCard
                             key={plan.id}
@@ -43,6 +43,7 @@ export default function PricingPage() {
             <PaymentModal
                 plan={selectedPlan}
                 open={!!selectedPlan}
+                featured={selectedPlan?.name === "PRO"}
                 onClose={() => setSelectedPlan(null)}
             />
         </>
