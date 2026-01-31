@@ -33,15 +33,19 @@ export async function POST(req: Request) {
     });
 
     // Create future subscription
+    const periodIntervalDays = newPlan.interval === "yearly" ? 365 : 30;
+
     await prisma.subscription.create({
         data: {
             userId,
             planId: newPlan.id,
             status: "ACTIVE",
             startedAt: sub.endsAt!,
+            periodStart: sub.endsAt!,
+            periodIntervalDays,
             provider: "SYSTEM",
             billingInterval: newPlan.interval,
-            tokensRemaining: newPlan.maxTokens,
+            tokensRemaining: newPlan.maxTokens ?? 0,
         },
     });
 

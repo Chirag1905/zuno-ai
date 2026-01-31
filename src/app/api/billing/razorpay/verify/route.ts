@@ -56,7 +56,7 @@ export async function POST(req: Request) {
             // 1️⃣ Save payment
             prisma.payment.create({
                 data: {
-                    userId,
+                    user: { connect: { id: userId } },
                     amount: Math.round(plan.price * 100),
                     currency: plan.currency,
                     status: "SUCCESS",
@@ -74,8 +74,8 @@ export async function POST(req: Request) {
             // 3️⃣ Create new subscription
             prisma.subscription.create({
                 data: {
-                    userId,
-                    planId: plan.id,
+                    user: { connect: { id: userId } },
+                    plan: { connect: { id: plan.id } },
                     status: "ACTIVE",
 
                     startedAt: new Date(),

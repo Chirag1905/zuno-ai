@@ -27,6 +27,7 @@ export async function POST(req: Request) {
             return apiResponse(false, "Plan not found", null, null, 404);
         }
 
+
         // ❌ Never send FREE plan to Razorpay
         if (plan.price <= 0) {
             return apiResponse(
@@ -38,15 +39,34 @@ export async function POST(req: Request) {
             );
         }
 
+        // 🔍 Check if user already has this plan active
+        const existingSubscription = await prisma.subscription.findFirst({
+            where: {
+                userId,
+                planId: plan.id,
+                status: "ACTIVE",
+            },
+        });
+
+        if (existingSubscription) {
+            return apiResponse(
+                false,
+                "You are already subscribed to this plan",
+                null,
+                null,
+                400
+            );
+        }
+
         const razorpay = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID,
             key_secret: process.env.RAZORPAY_KEY_SECRET,
         });
 
-        const amount = Math.round(plan.price * 100); // INR → paise
+        // const amount = Math.round(plan.price * 100); // INR → paise
 
         const order = await razorpay.orders.create({
-            amount,
+            amount: plan.price,
             currency: plan.currency || "INR",
             receipt: `rcpt_${Date.now()}`, // ✅ <= 40 chars
         });
