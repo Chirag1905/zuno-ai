@@ -7,7 +7,7 @@ import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserStar
 import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
 import ZunoLogo from "@/components/user/ui/ZunoLogo";
 import SidebarWidget from "@/components/admin/layout/SidebarWidget";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 
 type SubItem = {
   name: string;
@@ -202,7 +202,7 @@ const Sidebar: React.FC = () => {
                           className={`menu-dropdown-item flex-1 ${isActive(subItem.path) ? "menu-dropdown-item-active" : "menu-dropdown-item-inactive"}`}
                         >
                           <span className="flex items-center gap-3">{subItem.icon}{subItem.name}</span>
-                          <IconButton
+                          <Button
                             icon={isPinned(subItem.path) ? "PinOff" : "Pin"}
                             onClick={(e) => {
                               e.preventDefault();
@@ -252,7 +252,7 @@ const Sidebar: React.FC = () => {
                     </span>
 
                     {!isCollapsed && (
-                      <IconButton
+                      <Button
                         icon={isPinned(path) ? "PinOff" : "Pin"}
                         onClick={() =>
                           togglePin({

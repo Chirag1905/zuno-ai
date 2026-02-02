@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Icon, { IconButton, IconName } from "@/components/user/ui/Icon";
+import Icon, { IconName } from "@/components/ui/Icon";
+import Button from "@/components/ui/Button";
 
 type Status = "loading" | "success" | "error";
 
@@ -185,7 +186,7 @@ export default function VerifyPayment() {
 
                     {/* ACTION */}
                     {current.action && (
-                        <IconButton
+                        <Button
                             icon={current.action.icon}
                             text={current.action.label}
                             iconPosition={status === "error" ? "left" : "right"}

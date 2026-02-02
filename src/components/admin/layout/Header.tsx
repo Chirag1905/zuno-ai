@@ -4,7 +4,6 @@ import { ThemeToggleButton } from "@/components/admin/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/admin/header/NotificationDropdown";
 import UserDropdown from "@/components/admin/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
-import dayjs from "dayjs";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";

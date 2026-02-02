@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PlanCard from "@/components/user/ui/billing/PlanCard";
-import PaymentModal from "@/components/user/ui/billing/PaymentModal";
 import { fetchPlans } from "@/lib/billing/billing";
+import PlanCard from "@/components/ui/billing/PlanCard";
+import PaymentModal from "@/components/ui/billing/PaymentModal";
 
 export default function PricingPage() {
     const [plans, setPlans] = useState<any[]>([]);

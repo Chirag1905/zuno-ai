@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import AuthCard from "@/components/user/Layouts/AuthCard";
 import axios from "axios";
+import Checkbox from "@/components/ui/Checkbox";
+import Button from "@/components/ui/Button";
 
 /* ================= DEVICE NAME ================= */
 
@@ -217,19 +219,21 @@ export default function VerifyOtpPage() {
         <AuthCard
             title="Verify OTP"
             subtitle={`Enter the OTP sent to ${email}`}
+            onBack={() => router.back()}
             footer={
-                <p className="text-center text-sm text-neutral-400">
+                <p className="flex items-center justify-center text-center text-sm text-neutral-400">
                     Didn’t receive the code?{" "}
-                    <button
+                    <Button
                         type="button"
+                        variant="optional"
+                        size="sm"
                         disabled={cooldown > 0}
                         onClick={resendOtp}
                         className="text-white hover:underline disabled:opacity-50"
-                    >
-                        {cooldown > 0
+                        text={cooldown > 0
                             ? `Resend OTP in ${cooldown}s`
                             : "Resend OTP"}
-                    </button>
+                    />
                 </p>
             }
         >
@@ -244,39 +248,35 @@ export default function VerifyOtpPage() {
                 />
 
                 {error && (
-                    <p className="text-center text-sm text-red-500">
+                    <p className="text-center text-sm text-red-400">
                         {error}
                     </p>
                 )}
 
-                <label className="flex items-center gap-2 text-sm text-neutral-400 justify-center">
-                    <input
-                        type="checkbox"
+                <div className="flex justify-center">
+                    <Checkbox
                         checked={rememberDevice}
-                        onChange={(e) =>
-                            setRememberDevice(
-                                e.target.checked
-                            )
-                        }
-                        disabled={loading}
-                        className="accent-white"
+                        onChange={setRememberDevice}
+                        text="Remember this device"
+                        accentColor="bg-emerald-500"
                     />
-                    Remember this device
-                </label>
+                </div>
 
                 <p className="text-center text-xs text-neutral-500">
                     Device: {deviceName}
                 </p>
 
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full justify-center rounded-3xl bg-white text-black py-2 font-medium disabled:opacity-60"
-                >
-                    {loading
-                        ? "Verifying..."
-                        : "Verify OTP"}
-                </button>
+                    size="md"
+                    icon="ArrowRight"
+                    iconPosition="right"
+                    iconClassName="text-black"
+                    text={loading ? "Verifying..." : "Verify OTP"}
+                    textClassName="text-black"
+                    className="w-full justify-center rounded-xl bg-emerald-500! py-2 font-medium transition hover:bg-emerald-400! disabled:opacity-60"
+                />
             </form>
         </AuthCard>
     );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createStripeCheckout } from "@/lib/billing/billing";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 
 interface StripeButtonProps {
     plan: {
@@ -38,7 +38,7 @@ export default function StripeButton({
     }
 
     return (
-        <IconButton
+        <Button
             onClick={handleStripe}
             disabled={loading}
             icon="CreditCard"

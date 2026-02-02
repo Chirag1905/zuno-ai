@@ -1,45 +1,9 @@
 "use client";
 
-import * as LucideIcons from "lucide-react";
-import React, { memo, forwardRef } from "react";
+import Icon, { IconName } from "@/components/ui/Icon";
+import React, { forwardRef } from "react";
 
-export type IconName = keyof typeof LucideIcons;
-
-/* ==================== ICON ==================== */
-interface IconProps extends React.SVGProps<SVGSVGElement> {
-    name: IconName;
-    size?: number;
-}
-
-export const Icon = memo(function Icon({
-    name,
-    size = 20,
-    className = "",
-    ...props
-}: IconProps) {
-    const LucideIcon = LucideIcons[name] as React.ComponentType<
-        React.SVGProps<SVGSVGElement>
-    >;
-
-    if (!LucideIcon) {
-        console.warn(`Icon "${name}" not found`);
-        return null;
-    }
-
-    return (
-        <LucideIcon
-            width={size}
-            height={size}
-            className={className}
-            {...props}
-        />
-    );
-});
-
-Icon.displayName = "Icon";
-
-/* ==================== ICON BUTTON ==================== */
-interface IconButtonProps
+interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: IconName;
     size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
@@ -47,13 +11,13 @@ interface IconButtonProps
     iconClassName?: string;
     text?: string;
     textClassName?: string;
-    iconPosition?: "left" | "right"; // ✅ DEFAULT LEFT
+    iconPosition?: "left" | "right";
     compact?: boolean;
     rounded?: "full" | "xl" | "lg" | "md" | "sm" | "none";
 }
 
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-    function IconButton(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+    function Button(
         {
             icon,
             size = "md",
@@ -61,7 +25,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             iconClassName = "",
             text = "",
             textClassName = "",
-            iconPosition = "left", // ✅ DEFAULT
+            iconPosition = "left",
             compact = false,
             rounded = "full",
             className = "",
@@ -128,8 +92,6 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             />
         ) : null;
 
-        const hasText = Boolean(text);
-
         return (
             <button
                 ref={ref}
@@ -142,24 +104,22 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
                 `}
                 {...props}
             >
-                {/* ICON LEFT (DEFAULT) */}
                 {iconPosition === "left" && iconElement}
 
-                {/* TEXT */}
-                {hasText && (
-                    <span className={`${sizeConfig.textSize} leading-none ${textClassName}`}>
+                {text && (
+                    <span
+                        className={`${sizeConfig.textSize} leading-none ${textClassName}`}
+                    >
                         {text}
                     </span>
                 )}
 
-                {/* ICON RIGHT */}
                 {iconPosition === "right" && iconElement}
             </button>
         );
     }
 );
 
-IconButton.displayName = "IconButton";
+Button.displayName = "Button";
 
-/* ==================== EXPORT ==================== */
-export default Icon;
+export default Button;

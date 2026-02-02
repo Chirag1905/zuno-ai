@@ -1,7 +1,7 @@
 "use client";
 
-import { IconButton } from "@/components/user/ui/Icon";
-import ModelSelector from "@/components/user/ui/ModelSelector";
+import Button from "@/components/ui/Button";
+import ModelSelector from "@/components/ui/ModelSelector";
 import { useChatStore, useStreamStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 
@@ -71,7 +71,7 @@ export default function ChatComposer({
                         {!isMultiline && (
                             <>
                                 <ModelSelector />
-                                <IconButton
+                                <Button
                                     icon={generating ? "Square" : "ArrowUp"}
                                     size="lg"
                                     variant="minimal"
@@ -90,7 +90,7 @@ export default function ChatComposer({
                     {isMultiline && (
                         <div className="flex justify-end gap-2 py-2">
                             <ModelSelector />
-                            <IconButton
+                            <Button
                                 icon={generating ? "Square" : "ArrowUp"}
                                 size="lg"
                                 variant="minimal"
@@ -112,7 +112,7 @@ export default function ChatComposer({
 
 // "use client";
 
-// import { IconButton } from "@/components/ui/Icon";
+// import { Button } from "@/components/ui/Icon";
 // import ModelSelector from "@/components/ui/ModelSelector";
 // import { useChatStore, useStreamStore } from "@/store";
 // import { useEffect, useRef, useState } from "react";
@@ -181,7 +181,7 @@ export default function ChatComposer({
 //                     />
 
 //                     <ModelSelector />
-//                     <IconButton
+//                     <Button
 //                         icon={generating ? "Square" : "ArrowUp"}
 //                         size="lg"
 //                         variant="minimal"

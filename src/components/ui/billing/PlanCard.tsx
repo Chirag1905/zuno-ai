@@ -1,6 +1,6 @@
 "use client";
 
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 import { Plan } from "@/generated/prisma/client";
 import { useRouter } from "next/navigation";
 
@@ -76,7 +76,7 @@ export default function PlanCard({
             </ul>
 
             {/* CTA */}
-            <IconButton
+            <Button
                 text={isFree ? "Current Plan" : "Choose Plan"}
                 icon={isFree ? "Check" : "SquareArrowOutUpRight"}
                 iconPosition="right"

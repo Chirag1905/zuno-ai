@@ -4,7 +4,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { useMemo, useState } from "react";
 import { useModelStore, useChatStore } from "@/store";
 import type { LocalModel } from "@/store";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 
 const MODELS: LocalModel[] = [
     "llama",
@@ -30,7 +30,7 @@ export default function ModelSelector() {
         <Popover.Root open={open} onOpenChange={setOpen}>
             {/* Trigger */}
             <Popover.Trigger asChild>
-                <IconButton
+                <Button
                     variant="optional"
                     size="sm"
                     rounded="full"
@@ -81,7 +81,7 @@ export default function ModelSelector() {
                         const active = model === m;
 
                         return (
-                            <IconButton
+                            <Button
                                 key={m}
                                 onClick={() => {
                                     setModel(m);
@@ -116,7 +116,7 @@ export default function ModelSelector() {
 // import { useState, useRef, useEffect, useMemo } from "react";
 // import { useModelStore, useChatStore } from "@/store";
 // import type { LocalModel } from "@/store";
-// import { IconButton } from "@/components/ui/Icon";
+// import { Button } from "@/components/ui/Icon";
 
 // const MODELS: LocalModel[] = [
 //     "llama",
@@ -171,7 +171,7 @@ export default function ModelSelector() {
 //         <>
 //             {/* Trigger */}
 //             <div ref={buttonRef}>
-//                 <IconButton
+//                 <Button
 //                     onClick={() => setOpen((v) => !v)}
 //                     variant="optional"
 //                     rounded="full"
@@ -214,7 +214,7 @@ export default function ModelSelector() {
 //                         const active = model === m;
 
 //                         return (
-//                             <IconButton
+//                             <Button
 //                                 key={m}
 //                                 onClick={() => {
 //                                     setModel(m);
@@ -249,7 +249,7 @@ export default function ModelSelector() {
 // import { useState, useRef, useEffect, useMemo } from "react";
 // import { useModelStore, useChatStore } from "@/store";
 // import type { LocalModel } from "@/store";
-// import { IconButton } from "@/components/ui/Icon";
+// import { Button } from "@/components/ui/Icon";
 
 // const MODELS: LocalModel[] = [
 //     "llama",
@@ -289,7 +289,7 @@ export default function ModelSelector() {
 //     return (
 //         <div ref={ref} className="relative">
 //             {/* Trigger */}
-//             <IconButton
+//             <Button
 //                 onClick={() => setOpen((v) => !v)}
 //                 variant="optional"
 //                 rounded="full"
@@ -331,7 +331,7 @@ export default function ModelSelector() {
 //                         const active = model === m;
 
 //                         return (
-//                             <IconButton
+//                             <Button
 //                                 key={m}
 //                                 onClick={() => {
 //                                     setModel(m);
@@ -367,7 +367,7 @@ export default function ModelSelector() {
 // import { useState, useRef, useEffect } from "react";
 // import { useModelStore } from "@/store";
 // import type { LocalModel } from "@/store";
-// import { IconButton } from "@/components/ui/Icon";
+// import { Button } from "@/components/ui/Icon";
 
 // const MODELS: LocalModel[] = [
 //     "llama",
@@ -395,7 +395,7 @@ export default function ModelSelector() {
 //     return (
 //         <div ref={ref} className="relative">
 //             {/* Trigger */}
-//             <IconButton
+//             <Button
 //                 onClick={() => setOpen((v) => !v)}
 //                 variant="optional"
 //                 rounded="full"
@@ -433,7 +433,7 @@ export default function ModelSelector() {
 //                         const active = model === m;
 
 //                         return (
-//                             <IconButton
+//                             <Button
 //                                 key={m}
 //                                 onClick={() => {
 //                                     setModel(m);

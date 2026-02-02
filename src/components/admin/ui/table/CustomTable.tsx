@@ -6,7 +6,7 @@ import { Skeleton } from "antd";
 import { toast } from "react-hot-toast";
 import { PaginatedResponse } from "@/types/api";
 import CustomPagination from "@/components/admin/pagination/CustomPagination";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 import Input from "@/components/admin/form/input/InputField";
 import Empty from "@/components/admin/utils/Empty";
 import { useSearchParams } from "next/navigation";
@@ -160,7 +160,7 @@ export default function CustomTable<T extends RowWithId>({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {enableSearch && (
             <div className="relative">
-              <IconButton
+              <Button
                 icon="Search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-gray-400"
                 variant="optional"
@@ -180,7 +180,7 @@ export default function CustomTable<T extends RowWithId>({
 
           {/* Filter Button */}
           {filter && (
-            <IconButton
+            <Button
               icon="SlidersHorizontal"
               // onClick={onFilter}
               variant="optional"
@@ -191,7 +191,7 @@ export default function CustomTable<T extends RowWithId>({
 
           {/* Add Button */}
           {onAdd && (
-            <IconButton
+            <Button
               icon="BadgePlus"
               onClick={onAdd}
               variant="optional"
@@ -225,8 +225,8 @@ export default function CustomTable<T extends RowWithId>({
                     col.key !== "isActive" &&
                     col.key !== "emailVerifiedAt" &&
                     col.key !== "createdAt" &&
-                     (
-                      <IconButton
+                    (
+                      <Button
                         icon="ArrowDownUp"
                         onClick={() => handleSortClick(String(col?.key))}
                         variant="optional"
@@ -285,7 +285,7 @@ export default function CustomTable<T extends RowWithId>({
                         isCopyable(col.key) ? (
                           <div className="flex items-center justify-center gap-2">
                             <span>{String(row[col.key])}</span>
-                            <IconButton
+                            <Button
                               icon="Copy"
                               onClick={() => handleCopy(String(row[col.key]), col.key)}
                               variant="default"
@@ -306,7 +306,7 @@ export default function CustomTable<T extends RowWithId>({
                     <TableCell className="px-2 py-3 text-center font-medium">
                       <div className="flex items-center justify-center gap-3">
                         {onEdit && (
-                          <IconButton
+                          <Button
                             icon="Edit"
                             onClick={() => onEdit(String(row?.id))}
                             variant="default"
@@ -316,7 +316,7 @@ export default function CustomTable<T extends RowWithId>({
                         )}
 
                         {onDelete && (
-                          <IconButton
+                          <Button
                             icon="Trash"
                             onClick={() => onDelete(String(row?.id))}
                             variant="default"

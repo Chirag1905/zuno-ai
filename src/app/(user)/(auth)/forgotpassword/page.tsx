@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import InputField from "@/utils/InputField";
 import Link from "next/link";
 import AuthCard from "@/components/user/Layouts/AuthCard";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
@@ -58,30 +59,22 @@ export default function ForgotPasswordPage() {
             }
         >
             <form onSubmit={handleSubmit} className="space-y-5">
-                <InputField
+                <Input
                     name="email"
                     type="email"
                     placeholder="Email address"
-                    error={errors.email}
+                    errorMessage={errors.email}
                     disabled={loading}
                 />
                 <p className="text-xs text-neutral-400 text-center">
                     We’ll never share your email with anyone.
                 </p>
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
-                    className="
-                        w-full rounded-2xl
-                        bg-white text-black
-                        py-2.5 font-medium
-                        transition
-                        hover:opacity-90
-                        disabled:opacity-60
-                    "
-                >
-                    {loading ? "Sending..." : "Send reset link"}
-                </button>
+                    text={loading ? "Sending..." : "Send reset link"}
+                    className="w-full rounded-2xl bg-white text-black py-2.5 font-medium transition hover:opacity-90 disabled:opacity-60"
+                />
             </form>
         </AuthCard>
     );

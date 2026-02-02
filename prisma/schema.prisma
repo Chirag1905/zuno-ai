@@ -283,6 +283,8 @@ model Payment {
   provider      String
   providerTxnId String        @unique
 
+  tokensRemaining Int?
+
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])

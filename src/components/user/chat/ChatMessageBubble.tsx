@@ -7,7 +7,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useStreamStore, useUIStore } from "@/store";
 import { useRegenerateMessage } from "@/hooks/useRegenerateMessage";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 
 const styles = {
     glass: "bg-white/10 backdrop-blur-md border border-white/20",
@@ -43,7 +43,7 @@ function CodeBlock({
         <div className="relative my-3">
             {/* COPY BUTTON */}
             <div className="absolute right-2 top-2 z-10 opacity-100 transition-opacity duration-200">
-                <IconButton
+                <Button
                     icon={copied ? "Check" : "Copy"}
                     size="sm"
                     variant="ghost"
@@ -145,7 +145,7 @@ export default function ChatMessageBubble({
                             // disabled={generating}
                             />
                             <div className="flex justify-end gap-2">
-                                <IconButton
+                                <Button
                                     icon="X"
                                     size="md"
                                     variant="default"
@@ -158,7 +158,7 @@ export default function ChatMessageBubble({
                                         setEditing(false);
                                     }}
                                 />
-                                <IconButton
+                                <Button
                                     icon="Check"
                                     size="md"
                                     variant="default"
@@ -196,7 +196,7 @@ export default function ChatMessageBubble({
                             `}
                     >
                         {!generating && (
-                            <IconButton
+                            <Button
                                 icon={copied ? "Check" : "Copy"}
                                 size="sm"
                                 variant="ghost"
@@ -211,7 +211,7 @@ export default function ChatMessageBubble({
 
                         {/* EDIT — ONLY for USER messages */}
                         {isUser && !generating && (
-                            <IconButton
+                            <Button
                                 icon="Pencil"
                                 size="sm"
                                 variant="ghost"
@@ -221,7 +221,7 @@ export default function ChatMessageBubble({
                         )}
                         {/* 🔁 REGENERATE (only last assistant message) */}
                         {!isUser && isLast && !generating && (
-                            <IconButton
+                            <Button
                                 icon="RefreshCcw"
                                 size="sm"
                                 variant="ghost"

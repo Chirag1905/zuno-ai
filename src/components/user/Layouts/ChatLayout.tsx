@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore, useStreamStore } from "@/store";
 import { ChatMessage } from "@/types/chat";
-import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
 import ChatComposer from "@/components/user/chat/ChatComposer";
 import ChatMessageList from "@/components/user/chat/ChatMessageList";
-import { IconButton } from "@/components/user/ui/Icon";
+import { SidebarBrand } from "@/components/ui/SidebarBrand";
+import Button from "@/components/ui/Button";
 
 type ChatLayoutProps = {
     sendMessage: () => void;
@@ -106,7 +106,7 @@ export default function ChatLayout({
             {!isAtBottom && (
                 <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-md rounded-full hover:scale-105 transition-all"
                 >
-                    <IconButton
+                    <Button
                         icon="ArrowDown"
                         size="lg"
                         variant="default"

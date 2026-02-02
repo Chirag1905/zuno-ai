@@ -1,6 +1,6 @@
 "use client";
 
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 import { useLLMStore } from "@/store";
 import { useEffect } from "react";
 
@@ -24,7 +24,7 @@ export function LLMStatus() {
     }, [setOnline]);
 
     return (
-        <IconButton
+        <Button
             icon="CircleDot"
             size="lg"
             variant="ghost"

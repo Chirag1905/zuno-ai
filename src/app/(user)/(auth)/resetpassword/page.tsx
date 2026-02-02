@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Link from "next/link";
-import InputField from "@/utils/InputField";
 import AuthCard from "@/components/user/Layouts/AuthCard";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function ResetPasswordPage() {
     const router = useRouter();
@@ -84,30 +85,29 @@ export default function ResetPasswordPage() {
             }
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                <InputField
+                <Input
                     name="password"
                     type="password"
                     placeholder="Password"
-                    error={errors.password}
+                    errorMessage={errors.password}
                     disabled={loading}
                 />
-                <InputField
+                <Input
                     name="confirmPassword"
                     type="password"
                     placeholder="Confirm password"
-                    error={errors.confirmPassword}
+                    errorMessage={errors.confirmPassword}
                     disabled={loading}
                 />
                 <p className="text-xs text-neutral-400 text-center">
                     We’ll never share your password with anyone.
                 </p>
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
+                    text={loading ? "Resetting..." : "Reset password"}
                     className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
-                >
-                    {loading ? "Resetting..." : "Reset password"}
-                </button>
+                />
             </form>
         </AuthCard>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import Icon from "@/components/user/ui/Icon";
+import Icon from "@/components/ui/Icon";
 import { useState } from "react";
 import type { InputHTMLAttributes } from "react";
 

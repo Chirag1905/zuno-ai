@@ -71,6 +71,7 @@ export async function POST(req: Request) {
                     status: "SUCCESS",
                     provider: "razorpay",
                     providerTxnId: razorpay_payment_id,
+                    tokensRemaining: plan.maxTokens ?? 0,
                 },
             }),
 

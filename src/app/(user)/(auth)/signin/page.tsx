@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-import InputField from "@/utils/InputField";
-import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
 import Link from "next/link";
 import AuthCard from "@/components/user/Layouts/AuthCard";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import SocialButtons from "@/utils/SocialButtons";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -115,21 +114,21 @@ export default function SignInPage() {
             }
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                <InputField
+                <Input
                     name="email"
                     type="email"
                     placeholder="Email"
-                    error={errors.email}
+                    errorMessage={errors.email}
                     disabled={loading}
                     value={emailValue}
                     onChange={(e) => setEmailValue(e.target.value)}
                 />
 
-                <InputField
+                <Input
                     name="password"
                     type="password"
                     placeholder="Password"
-                    error={errors.password}
+                    errorMessage={errors.password}
                     disabled={loading}
                 />
 
@@ -137,7 +136,7 @@ export default function SignInPage() {
                 <div className="flex items-center justify-end gap-2">
                     {/* resend email button */}
                     {emailNotVerified && (
-                        <IconButton
+                        <Button
                             icon="RotateCw"
                             variant="outline"
                             size="xs"
@@ -155,13 +154,13 @@ export default function SignInPage() {
                     </Link>
                 </div>
 
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
-                >
-                    {loading ? "Signing in..." : "Sign In"}
-                </button>
+                    text={loading ? "Signing in..." : "Sign In"}
+                    textClassName="text-black"
+                    className="w-full justify-center rounded-2xl bg-white/90 hover:bg-white py-2 font-medium disabled:opacity-60"
+                />
             </form>
 
             <Divider />

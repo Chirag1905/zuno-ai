@@ -1,6 +1,6 @@
 "use client";
 
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 
 type ConfirmDialogProps = {
@@ -62,7 +62,7 @@ export default function ConfirmDialog({
 
                             {/* ACTIONS */}
                             <div className="mt-6 flex justify-end gap-3">
-                                <IconButton
+                                <Button
                                     icon="XCircle"
                                     size="md"
                                     rounded="xl"
@@ -70,7 +70,7 @@ export default function ConfirmDialog({
                                     text={cancelText}
                                     onClick={onCancel}
                                 />
-                                <IconButton
+                                <Button
                                     icon={loading ? "LoaderPinwheel" : "CircleCheck"}
                                     size="md"
                                     rounded="xl"

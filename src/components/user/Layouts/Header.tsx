@@ -1,7 +1,7 @@
 "use client";
-import { IconButton } from "@/components/user/ui/Icon";
-import { LLMStatus } from "@/components/user/ui/LLMStatus";
-import ZunoLogo from "@/components/user/ui/ZunoLogo";
+import Button from "@/components/ui/Button";
+import { LLMStatus } from "@/components/ui/LLMStatus";
+import ZunoLogo from "@/components/ui/ZunoLogo";
 import { useChatStore, useUIStore } from "@/store";
 import { useRouter } from "next/navigation";
 
@@ -21,14 +21,14 @@ export default function Header() {
         <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
           <ZunoLogo size={45} />
           <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/60 rounded-full px-1 py-0.5 flex items-center shadow-xl">
-            <IconButton
+            <Button
               icon="PanelRightClose"
               size="lg"
               variant="minimal"
               compact
               onClick={toggleSidebar}
             />
-            <IconButton
+            <Button
               icon="MessageCirclePlus"
               size="lg"
               variant="minimal"
@@ -43,7 +43,7 @@ export default function Header() {
         className="fixed top-4 right-4 z-50 flex items-center bg-gray-900/60 backdrop-blur-xl border border-gray-700/60 rounded-full px-1 shadow-xl"
       >
         <div className="block md:hidden">
-          <IconButton
+          <Button
             icon={`${sidebarOpen ? "X" : "Menu"}`}
             size="lg"
             variant="minimal"
@@ -54,7 +54,7 @@ export default function Header() {
           />
         </div>
         <LLMStatus />
-        <IconButton
+        <Button
           icon="Droplet"
           size="md"
           variant="minimal"
@@ -63,7 +63,7 @@ export default function Header() {
           compact
           onClick={() => setTheme("glass")}
         />
-        <IconButton
+        <Button
           icon="Sparkles"
           size="md"
           variant="minimal"
@@ -72,7 +72,7 @@ export default function Header() {
           compact
           onClick={() => setTheme("neon")}
         />
-        <IconButton
+        <Button
           icon="Apple"
           size="md"
           variant="minimal"
@@ -81,7 +81,7 @@ export default function Header() {
           compact
           onClick={() => setTheme("apple")}
         />
-        <IconButton
+        <Button
           icon="Crown"
           size="md"
           variant="minimal"

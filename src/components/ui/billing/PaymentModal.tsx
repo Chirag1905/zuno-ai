@@ -1,8 +1,8 @@
 "use client";
 
-import RazorpayButton from "@/components/user/ui/billing/RazorpayButton";
-import StripeButton from "@/components/user/ui/billing/StripeButton";
-import { IconButton } from "@/components/user/ui/Icon";
+import RazorpayButton from "@/components/ui/billing/RazorpayButton";
+import StripeButton from "@/components/ui/billing/StripeButton";
+import Button from "@/components/ui/Button";
 
 type Plan = {
     id: string;
@@ -90,7 +90,7 @@ export default function PaymentModal({
                 <div className="my-6 h-px w-full bg-white/10" />
 
                 {/* CANCEL */}
-                <IconButton
+                <Button
                     icon="X"
                     size="sm"
                     rounded="xl"

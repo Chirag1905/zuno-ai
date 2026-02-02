@@ -1,141 +1,203 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/axios";
-import Icon from "@/components/user/ui/Icon";
+import Icon, { IconName } from "@/components/ui/Icon";
+import Button from "@/components/ui/Button";
 
 type Status = "loading" | "success" | "error";
 
 export default function VerifyEmailPage() {
-    const params = useSearchParams();
     const router = useRouter();
-    const token = params.get("token");
+    const searchParams = useSearchParams();
+    const verifiedRef = useRef(false);
+
+    const token = searchParams.get("token");
 
     const [status, setStatus] = useState<Status>("loading");
+    const [message, setMessage] = useState("Verifying your email...");
+    const [redirectIn, setRedirectIn] = useState<number | null>(null);
 
+    /* ==================== VERIFY EMAIL ==================== */
     useEffect(() => {
-        if (!token) {
-            toast.error("Invalid verification link");
-            setStatus("error");
-            return;
-        }
+        const verifyEmail = async () => {
+            if (verifiedRef.current) return;
+            verifiedRef.current = true;
 
-        let cancelled = false;
-
-        const verifyPromise = api.post("/auth/verification/send-verification", { token });
-
-        toast.promise(
-            verifyPromise,
-            {
-                loading: "Verifying your email...",
-                success: (res) => {
-                    if (cancelled) return "";
-
-                    setStatus("success");
-
-                    // UX delay before redirect
-                    setTimeout(() => router.push("/signin"), 1500);
-
-                    return res?.data?.message || "Email verified successfully";
-                },
-                error: (err) => {
-                    if (cancelled) return "";
-
-                    setStatus("error");
-
-                    return (
-                        err?.response?.data?.message ||
-                        "Verification link expired or invalid"
-                    );
-                },
-            },
-            {
-                duration: 5000, // ⏱ toast duration
+            if (!token) {
+                setStatus("error");
+                setMessage("Invalid or expired verification link.");
+                return;
             }
-        );
 
-        return () => {
-            cancelled = true;
+            try {
+                const res = await api.post(
+                    "/auth/verification/send-verification",
+                    { token }
+                );
+
+                if (!res?.data?.success) {
+                    throw new Error(
+                        res?.data?.message || "Email verification failed"
+                    );
+                }
+
+                setStatus("success");
+            } catch (err: any) {
+                setStatus("error");
+                setMessage(
+                    err?.response?.data?.message ||
+                    "Verification link expired or invalid"
+                );
+            }
         };
-    }, [token, router]);
 
-    const isLoading = status === "loading";
-    const isSuccess = status === "success";
+        verifyEmail();
+    }, [token]);
 
+    /* ==================== AUTO REDIRECT ==================== */
+    useEffect(() => {
+        if (status !== "success") return;
+
+        setRedirectIn(10);
+
+        const interval = setInterval(() => {
+            setRedirectIn((prev) => {
+                if (!prev || prev <= 1) {
+                    clearInterval(interval);
+                    router.push("/signin");
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [status, router]);
+
+    /* ==================== UI CONFIG ==================== */
+    const UI: Record<
+        Status,
+        {
+            icon: IconName;
+            iconClass: string;
+            title: string;
+            description: string;
+            badge?: string;
+            action?: {
+                label: string;
+                icon: IconName;
+                onClick: () => void;
+                success?: boolean;
+            };
+        }
+    > = {
+        loading: {
+            icon: "CircleDashed",
+            iconClass: "text-purple-400 animate-spin",
+            title: "Verifying Email",
+            description: "Please do not close this window",
+        },
+        error: {
+            icon: "CircleAlert",
+            iconClass: "text-red-500",
+            title: "Verification Failed!",
+            description: message,
+            action: {
+                label: "Go to Sign In",
+                icon: "ArrowLeft",
+                onClick: () => router.push("/signin"),
+            },
+        },
+        success: {
+            icon: "CircleCheck",
+            iconClass: "text-emerald-400",
+            title: "Email Verified 🎉",
+            description: "Your email has been successfully verified.",
+            badge: "Secure verification completed",
+            action: {
+                label: "Continue to Sign In",
+                icon: "CircleArrowRight",
+                onClick: () => router.push("/signin"),
+                success: true,
+            },
+        },
+    };
+
+    const current = UI[status];
+
+    /* ==================== RENDER ==================== */
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-neutral-900 to-black text-white px-4">
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
-                <div className="flex flex-col items-center text-center px-8 py-10 space-y-6">
-                    {/* Spinner / Tick */}
-                    <div className="relative flex items-center justify-center h-16 w-16">
-                        {isLoading ? (
-                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 animate-scale-in">
-                                <Icon
-                                    name="CircleDashed"
-                                    className="text-emerald-400 animate-spin"
-                                    size={50}
-                                />
-                            </div>
-                        ) : isSuccess ? (
-                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/20 border border-emerald-500 animate-scale-in">
-                                <Icon
-                                    name="CircleCheck"
-                                    className="text-emerald-400"
-                                    size={50}
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-red-500/20 border border-red-500 animate-scale-in">
-                                <Icon
-                                    name="CircleX"
-                                    className="text-red-400"
-                                    size={50}
-                                />
-                            </div>
-                        )}
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-indigo-950 to-black text-white px-4">
+            <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+                {/* Glow */}
+                <div className="absolute inset-0 bg-radial-gradient from-emerald-500/10 via-transparent to-transparent" />
+
+                <div className="relative flex flex-col items-center text-center px-8 py-8 space-y-4">
+                    {/* ICON */}
+                    <div className="relative flex items-center justify-center h-20 w-20">
+                        <div className="absolute inset-0 rounded-full bg-white/10 blur-xl" />
+                        <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white/10 border border-white/20">
+                            <Icon
+                                name={current.icon}
+                                size={50}
+                                className={current.iconClass}
+                            />
+                        </div>
                     </div>
 
-                    {/* Text */}
-                    <div className="space-y-2 transition-all duration-300">
-                        <h1 className="text-xl font-semibold tracking-tight">
-                            {isLoading
-                                ? "Verifying your email"
-                                : isSuccess
-                                    ? "Email verified"
-                                    : "Verification failed"}
+                    {/* TEXT */}
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            {current.title}
                         </h1>
-
-                        <p className="text-sm text-neutral-400 leading-relaxed">
-                            {isLoading
-                                ? "Please wait a moment while we securely verify your account."
-                                : isSuccess
-                                    ? "Your account has been successfully verified."
-                                    : "This verification link is invalid or expired."}
+                        <p className="text-sm text-neutral-400">
+                            {current.description}
                         </p>
                     </div>
 
-                    {/* Status badge */}
-                    <div
-                        className={`rounded-full px-4 py-1 text-xs transition-all duration-300 ${isSuccess
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : isLoading
-                                ? "bg-white/10 text-neutral-300"
-                                : "bg-red-500/10 text-red-400"
-                            }`}
-                    >
-                        <span className="flex items-center p-2 space-x-2">
-                            <Icon name="ShieldCheck" size={18} />
-                            <p>
-                                {isLoading
-                                    ? "Secure verification in progress"
-                                    : isSuccess
-                                        ? "Verification complete"
-                                        : "Verification failed"}
-                            </p>
-                        </span>
-                    </div>
+                    {/* BADGE */}
+                    {current.badge && (
+                        <div className="rounded-full bg-emerald-500/10 text-emerald-400 px-4 py-1 text-xs flex items-center gap-2">
+                            <Icon name="ShieldCheck" size={14} />
+                            <span>{current.badge}</span>
+                        </div>
+                    )}
+
+                    {/* REDIRECT INFO */}
+                    {status === "success" && redirectIn !== null && (
+                        <p className="text-xs text-emerald-400/80">
+                            Redirecting to sign in in{" "}
+                            <span className="font-semibold">{redirectIn}</span>{" "}
+                            seconds…
+                        </p>
+                    )}
+
+                    {/* ACTION */}
+                    {current.action && (
+                        <Button
+                            icon={current.action.icon}
+                            text={current.action.label}
+                            iconPosition={status === "error" ? "left" : "right"}
+                            size="md"
+                            onClick={current.action.onClick}
+                            className={`w-full justify-center rounded-xl ${current.action.success
+                                ? "bg-emerald-500! hover:bg-emerald-400!"
+                                : "bg-white/10! hover:bg-white/20!"
+                                }`}
+                            textClassName={
+                                current.action.success
+                                    ? "text-black!"
+                                    : "text-white!"
+                            }
+                            iconClassName={
+                                current.action.success
+                                    ? "text-black!"
+                                    : "text-white!"
+                            }
+                        />
+                    )}
                 </div>
             </div>
         </div>

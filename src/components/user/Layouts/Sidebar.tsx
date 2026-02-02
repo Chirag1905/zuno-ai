@@ -6,11 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { useChatStore, useUIStore } from "@/store";
 import api from "@/lib/axios";
-import type { User } from "@/types/user";
-import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
-import { IconButton } from "@/components/user/ui/Icon";
-import ConfirmDialog from "@/components/user/ui/ConfirmDialog";
-import SidebarSkeleton from "@/components/user/ui/SidebarSkeleton";
+import { SidebarBrand } from "@/components/ui/SidebarBrand";
+import Button from "@/components/ui/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import SidebarSkeleton from "@/components/ui/SidebarSkeleton";
+import { User } from "@/types/userType";
 
 type MenuPosition = {
     x: number;
@@ -151,7 +151,7 @@ export default function Sidebar() {
                     {/* HEADER */}
                     <div className="px-5 py-4 flex justify-between items-center border-b border-white/10">
                         <SidebarBrand />
-                        <IconButton
+                        <Button
                             icon="PanelRightOpen"
                             size="lg"
                             variant="ghost"
@@ -161,7 +161,7 @@ export default function Sidebar() {
 
                     {/* NEW CHAT */}
                     <div className="p-4">
-                        <IconButton
+                        <Button
                             icon="MessageCirclePlus"
                             text="New Chat"
                             size="md"
@@ -213,7 +213,7 @@ export default function Sidebar() {
                                     )}
 
                                     <div className="opacity-0 group-hover:opacity-100 transition">
-                                        <IconButton
+                                        <Button
                                             icon="MoreVertical"
                                             size="sm"
                                             variant="ghost"
@@ -235,7 +235,7 @@ export default function Sidebar() {
                     <div className="px-5 py-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
                         <span className="truncate">{user.name ?? "User"}</span>
 
-                        <IconButton
+                        <Button
                             icon="MoreVertical"
                             variant="ghost"
                             onClick={(e) => {
@@ -262,7 +262,7 @@ export default function Sidebar() {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="min-w-25 p-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-[scaleIn_0.12s_ease-out]">
-                        <IconButton
+                        <Button
                             icon="Edit2"
                             size="sm"
                             rounded="lg"
@@ -281,7 +281,7 @@ export default function Sidebar() {
                         {/* Divider */}
                         <div className="my-1 h-px bg-white/10" />
 
-                        <IconButton
+                        <Button
                             icon="Trash"
                             size="sm"
                             rounded="lg"
@@ -319,7 +319,7 @@ export default function Sidebar() {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="min-w-25 p-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-[scaleIn_0.12s_ease-out]">
-                        <IconButton
+                        <Button
                             icon="LogOut"
                             size="sm"
                             rounded="lg"

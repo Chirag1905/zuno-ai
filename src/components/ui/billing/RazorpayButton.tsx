@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconButton } from "@/components/user/ui/Icon";
+import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -97,7 +97,7 @@ export default function RazorpayButton({
     };
 
     return (
-        <IconButton
+        <Button
             onClick={handleRazorpay}
             icon="Wallet"
             text={loading ? "Processing..." : "Pay with Razorpay"}

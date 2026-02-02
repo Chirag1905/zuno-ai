@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import InputField from "@/utils/InputField";
 import SocialButtons from "@/utils/SocialButtons";
 import api from "@/lib/axios";
 import Link from "next/link";
 import AuthCard from "@/components/user/Layouts/AuthCard";
 import CountrySelect from "@/components/admin/utils/CountrySelect";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -78,26 +79,26 @@ export default function SignUpPage() {
             }
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                <InputField
+                <Input
                     name="name"
                     type="text"
                     placeholder="User Name"
-                    error={errors.email}
+                    errorMessage={errors.email}
                     disabled={loading}
                 />
-                <InputField
+                <Input
                     name="email"
                     type="email"
                     placeholder="Email"
-                    error={errors.email}
+                    errorMessage={errors.email}
                     disabled={loading}
                 />
 
-                <InputField
+                <Input
                     name="password"
                     type="password"
                     placeholder="Password"
-                    error={errors.password}
+                    errorMessage={errors.password}
                     disabled={loading}
                 />
 
@@ -106,13 +107,12 @@ export default function SignUpPage() {
                     onChange={setCountry}
                     disabled={loading}
                 />
-                <button
+                <Button
                     type="submit"
                     disabled={loading}
+                    text={loading ? "Creating account..." : "Create Account"}
                     className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
-                >
-                    {loading ? "Creating account..." : "Create Account"}
-                </button>
+                />
             </form>
 
             <Divider />
