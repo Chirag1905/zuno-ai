@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth/guards";
 import prisma from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
-import { apiResponse } from "@/utils/apiResponse";
+import { stripe } from "@/lib/billing/stripe";
+import { apiResponse } from "@/types/apiResponse";
 
 export async function POST(req: Request) {
     try {

@@ -2,8 +2,8 @@
 
 import { useChatStore } from "@/store";
 import { useSendMessage } from "@/hooks/useSendMessage";
-import ChatComposer from "@/components/user/chat/ChatComposer";
 import { SidebarBrand } from "@/components/ui/SidebarBrand";
+import ChatComposer from "@/components/user/chatArea/ChatComposer";
 
 export default function Home() {
     const input = useChatStore((s) => s.input);

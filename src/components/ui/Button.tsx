@@ -14,6 +14,7 @@ interface ButtonProps
     iconPosition?: "left" | "right";
     compact?: boolean;
     rounded?: "full" | "xl" | "lg" | "md" | "sm" | "none";
+    startIcon?: React.ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -29,6 +30,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             compact = false,
             rounded = "full",
             className = "",
+            startIcon,
             ...props
         },
         ref
@@ -104,6 +106,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 `}
                 {...props}
             >
+                {startIcon && startIcon}
                 {iconPosition === "left" && iconElement}
 
                 {text && (

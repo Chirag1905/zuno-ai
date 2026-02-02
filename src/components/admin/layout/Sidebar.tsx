@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserStar, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch } from "lucide-react";
-import { SidebarBrand } from "@/components/user/ui/SidebarBrand";
-import ZunoLogo from "@/components/user/ui/ZunoLogo";
+import { SidebarBrand } from "@/components/ui/SidebarBrand";
+import ZunoLogo from "@/components/ui/ZunoLogo";
 import SidebarWidget from "@/components/admin/layout/SidebarWidget";
 import Button from "@/components/ui/Button";
 

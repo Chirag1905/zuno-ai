@@ -1,6 +1,6 @@
 import { requireSuperAdmin } from "@/lib/auth/guards";
 import prisma from "@/lib/prisma";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 /* ---------------- CONSTANTS ---------------- */
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -66,7 +66,7 @@ export async function GET() {
         /* ---------- MONTHLY SALES ---------- */
         const payments = await prisma.payment.findMany({
             where: {
-                status: "success",
+                status: "SUCCESS",
                 createdAt: { gte: startOfYear, lt: startOfNextYear },
             },
             select: { amount: true, createdAt: true },
@@ -84,34 +84,34 @@ export async function GET() {
             prisma.payment.aggregate({
                 _sum: { amount: true },
                 where: {
-                    status: "success",
+                    status: "SUCCESS",
                     createdAt: { gte: startOfMonth, lt: startOfNextMonth },
                 },
             }),
             prisma.payment.aggregate({
                 _sum: { amount: true },
                 where: {
-                    status: "success",
+                    status: "SUCCESS",
                     createdAt: { gte: startOfLastMonth, lt: startOfMonth },
                 },
             }),
             prisma.payment.aggregate({
                 _sum: { amount: true },
                 where: {
-                    status: "success",
+                    status: "SUCCESS",
                     createdAt: { gte: startOfToday },
                 },
             }),
         ]);
 
         const TARGET = 20000;
-        const revenue = (currentMonth._sum.amount ?? 0) / 100;
-        const prevRevenue = (lastMonth._sum.amount ?? 0) / 100;
+        const revenue = (currentMonth._sum?.amount ?? 0) / 100;
+        const prevRevenue = (lastMonth._sum?.amount ?? 0) / 100;
 
         const MonthlyTarget = {
             target: TARGET,
             revenue,
-            today: (todayRevenue._sum.amount ?? 0) / 100,
+            today: (todayRevenue._sum?.amount ?? 0) / 100,
             progress: Math.min(Math.round((revenue / TARGET) * 100), 100),
             growth: calculateGrowth(revenue, prevRevenue),
         };
@@ -159,7 +159,7 @@ export async function GET() {
             prisma.payment.findMany({
                 take: 5,
                 orderBy: { createdAt: "desc" },
-                include: { user: { select: { email: true } } },
+                include: { user: { select: { email: true, name: true, image: true } } },
             }),
         ]);
 

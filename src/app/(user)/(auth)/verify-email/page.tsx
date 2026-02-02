@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import api from "@/lib/axios";
-import Icon, { IconName } from "@/components/ui/Icon";
 import Button from "@/components/ui/Button";
+import Icon, { IconName } from "@/components/ui/Icon";
+import { authService } from "@/services/auth.api";
 
 type Status = "loading" | "success" | "error";
 
-export default function VerifyEmailPage() {
+const VerifyEmailContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const verifiedRef = useRef(false);
@@ -32,10 +32,7 @@ export default function VerifyEmailPage() {
             }
 
             try {
-                const res = await api.post(
-                    "/auth/verification/send-verification",
-                    { token }
-                );
+                const res = await authService.verifyEmail(token);
 
                 if (!res?.data?.success) {
                     throw new Error(
@@ -44,10 +41,10 @@ export default function VerifyEmailPage() {
                 }
 
                 setStatus("success");
-            } catch (err: any) {
+            } catch (error: any) {
                 setStatus("error");
                 setMessage(
-                    err?.response?.data?.message ||
+                    error?.response?.data?.message ||
                     "Verification link expired or invalid"
                 );
             }
@@ -201,5 +198,13 @@ export default function VerifyEmailPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function VerifyEmailPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }

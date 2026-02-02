@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import api from "@/lib/axios";
 import Link from "next/link";
-import AuthCard from "@/components/user/Layouts/AuthCard";
+import AuthCard from "@/components/user/layout/AuthCard";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import SocialButtons from "@/utils/SocialButtons";
+import SocialButtons from "@/components/admin/auth/SocialButtons";
+import { authService } from "@/services/auth.api";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -19,7 +19,7 @@ export default function SignInPage() {
     const [githubLoading, setGithubLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrors({});
         setLoading(true);
@@ -38,7 +38,7 @@ export default function SignInPage() {
         }
 
         try {
-            const loginPromise = api.post("/auth/login", {
+            const loginPromise = authService.login({
                 email,
                 password,
             });
@@ -86,7 +86,7 @@ export default function SignInPage() {
     const resendVerification = async () => {
         try {
             await toast.promise(
-                api.post("/auth/verification/resend-verification", { email: emailValue }),
+                authService.resendVerification(emailValue),
                 {
                     loading: "Resending verification email...",
                     success: (res) => {

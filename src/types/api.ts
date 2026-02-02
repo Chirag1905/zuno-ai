@@ -1,3 +1,10 @@
+export interface ApiResponse<T> {
+    success: boolean;
+    status: number;
+    message: string;
+    data: T;
+    error?: unknown;
+}
 export interface PaginatedResponse<T> {
     success: boolean;
     status: number;
@@ -12,11 +19,4 @@ export interface PaginatedResponse<T> {
             totalPages: number;
         };
     };
-}
-export interface ApiResponse<T> {
-    success: boolean;
-    status: number;
-    message: string;
-    data: T;
-    error?: unknown;
 }

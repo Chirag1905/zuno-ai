@@ -1,14 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { userType } from "@/app/admin/users/_components/userType";
+import React, { useState } from "react";
+import { userType } from "@/types/userType";
 import ComponentCard from "@/components/admin/common/ComponentCard";
-import Label from "@/components/admin/form/Label";
-import Input from "@/components/admin/form/input/InputField";
-import Button from "@/components/admin/ui/button/Button";
-import { generatePassword } from "@/components/admin/utils/passwordGenerator";
-import { AlignEndVertical, EyeClosedIcon, EyeIcon, KeyIcon } from "lucide-react";
-import CountrySelect from "@/components/admin/utils/CountrySelect";
-import Switch from "@/components/admin/form/Switch";
+import Label from "@/components/ui/Label";
+import Input from "@/components/ui/InputSecondVersion";
+import Button from "@/components/ui/Button";
+import { generatePassword } from "@/lib/passwordGenerator";
+import { EyeClosedIcon, EyeIcon, KeyIcon } from "lucide-react";
+import CountrySelect from "@/utils/CountrySelect";
+import Switch from "@/components/ui/Switch";
 
 interface userModalProps {
     isOpen: boolean;
@@ -19,6 +19,7 @@ interface userModalProps {
 }
 
 const defaultValues: userType = {
+    id: "",
     name: "",
     email: "",
     password: "",
@@ -29,34 +30,30 @@ const defaultValues: userType = {
 };
 
 const UserModal: React.FC<userModalProps> = ({
-    isOpen,
+    // isOpen, // ❌ unused
     onClose,
     onSubmit,
     initialData,
     errors
 }) => {
 
-    const [formData, setFormData] = useState<userType>(defaultValues);
-    const [showPassword, setShowPassword] = useState(false);
-
-    /* ---------------- Populate form ---------------- */
-    useEffect(() => {
+    const [formData, setFormData] = useState<userType>(() => {
         if (initialData) {
-            setFormData({
+            return {
                 ...defaultValues,
                 ...initialData,
                 password: "", // ❗ never prefill password
-            });
-        } else {
-            setFormData(defaultValues);
+            };
         }
-    }, [initialData, isOpen]);
+        return defaultValues;
+    });
+    const [showPassword, setShowPassword] = useState(false);
 
 
     /* ---------------- Handlers ---------------- */
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev: userType) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = () => {
@@ -77,7 +74,7 @@ const UserModal: React.FC<userModalProps> = ({
                     <Label>Name</Label>
                     <Input
                         name="name"
-                        value={formData.name}
+                        value={formData.name || ""}
                         onChange={handleChange}
                         placeholder="Enter name"
                         errorMessage={errors?.name}
@@ -103,7 +100,7 @@ const UserModal: React.FC<userModalProps> = ({
                         className="w-full h-11.25 rounded-xl bg-[rgba(38,31,66,0.6)] text-white px-4 border border-white/15"
                         value={formData.role}
                         onChange={(e) =>
-                            setFormData((p) => ({
+                            setFormData((p: userType) => ({
                                 ...p,
                                 role: e.target.value as userType["role"],
                             }))
@@ -119,9 +116,9 @@ const UserModal: React.FC<userModalProps> = ({
                 <div>
                     <Label>Country</Label>
                     <CountrySelect
-                        value={formData.country}
+                        value={formData.country || undefined}
                         onChange={(value) =>
-                            setFormData((p) => ({ ...p, country: value }))
+                            setFormData((p: userType) => ({ ...p, country: value }))
                         }
                     />
                 </div>
@@ -132,7 +129,7 @@ const UserModal: React.FC<userModalProps> = ({
                         label="Email Verified"
                         checked={formData.emailVerified}
                         onChange={(v) =>
-                            setFormData((p) => ({ ...p, emailVerified: v }))
+                            setFormData((p: userType) => ({ ...p, emailVerified: v }))
                         }
                     />
                 </div>
@@ -143,7 +140,7 @@ const UserModal: React.FC<userModalProps> = ({
                         label="MFA Enabled"
                         checked={formData.mfaEnabled}
                         onChange={(v) =>
-                            setFormData((p) => ({ ...p, mfaEnabled: v }))
+                            setFormData((p: userType) => ({ ...p, mfaEnabled: v }))
                         }
                     />
                 </div>
@@ -157,7 +154,7 @@ const UserModal: React.FC<userModalProps> = ({
                             startIcon={<KeyIcon size={14} />}
                             variant="outline"
                             onClick={() =>
-                                setFormData((p) => ({
+                                setFormData((p: userType) => ({
                                     ...p,
                                     password: generatePassword(),
                                 }))

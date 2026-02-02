@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import axios from "axios";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth/guards";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 import { getActiveSubscription } from "@/lib/billing/getActiveSubscription";
 
 export const runtime = "nodejs";

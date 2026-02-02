@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 import { requireAuth } from "@/lib/auth/guards";
 
 export async function POST() {

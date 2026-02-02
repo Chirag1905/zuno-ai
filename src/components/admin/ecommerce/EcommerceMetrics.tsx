@@ -1,6 +1,6 @@
 "use client";
 
-import Badge from "@/components/admin/ui/badge/Badge";
+import Badge from "@/components/ui/Badge";
 import {
   ArrowDownIcon,
   ArrowUpIcon,

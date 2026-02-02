@@ -11,17 +11,6 @@ export const metadata: Metadata = {
     description: "View analytics, sales, revenue, demographics and orders",
 };
 
-// async function getDashboardData() {
-//     const res = await fetch(`${process.env.APP_URL}/api/admin/dashboard`, {
-//         cache: "no-store",
-//     });
-
-//     if (!res.ok) throw new Error("Failed to fetch dashboard");
-
-//     const json = await res.json();
-//     return json.data;
-// }
-
 async function getDashboardData() {
     try {
         const res = await fetch(

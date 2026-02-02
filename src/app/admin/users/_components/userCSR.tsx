@@ -4,11 +4,12 @@ import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
-import { userType } from "@/app/admin/users/_components/userType";
-import CustomTable from "@/components/admin/ui/table/CustomTable";
+import { userType } from "@/types/userType";
+import CustomTable, { TableColumn } from "@/components/ui/Table";
 import PageBreadcrumb from "@/components/admin/common/PageBreadCrumb";
 import { PaginatedResponse } from "@/types/api";
-import ConfirmDialog from "@/components/user/ui/ConfirmDialog";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { adminService } from "@/services/admin.api";
 
 const UserModal = dynamic(() => import("./userModal"), {
     ssr: false,
@@ -58,7 +59,7 @@ export default function UserCSR({ initialData }: Props) {
     /* =======================
        TABLE COLUMNS
     ======================= */
-    const columns = useMemo(
+    const columns: TableColumn<userType>[] = useMemo(
         () => [
             {
                 key: "__srNo",
@@ -73,12 +74,12 @@ export default function UserCSR({ initialData }: Props) {
             {
                 key: "emailVerified",
                 label: "Verified",
-                render: (v: boolean) => (v ? "Yes" : "No"),
+                render: (_: unknown, row: userType) => (row.emailVerified ? "Yes" : "No"),
             },
             {
                 key: "mfaEnabled",
                 label: "MFA",
-                render: (v: boolean) => (v ? "Enabled" : "Disabled"),
+                render: (_: unknown, row: userType) => (row.mfaEnabled ? "Enabled" : "Disabled"),
             },
             { key: "emailVerifiedAt", label: "Email Verified At" },
             { key: "createdAt", label: "Created At" },
@@ -131,8 +132,8 @@ export default function UserCSR({ initialData }: Props) {
     };
 
     const handleEdit = useCallback(async (id: string) => {
-        const res = await fetch(`/api/admin/users/${id}`);
-        const result = await res.json();
+        const res = await adminService.getUserById(id);
+        const result = res.data;
 
         if (result.success) {
             setEditData(result.data);
@@ -155,13 +156,10 @@ export default function UserCSR({ initialData }: Props) {
         setDeleting(true);
 
         const promise = (async () => {
-            const response = await fetch(`/api/admin/users/${userToDelete}`, {
-                method: "DELETE",
-            });
+            const res = await adminService.deleteUser(userToDelete);
+            const result = res.data;
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
+            if (!res.data.success) {
                 throw result?.message || "Delete failed";
             }
 
@@ -190,13 +188,6 @@ export default function UserCSR({ initialData }: Props) {
             const promise = (async () => {
                 const isEdit = Boolean(form.id);
 
-                const url = isEdit
-                    ? `/api/admin/users/${form.id}`
-                    : `/api/admin/users`;
-
-                const method = isEdit ? "PUT" : "POST";
-
-                // 🔹 Send only allowed fields
                 const payload = {
                     name: form.name,
                     email: form.email,
@@ -207,15 +198,13 @@ export default function UserCSR({ initialData }: Props) {
                     password: form.password || undefined, // optional
                 };
 
-                const res = await fetch(url, {
-                    method,
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
+                const res = isEdit
+                    ? await adminService.updateUser(form.id, payload)
+                    : await adminService.createUser(payload);
 
-                const result = await res.json();
+                const result = res.data;
 
-                if (!res.ok || !result.success) {
+                if (!res.data.success) {
                     throw result.message || "Failed to save user";
                 }
 

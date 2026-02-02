@@ -4,6 +4,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { billingService } from "@/services/billing.api";
 
 declare global {
     interface Window {
@@ -50,15 +51,10 @@ export default function RazorpayButton({
         setLoading(true);
 
         try {
-            const res = await fetch("/api/billing/razorpay/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ planId: plan.id }),
-            });
+            const res = await billingService.createRazorpayCheckout(plan.id);
+            const data = res.data;
 
-            const data = await res.json();
-
-            if (!res.ok || !data?.success) {
+            if (!res.data.success) {
                 throw new Error(data?.message || "Razorpay checkout failed");
             }
 
@@ -89,8 +85,8 @@ export default function RazorpayButton({
             });
 
             rzp.open();
-        } catch (error: any) {
-            toast.error(error.message || "Payment failed");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Payment failed");
         } finally {
             setLoading(false);
         }

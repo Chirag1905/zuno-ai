@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 
 import { useChatStore, useStreamStore } from "@/store";
 import { useSendMessage } from "@/hooks/useSendMessage";
-import ChatLayout from "@/components/user/Layouts/ChatLayout";
+import ChatLayout from "@/components/user/layout/ChatLayout";
 
 export default function ChatPage() {
 

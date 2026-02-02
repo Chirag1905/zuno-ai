@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth/guards";
 import prisma from "@/lib/prisma";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 export async function POST() {
     const { session } = await requireAuth();

@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { requireAuth } from "@/lib/auth/guards";
 

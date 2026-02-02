@@ -1,11 +1,17 @@
-export interface User {
-    id?: string;
-    name?: string;
+export interface userType {
+    id: string;
+    name?: string | null;
     email: string;
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    country?: string;
-    image?: string;
+    password?: string;
+    country?: string | null;
+    image?: string | null;
+
+    role?: "USER" | "ADMIN" | "SUPER_ADMIN";
+
     emailVerified?: boolean;
+    emailVerifiedAt?: string | null;
     mfaEnabled?: boolean;
+
     createdAt?: string;
-}
+    updatedAt?: string;
+};

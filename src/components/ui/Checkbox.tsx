@@ -3,20 +3,22 @@
 import Icon from "@/components/ui/Icon";
 import React, { useId } from "react";
 
-interface CheckBoxProps {
+interface CheckboxProps {
     checked: boolean;
     onChange: (checked: boolean) => void;
-    text: string;
+    text?: string;
     disabled?: boolean;
     accentColor?: string;
+    className?: string;
 }
 
-const Checkbox: React.FC<CheckBoxProps> = ({
+const Checkbox: React.FC<CheckboxProps> = ({
     checked,
     onChange,
     text,
     disabled = false,
     accentColor = "bg-emerald-500",
+    className = "",
 }) => {
     const id = useId();
 
@@ -25,6 +27,7 @@ const Checkbox: React.FC<CheckBoxProps> = ({
             className={`
                 flex items-center gap-3 select-none
                 ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+                ${className}
             `}
         >
             {/* Hidden native checkbox (for accessibility) */}
@@ -37,7 +40,7 @@ const Checkbox: React.FC<CheckBoxProps> = ({
                 className="sr-only"
             />
 
-            {/* Custom checkbox */}
+            {/*  checkbox */}
             <label
                 htmlFor={id}
                 className={`
@@ -51,12 +54,14 @@ const Checkbox: React.FC<CheckBoxProps> = ({
             </label>
 
             {/* Text */}
-            <label
-                htmlFor={id}
-                className="text-sm text-white"
-            >
-                {text}
-            </label>
+            {text && (
+                <label
+                    htmlFor={id}
+                    className="text-sm text-white"
+                >
+                    {text}
+                </label>
+            )}
         </div>
     );
 };

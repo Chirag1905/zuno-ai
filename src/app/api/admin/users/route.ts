@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
-import { apiResponse } from "@/utils/apiResponse";
-// import { requireSuperAdmin } from "@/lib/auth/guards";
+import { apiResponse } from "@/types/apiResponse";
 import { hashPassword } from "@/lib/auth/password";
 import { UserRole } from "@/generated/prisma/enums";
 import { Prisma } from "@/generated/prisma/client";

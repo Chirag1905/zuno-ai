@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchPlans } from "@/lib/billing/billing";
 import PlanCard from "@/components/ui/billing/PlanCard";
 import PaymentModal from "@/components/ui/billing/PaymentModal";
+import { Plan } from "@/types/billing";
+import { billingService } from "@/services/billing.api";
 
 export default function PricingPage() {
-    const [plans, setPlans] = useState<any[]>([]);
-    const [selectedPlan, setSelectedPlan] = useState<any>(null);
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
     useEffect(() => {
-        fetchPlans().then((res) => setPlans(res.data));
+        billingService.getPlans().then((res) => setPlans(res.data.data));
     }, []);
 
     return (
@@ -40,12 +41,14 @@ export default function PricingPage() {
             </div>
 
             {/* PAYMENT MODAL */}
-            <PaymentModal
-                plan={selectedPlan}
-                open={!!selectedPlan}
-                featured={selectedPlan?.name === "PRO"}
-                onClose={() => setSelectedPlan(null)}
-            />
+            {selectedPlan && (
+                <PaymentModal
+                    plan={selectedPlan}
+                    open={true}
+                    featured={selectedPlan.name === "PRO"}
+                    onClose={() => setSelectedPlan(null)}
+                />
+            )}
         </>
     );
 }

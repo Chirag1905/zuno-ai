@@ -1,10 +1,10 @@
 "use client";
-import Label from "@/components/admin/form/Label";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import Label from "@/components/ui/Label";
+import { ChevronLeft, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import Input from "@/components/admin/form/input/InputField";
-import Checkbox from "@/components/admin/form/input/Checkbox";
+import Input from "@/components/ui/InputSecondVersion";
+import Checkbox from "@/components/ui/Checkbox";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +16,7 @@ export default function SignUpForm() {
           href="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
-          <ChevronLeftIcon />
+          <ChevronLeft />
           Back to dashboard
         </Link>
       </div>
@@ -138,9 +138,9 @@ export default function SignUpForm() {
                       className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                     >
                       {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                        <Eye className="fill-gray-500 dark:fill-gray-400" />
                       ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        <EyeOff className="fill-gray-500 dark:fill-gray-400" />
                       )}
                     </span>
                   </div>

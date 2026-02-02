@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth/guards";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 export const runtime = "nodejs";
 
@@ -109,11 +109,13 @@ export async function POST(req: Request) {
             "Payment verified & subscription activated",
             null
         );
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("❌ Razorpay verify error:", err);
 
+        const error = err as { code?: string; meta?: { target?: string[] }; message?: string };
+
         // Handle duplicate payment (Idempotency)
-        if (err.code === "P2002" && err.meta?.target?.includes("providerTxnId")) {
+        if (error.code === "P2002" && error.meta?.target?.includes("providerTxnId")) {
             return apiResponse(
                 true,
                 "Payment already verified",
@@ -125,7 +127,7 @@ export async function POST(req: Request) {
             false,
             "Payment verification failed",
             null,
-            { message: err.message },
+            { message: error.message || 'Unknown error' },
             500
         );
     }

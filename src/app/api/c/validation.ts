@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const IdSchema = z.object({
-    id: z.string().cuid("Invalid chat ID"),
+    id: z.cuid({ message: "Invalid chat ID" }),
 });
 
 export const UpdateChatSchema = z.object({

@@ -1,3 +1,9 @@
+interface StreamError extends Error {
+    status?: number;
+    code?: string;
+    redirect?: string;
+}
+
 export const streamChat = async ({
     chatId,
     model,
@@ -24,7 +30,7 @@ export const streamChat = async ({
     if (!res.ok) {
         const data = await res.json().catch(() => null);
 
-        const error: any = new Error(data?.message || "Request failed");
+        const error = new Error(data?.message || "Request failed") as StreamError;
         error.status = res.status;
         error.code = data?.error?.code;
         error.redirect = data?.error?.redirect;

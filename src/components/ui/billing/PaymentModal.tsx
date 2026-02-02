@@ -3,13 +3,9 @@
 import RazorpayButton from "@/components/ui/billing/RazorpayButton";
 import StripeButton from "@/components/ui/billing/StripeButton";
 import Button from "@/components/ui/Button";
+import Icon from "@/components/ui/Icon";
 
-type Plan = {
-    id: string;
-    name: string;
-    price: number;
-
-};
+import { Plan } from "@/types/billing";
 
 export default function PaymentModal({
     plan,
@@ -82,8 +78,9 @@ export default function PaymentModal({
                 </div>
 
                 {/* TRUST NOTE */}
-                <p className="mt-5 text-center text-xs text-gray-500">
-                    🔒 Secure payments powered by Razorpay & Stripe
+                <p className="flex justify-center items-center gap-2 mt-5 text-center text-xs text-gray-500">
+                    <Icon name="Lock" size={14} />
+                    Secure payments powered by Razorpay & Stripe
                 </p>
 
                 {/* DIVIDER */}

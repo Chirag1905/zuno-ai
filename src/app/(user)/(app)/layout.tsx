@@ -1,7 +1,7 @@
 "use client";
 
-import Header from "@/components/user/Layouts/Header";
-import Sidebar from "@/components/user/Layouts/Sidebar";
+import Header from "@/components/user/layout/Header";
+import Sidebar from "@/components/user/layout/Sidebar";
 import { useChatStore, useUIStore } from "@/store";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";

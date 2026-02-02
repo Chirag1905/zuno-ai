@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Icon, { IconName } from "@/components/ui/Icon";
 import Button from "@/components/ui/Button";
+import { AxiosError } from "axios";
+import { billingService } from "@/services/billing.api";
 
 type Status = "loading" | "success" | "error";
 
-export default function VerifyPayment() {
+function VerifyPaymentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const verifiedRef = useRef(false);
@@ -39,25 +41,20 @@ export default function VerifyPayment() {
             }
 
             try {
-                const res = await fetch("/api/billing/razorpay/verify", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        planId,
-                        razorpay_payment_id,
-                        razorpay_order_id,
-                        razorpay_signature,
-                    }),
+                const res = await billingService.verifyRazorpayPayment({
+                    planId,
+                    razorpay_payment_id,
+                    razorpay_order_id,
+                    razorpay_signature,
                 });
 
-                const data = await res.json();
-
-                if (!res.ok || !data.success) {
-                    throw new Error(data.message || "Payment verification failed");
+                if (!res.data.success) {
+                    throw new Error(res.data.message || "Payment verification failed");
                 }
 
                 setStatus("success");
-            } catch (err: any) {
+            } catch (error: unknown) {
+                const err = error as AxiosError<{ message: string }>;
                 setStatus("error");
                 setMessage(err.message || "Payment verification failed");
             }
@@ -211,5 +208,13 @@ export default function VerifyPayment() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function VerifyPayment() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <VerifyPaymentContent />
+        </Suspense>
     );
 }

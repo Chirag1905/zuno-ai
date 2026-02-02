@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { Plan } from "@/generated/prisma/client";
+import { Plan } from "@/types/billing";
 import { useRouter } from "next/navigation";
 
 export default function PlanCard({

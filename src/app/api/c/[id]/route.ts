@@ -1,5 +1,5 @@
-import { formatZodError } from "@/utils/handleZodError";
-import { apiResponse } from "@/utils/apiResponse";
+import { formatZodError } from "@/lib/handleZodError";
+import { apiResponse } from "@/types/apiResponse";
 import { IdSchema, UpdateChatSchema } from "@/app/api/c/validation";
 import prisma from "@/lib/prisma";
 import { CHAT_ERROR_MESSAGES } from "@/lib/errors/chat.error";

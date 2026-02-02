@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth/guards";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 export async function POST(req: Request) {
     const { session } = await requireAuth();
@@ -50,7 +50,9 @@ export async function POST(req: Request) {
             endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             provider: currentSub.provider,
             billingInterval: newPlan.interval,
-            tokensRemaining: newPlan.maxTokens,
+            tokensRemaining: newPlan.maxTokens ?? 0,
+            periodStart: new Date(),
+            periodIntervalDays: newPlan.interval === "yearly" ? 365 : 30,
         },
     });
 

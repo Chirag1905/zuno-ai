@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-import api from "@/lib/axios";
-import AuthCard from "@/components/user/Layouts/AuthCard";
+import AuthCard from "@/components/user/layout/AuthCard";
 import axios from "axios";
 import Checkbox from "@/components/ui/Checkbox";
 import Button from "@/components/ui/Button";
+import { authService } from "@/services/auth.api";
 
 /* ================= DEVICE NAME ================= */
 
-function getDeviceName() {
+const getDeviceName = () => {
     if (typeof navigator === "undefined") return "Unknown Device";
 
     const ua = navigator.userAgent;
@@ -44,7 +44,7 @@ function getDeviceName() {
 
 /* ================= OTP INPUT ================= */
 
-function OtpInput({
+const OtpInput = ({
     value,
     onChange,
     shake,
@@ -52,7 +52,7 @@ function OtpInput({
     value: string;
     onChange: (val: string) => void;
     shake: boolean;
-}) {
+}) => {
     const inputsRef = useRef<HTMLInputElement[]>([]);
 
     const handleChange = (i: number, v: string) => {
@@ -118,7 +118,7 @@ function OtpInput({
 
 /* ================= PAGE ================= */
 
-export default function VerifyOtpPage() {
+const VerifyOtpContent = () => {
     const router = useRouter();
     const params = useSearchParams();
     const email = params.get("email");
@@ -138,7 +138,7 @@ export default function VerifyOtpPage() {
     /* ================= VERIFY OTP ================= */
 
     const handleSubmit = async (
-        e: React.FormEvent<HTMLFormElement>
+        e: React.SubmitEvent<HTMLFormElement>
     ) => {
         e.preventDefault();
         setError(null);
@@ -151,7 +151,7 @@ export default function VerifyOtpPage() {
         setLoading(true);
 
         try {
-            const otpPromise = api.post("/auth/mfa/verify", {
+            const otpPromise = authService.verifyMfa({
                 email,
                 otp,
                 rememberDevice,
@@ -193,7 +193,7 @@ export default function VerifyOtpPage() {
         if (!email || cooldown > 0) return;
 
         try {
-            await api.post("/auth/mfa/resend", { email });
+            await authService.resendMfa(email);
             toast.success("OTP resent");
             setCooldown(30);
         } catch {
@@ -269,7 +269,6 @@ export default function VerifyOtpPage() {
                 <Button
                     type="submit"
                     disabled={loading}
-                    size="md"
                     icon="ArrowRight"
                     iconPosition="right"
                     iconClassName="text-black"
@@ -279,5 +278,13 @@ export default function VerifyOtpPage() {
                 />
             </form>
         </AuthCard>
+    );
+}
+
+export default function VerifyOtpPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <VerifyOtpContent />
+        </Suspense>
     );
 }

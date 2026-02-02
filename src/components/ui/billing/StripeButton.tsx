@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createStripeCheckout } from "@/lib/billing/billing";
+import { billingService } from "@/services/billing.api";
 import Button from "@/components/ui/Button";
 
 interface StripeButtonProps {
@@ -23,13 +23,13 @@ export default function StripeButton({
 
         try {
             setLoading(true);
-            const res = await createStripeCheckout(plan.id);
+            const res = await billingService.createStripeCheckout(plan.id);
 
-            if (!res?.data?.url) {
+            if (!res?.data?.data?.url) {
                 throw new Error("Stripe checkout URL missing");
             }
 
-            window.location.href = res.data.url;
+            window.location.href = res.data.data.url;
         } catch (err) {
             console.error(err);
             alert("Stripe checkout failed. Please try again.");

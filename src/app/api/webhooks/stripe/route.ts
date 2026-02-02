@@ -1,4 +1,4 @@
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/billing/stripe";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 

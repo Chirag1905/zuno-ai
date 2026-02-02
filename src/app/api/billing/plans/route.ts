@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 export async function GET() {
     const plans = await prisma.plan.findMany({

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { streamChat } from "@/services/stream.api";
 import { LocalModel, useChatStore, useModelStore } from "@/store";
-import { detectBestModel } from "@/utils/modelRouter";
+import { detectBestModel } from "@/lib/modelRouter";
 
 /* ================= TYPES ================= */
 
@@ -10,6 +10,11 @@ type SendPayload = {
     model: string;
     text: string;
     mode?: "new" | "regenerate";
+};
+
+type StreamError = Error & {
+    status?: number;
+    redirect?: string;
 };
 
 interface StreamState {
@@ -28,7 +33,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
     generating: false,
     abort: null,
 
-    send: async ({ chatId, model, text, mode = "new" }) => {
+    send: async ({ chatId, model, text }) => {
         const { model: selectedModel, setAutoSelectedModel } =
             useModelStore.getState();
 
@@ -71,7 +76,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                 },
             });
         } catch (err) {
-            const error = err as any;
+            const error = err as StreamError;
 
             // 🔥 TOKEN LIMIT / BILLING ERROR
             if (error.status === 402 && error.redirect) {
@@ -84,7 +89,7 @@ export const useStreamStore = create<StreamState>((set, get) => ({
                     );
 
                 setTimeout(() => {
-                    window.location.href = error.redirect;
+                    if (error.redirect) window.location.href = error.redirect;
                 }, 1200);
 
                 return;

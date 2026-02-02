@@ -3,18 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import api from "@/lib/axios";
 import Link from "next/link";
-import AuthCard from "@/components/user/Layouts/AuthCard";
+import AuthCard from "@/components/user/layout/AuthCard";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { authService } from "@/services/auth.api";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrors({});
         setLoading(true);
@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            const forgotPromise = api.post("/auth/forgot-password", { email });
+            const forgotPromise = authService.forgotPassword(email);
             await toast.promise(forgotPromise, {
                 loading: "Sending reset link...",
                 success: (res) => res?.data?.message || "Reset link sent successfully",
@@ -73,7 +73,8 @@ export default function ForgotPasswordPage() {
                     type="submit"
                     disabled={loading}
                     text={loading ? "Sending..." : "Send reset link"}
-                    className="w-full rounded-2xl bg-white text-black py-2.5 font-medium transition hover:opacity-90 disabled:opacity-60"
+                    textClassName="text-black"
+                    className="w-full justify-center rounded-2xl bg-white/90 hover:bg-white py-2 font-medium disabled:opacity-60"
                 />
             </form>
         </AuthCard>

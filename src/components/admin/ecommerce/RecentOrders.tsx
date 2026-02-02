@@ -1,6 +1,6 @@
-import Badge from "@/components/admin/ui/badge/Badge";
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/admin/ui/table";
-import Empty from "@/components/admin/utils/Empty";
+import Badge from "@/components/ui/Badge";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/Table";
+import Empty from "@/utils/Empty";
 import Image from "next/image";
 
 interface RecentOrdersProps {
@@ -11,6 +11,8 @@ interface RecentOrdersProps {
     createdAt: string | Date;
     user: {
       email: string;
+      name: string | null;
+      image: string | null;
     };
   }[];
 }
@@ -120,9 +122,9 @@ export default function RecentOrders({ payments }: RecentOrdersProps) {
                         <Image
                           width={50}
                           height={50}
-                          src={item.user.image}
+                          src={item.user.image || ""}
                           className="h-12.5 w-12.5"
-                          alt={item.user.name}
+                          alt={item.user.name || "User"}
                         />
                       </div>
                       <div>

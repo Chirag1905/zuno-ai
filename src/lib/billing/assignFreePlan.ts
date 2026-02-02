@@ -1,27 +1,24 @@
 import prisma from "@/lib/prisma";
 
 export async function assignFreePlan(userId: string) {
-    const plan = await prisma.plan.findFirst({
-        where: { isFree: true, isActive: true },
+    const freePlan = await prisma.plan.findUnique({
+        where: { name: "FREE" },
     });
 
-    if (!plan) throw new Error("FREE plan missing");
+    if (!freePlan) {
+        throw new Error("FREE plan not found in database. Please run seed script.");
+    }
 
-    return prisma.subscription.create({
+    return await prisma.subscription.create({
         data: {
             userId,
-            planId: plan.id,
+            planId: freePlan.id,
             status: "ACTIVE",
-
             startedAt: new Date(),
-            endsAt: null,
-
             periodStart: new Date(),
-            periodIntervalDays: 7,
-
+            periodIntervalDays: 7, // Based on weekly interval in seed
             billingInterval: "weekly",
-            tokensRemaining: plan.maxTokens!,
-            provider: "SYSTEM",
+            tokensRemaining: freePlan.maxTokens ?? 5000,
         },
     });
 }

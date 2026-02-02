@@ -1,10 +1,9 @@
-// import { Toaster } from 'react-hot-toast';
 import { Metadata } from 'next';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { Outfit } from 'next/font/google';
-import AdminProvider from '@/components/admin/AdminShell';
-import './css.css';
+import AdminProvider from '@/components/admin/AdminProvider';
+import '@/app/admin/css.css';
 
 const outfit = Outfit({
     subsets: ["latin"],

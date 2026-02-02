@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import SocialButtons from "@/utils/SocialButtons";
-import api from "@/lib/axios";
+import SocialButtons from "@/components/admin/auth/SocialButtons";
+import { authService } from "@/services/auth.api";
 import Link from "next/link";
-import AuthCard from "@/components/user/Layouts/AuthCard";
-import CountrySelect from "@/components/admin/utils/CountrySelect";
+import AuthCard from "@/components/user/layout/AuthCard";
+import CountrySelect from "@/utils/CountrySelect";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
@@ -21,7 +21,7 @@ export default function SignUpPage() {
     const [country, setCountry] = useState<string | undefined>();
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrors({});
         setLoading(true);
@@ -42,7 +42,7 @@ export default function SignUpPage() {
         }
 
         try {
-            const registerPromise = api.post("/auth/register", {
+            const registerPromise = authService.register({
                 name,
                 email,
                 password,
@@ -111,7 +111,8 @@ export default function SignUpPage() {
                     type="submit"
                     disabled={loading}
                     text={loading ? "Creating account..." : "Create Account"}
-                    className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
+                    textClassName="text-black"
+                    className="w-full justify-center rounded-2xl bg-white/90 hover:bg-white py-2 font-medium disabled:opacity-60"
                 />
             </form>
 

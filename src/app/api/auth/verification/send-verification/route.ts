@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 
 export async function POST(req: Request) {
     try {
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         );
     } catch (e) {
         if (e instanceof AuthError) {
-            return apiResponse( 
+            return apiResponse(
                 false,
                 AUTH_ERROR_MESSAGES[e.code],
                 null,

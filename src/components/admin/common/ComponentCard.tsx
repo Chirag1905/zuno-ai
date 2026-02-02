@@ -1,4 +1,4 @@
-import Button from "@/components/admin/ui/button/Button";
+import Button from "@/components/ui/Button";
 import React from "react";
 
 interface ComponentCardProps {

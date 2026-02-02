@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import api from "@/lib/axios";
 import Link from "next/link";
-import AuthCard from "@/components/user/Layouts/AuthCard";
+import AuthCard from "@/components/user/layout/AuthCard";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { authService } from "@/services/auth.api";
 
-export default function ResetPasswordPage() {
+const ResetPasswordContent = () => {
     const router = useRouter();
     const params = useSearchParams();
     const token = params.get("token");
@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
         }
     }, [token, router]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrors({});
         setLoading(true);
@@ -51,7 +51,7 @@ export default function ResetPasswordPage() {
                 toast.error("Passwords do not match");
                 return;
             }
-            const resetPromise = api.post("/auth/reset-password", {
+            const resetPromise = authService.resetPassword({
                 token,
                 password,
             });
@@ -106,9 +106,18 @@ export default function ResetPasswordPage() {
                     type="submit"
                     disabled={loading}
                     text={loading ? "Resetting..." : "Reset password"}
-                    className="w-full rounded-2xl bg-white text-black py-2 font-medium disabled:opacity-60"
+                    textClassName="text-black"
+                    className="w-full justify-center rounded-2xl bg-white/90 hover:bg-white py-2 font-medium disabled:opacity-60"
                 />
             </form>
         </AuthCard>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }

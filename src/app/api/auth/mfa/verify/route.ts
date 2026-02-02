@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { getRequestMeta } from "@/lib/request";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse } from "@/types/apiResponse";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
