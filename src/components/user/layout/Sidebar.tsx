@@ -171,7 +171,7 @@ export default function Sidebar() {
                     </div>
 
                     {/* CHAT LIST */}
-                    <div className="flex-1 overflow-y-auto px-3 pb-3 no-scrollbar space-y-2">
+                    <div className="flex-1 overflow-y-auto px-3 pb-3 sidebar-chat-scroll space-y-2">
                         <AnimatePresence mode="popLayout">
                             {chatSessions?.map((chat) => (
                                 <motion.div

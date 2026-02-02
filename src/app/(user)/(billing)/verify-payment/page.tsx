@@ -9,7 +9,7 @@ import { billingService } from "@/services/billing.api";
 
 type Status = "loading" | "success" | "error";
 
-function VerifyPaymentContent() {
+const VerifyPaymentContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const verifiedRef = useRef(false);

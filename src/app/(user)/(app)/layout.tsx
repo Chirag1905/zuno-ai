@@ -18,13 +18,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <main className="h-screen w-screen relative">
             {/* Background glow */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {/* <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div
                     className={`absolute inset-0 transition-transform duration-500
           ${sidebarOpen ? "translate-x-36" : "translate-x-0"}`}
                 >
                     <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-225 h-225 bg-blue-600/10 rounded-full blur-[120px]" />
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-225 h-225 bg-purple-600/10 rounded-full blur-[120px]" />
+                </div>
+            </div> */}
+
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div
+                    className={`absolute inset-0 transition-transform duration-500
+                            ${sidebarOpen ? "translate-x-36" : "translate-x-0"}`}
+                >
+                    <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-blue-600/15 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-purple-600/10 rounded-full blur-[120px]" />
                 </div>
             </div>
 
