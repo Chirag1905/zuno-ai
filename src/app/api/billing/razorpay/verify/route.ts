@@ -52,6 +52,15 @@ export async function POST(req: Request) {
             return apiResponse(false, "Plan not found", null, null, 404);
         }
 
+        // 🔍 Check if payment already exists
+        const existingPayment = await prisma.payment.findUnique({
+            where: { providerTxnId: razorpay_payment_id },
+        });
+
+        if (existingPayment) {
+            return apiResponse(true, "Payment already processed", null);
+        }
+
         await prisma.$transaction([
             // 1️⃣ Save payment
             prisma.payment.create({
@@ -101,6 +110,15 @@ export async function POST(req: Request) {
         );
     } catch (err: any) {
         console.error("❌ Razorpay verify error:", err);
+
+        // Handle duplicate payment (Idempotency)
+        if (err.code === "P2002" && err.meta?.target?.includes("providerTxnId")) {
+            return apiResponse(
+                true,
+                "Payment already verified",
+                null
+            );
+        }
 
         return apiResponse(
             false,

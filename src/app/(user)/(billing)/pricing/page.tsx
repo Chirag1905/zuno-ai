@@ -26,8 +26,8 @@ export default function PricingPage() {
             </div>
 
             {/* PRICING GRID */}
-            <div className="mt-14">
-                <div className="grid gap-8 md:grid-cols-3 items-stretch">
+            <div className="max-w-7xl mx-auto mt-14">
+                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
                     {plans.map((plan) => (
                         <PlanCard
                             key={plan.id}

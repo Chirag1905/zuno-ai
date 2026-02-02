@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         // const amount = Math.round(plan.price * 100); // INR → paise
 
         const order = await razorpay.orders.create({
-            amount: plan.price,
+            amount: Math.round(plan.price * 100), // INR -> paise
             currency: plan.currency || "INR",
             receipt: `rcpt_${Date.now()}`, // ✅ <= 40 chars
         });

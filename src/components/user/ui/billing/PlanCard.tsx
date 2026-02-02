@@ -2,6 +2,7 @@
 
 import { IconButton } from "@/components/user/ui/Icon";
 import { Plan } from "@/generated/prisma/client";
+import { useRouter } from "next/navigation";
 
 export default function PlanCard({
     plan,
@@ -12,6 +13,7 @@ export default function PlanCard({
     onSelect: () => void;
     featured?: boolean;
 }) {
+    const router = useRouter();
     const isFree = plan.price === 0;
 
     return (
@@ -30,9 +32,13 @@ export default function PlanCard({
             )}
 
             {/* TITLE */}
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+            {/* <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                 {plan.name}
-            </p>
+            </p> */}
+
+            <span className="bg-linear-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent font-extrabold">
+                {plan.name}
+            </span>
 
             {/* PRICE */}
             <div className="mt-4">
@@ -72,15 +78,22 @@ export default function PlanCard({
             {/* CTA */}
             <IconButton
                 text={isFree ? "Current Plan" : "Choose Plan"}
+                icon={isFree ? "Check" : "SquareArrowOutUpRight"}
+                iconPosition="right"
                 size="sm"
                 rounded="xl"
                 variant="minimal"
                 className={`mt-8 w-full py-3 justify-center ${isFree
-                    ? "bg-gray-700/60 cursor-not-allowed"
+                    ? "bg-gray-700/60 hover:bg-gray-700/80"
                     : "bg-linear-to-r from-purple-500 to-pink-500 font-semibold shadow-lg hover:scale-[1.03] hover:shadow-pink-500/50 transition"
                     }`}
-                onClick={!isFree ? onSelect : undefined}
-                disabled={isFree}
+                onClick={() => {
+                    if (isFree) {
+                        router.push('/');
+                    } else {
+                        onSelect();
+                    }
+                }}
             />
         </div>
     );

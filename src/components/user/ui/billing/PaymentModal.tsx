@@ -31,13 +31,7 @@ export default function PaymentModal({
 
             {/* MODAL */}
             <div
-                className="relative w-full max-w-md rounded-[28px]
-        border border-white/10
-        bg-linear-to-br from-[#0d0d2b]/90 to-[#070716]/90
-        p-8 text-white
-        shadow-[0_20px_60px_rgba(0,0,0,0.6)]
-        backdrop-blur-xl
-        animate-in fade-in zoom-in-95"
+                className="relative w-full max-w-md rounded-[28px] border border-white/10 bg-linear-to-br from-[#0d0d2b]/90 to-[#070716]/90 p-8 text-white shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-xl animate-in fade-in zoom-in-95"
             >
                 {/* HEADER */}
                 <h2 className="text-2xl font-semibold tracking-tight">
@@ -109,80 +103,3 @@ export default function PaymentModal({
         </div>
     );
 }
-// "use client";
-
-// import RazorpayButton from "@/components/user/ui/billing/RazorpayButton";
-// import StripeButton from "@/components/user/ui/billing/StripeButton";
-// import { IconButton } from "@/components/user/ui/Icon";
-
-// export default function PaymentModal({
-//     plan,
-//     open,
-//     onClose,
-// }: {
-//     plan: {
-//         id: string;
-//         name: string;
-//         price: number;
-//     };
-//     open: boolean;
-//     onClose: () => void;
-// }) {
-//     if (!open) return null;
-
-//     return (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-//             {/* MODAL */}
-//             <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#0b0b1e]/90 p-8 text-white shadow-2xl">
-//                 {/* HEADER */}
-//                 <h2 className="text-2xl font-bold">
-//                     Subscribe to{" "}
-//                     <span className="bg-linear-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent font-extrabold">
-//                         {plan.name}
-//                     </span>
-//                 </h2>
-
-//                 <p className="mt-2 text-sm text-gray-400">
-//                     Choose your preferred payment method
-//                 </p>
-
-//                 {/* PRICE INFO */}
-//                 <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
-//                     <span className="font-semibold text-white">
-//                         ${(plan.price / 100).toFixed(2)}
-//                     </span>{" "}
-//                     billed monthly · Cancel anytime
-//                 </div>
-
-//                 {/* ACTIONS */}
-//                 <div className="mt-8 space-y-4">
-//                     {/* PRIMARY */}
-//                     <RazorpayButton
-//                         plan={plan}
-//                         className="w-full rounded-xl py-3 bg-linear-to-r from-purple-500 to-pink-500 font-semibold shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40 transition"
-//                     />
-
-//                     {/* SECONDARY */}
-//                     <StripeButton
-//                         plan={plan}
-//                         className="w-full rounded-xl py-3 bg-linear-to-r from-purple-500 to-pink-500 font-semibold shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40 transition"
-//                     />
-//                 </div>
-
-//                 {/* DIVIDER */}
-//                 <div className="my-6 h-px w-full bg-white/10" />
-
-//                 {/* CANCEL */}
-//                 <IconButton
-//                     icon="X"
-//                     size="sm"
-//                     rounded="xl"
-//                     variant="default"
-//                     text="Cancel"
-//                     onClick={onClose}
-//                     className="w-full justify-center rounded-lg py-3 text-sm text-gray-400 hover:text-white hover:bg-white/5 transition"
-//                 />
-//             </div>
-//         </div>
-//     );
-// }

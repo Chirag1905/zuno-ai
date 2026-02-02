@@ -68,7 +68,6 @@ export default function VerifyEmailPage() {
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-neutral-900 to-black text-white px-4">
             <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
                 <div className="flex flex-col items-center text-center px-8 py-10 space-y-6">
-
                     {/* Spinner / Tick */}
                     <div className="relative flex items-center justify-center h-16 w-16">
                         {isLoading ? (

@@ -1,0 +1,214 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Icon, { IconButton, IconName } from "@/components/user/ui/Icon";
+
+type Status = "loading" | "success" | "error";
+
+export default function VerifyPayment() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const verifiedRef = useRef(false);
+
+    const [status, setStatus] = useState<Status>("loading");
+    const [message, setMessage] = useState("Verifying payment...");
+    const [redirectIn, setRedirectIn] = useState<number | null>(null);
+
+    /* ==================== VERIFY PAYMENT ==================== */
+    useEffect(() => {
+        const verifyPayment = async () => {
+            if (verifiedRef.current) return;
+            verifiedRef.current = true;
+
+            const planId = searchParams.get("planId");
+            const razorpay_payment_id = searchParams.get("razorpay_payment_id");
+            const razorpay_order_id = searchParams.get("razorpay_order_id");
+            const razorpay_signature = searchParams.get("razorpay_signature");
+
+            if (
+                !planId ||
+                !razorpay_payment_id ||
+                !razorpay_order_id ||
+                !razorpay_signature
+            ) {
+                setStatus("error");
+                setMessage("Invalid payment details.");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/billing/razorpay/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        planId,
+                        razorpay_payment_id,
+                        razorpay_order_id,
+                        razorpay_signature,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || "Payment verification failed");
+                }
+
+                setStatus("success");
+            } catch (err: any) {
+                setStatus("error");
+                setMessage(err.message || "Payment verification failed");
+            }
+        };
+
+        verifyPayment();
+    }, [searchParams]);
+
+    /* ==================== AUTO REDIRECT ==================== */
+    useEffect(() => {
+        if (status !== "success") return;
+
+        setRedirectIn(10);
+
+        const interval = setInterval(() => {
+            setRedirectIn((prev) => {
+                if (!prev || prev <= 1) {
+                    clearInterval(interval);
+                    router.push("/");
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [status, router]);
+
+    /* ==================== UI CONFIG ==================== */
+    const UI: Record<
+        Status,
+        {
+            icon: IconName;
+            iconClass: string;
+            title: string;
+            description: string;
+            badge?: string;
+            action?: {
+                label: string;
+                icon: IconName;
+                onClick: () => void;
+                success?: boolean;
+            };
+        }
+    > = {
+        loading: {
+            icon: "CircleDashed",
+            iconClass: "text-purple-400 animate-spin",
+            title: "Verifying Payment",
+            description: "Please do not close this window",
+        },
+        error: {
+            icon: "CircleAlert",
+            iconClass: "text-red-500",
+            title: "Verification Failed!",
+            description: message,
+            action: {
+                label: "Return to Pricing",
+                icon: "ArrowLeft",
+                onClick: () => router.push("/pricing"),
+            },
+        },
+        success: {
+            icon: "CircleCheck",
+            iconClass: "text-emerald-400",
+            title: "Payment Successful 🎉",
+            description: "Your subscription is now active.",
+            badge: "Secure payment completed",
+            action: {
+                label: "Go to Dashboard",
+                icon: "CircleArrowRight",
+                onClick: () => router.push("/"),
+                success: true,
+            },
+        },
+    };
+
+    const current = UI[status];
+
+    /* ==================== RENDER ==================== */
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-indigo-950 to-black text-white px-4">
+            <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+                {/* Glow */}
+                <div className="absolute inset-0 bg-radial-gradient from-emerald-500/10 via-transparent to-transparent" />
+
+                <div className="relative flex flex-col items-center text-center px-8 py-8 space-y-4">
+                    {/* ICON */}
+                    <div className="relative flex items-center justify-center h-20 w-20">
+                        <div className="absolute inset-0 rounded-full bg-white/10 blur-xl" />
+                        <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white/10 border border-white/20">
+                            <Icon
+                                name={current.icon}
+                                size={50}
+                                className={current.iconClass}
+                            />
+                        </div>
+                    </div>
+
+                    {/* TEXT */}
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            {current.title}
+                        </h1>
+                        <p className="text-sm text-neutral-400">
+                            {current.description}
+                        </p>
+                    </div>
+
+                    {/* BADGE */}
+                    {current.badge && (
+                        <div className="rounded-full bg-emerald-500/10 text-emerald-400 px-4 py-1 text-xs flex items-center gap-2">
+                            <Icon name="ShieldCheck" size={14} />
+                            <span>{current.badge}</span>
+                        </div>
+                    )}
+
+                    {/* REDIRECT INFO */}
+                    {status === "success" && redirectIn !== null && (
+                        <p className="text-xs text-emerald-400/80">
+                            Redirecting to dashboard in{" "}
+                            <span className="font-semibold">{redirectIn}</span>{" "}
+                            seconds…
+                        </p>
+                    )}
+
+                    {/* ACTION */}
+                    {current.action && (
+                        <IconButton
+                            icon={current.action.icon}
+                            text={current.action.label}
+                            iconPosition={status === "error" ? "left" : "right"}
+                            size="md"
+                            onClick={current.action.onClick}
+                            className={`w-full justify-center rounded-xl ${current.action.success
+                                ? "bg-emerald-500! hover:bg-emerald-400!"
+                                : "bg-white/10! hover:bg-white/20!"
+                                }`}
+                            textClassName={
+                                current.action.success
+                                    ? "text-black!"
+                                    : "text-white!"
+                            }
+                            iconClassName={
+                                current.action.success
+                                    ? "text-black!"
+                                    : "text-white!"
+                            }
+                        />
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
