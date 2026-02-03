@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch, LogOut } from "lucide-react";
 import { SidebarBrand } from "@/components/ui/SidebarBrand";
@@ -104,6 +104,7 @@ const Sidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const isCollapsed = !isExpanded && !isHovered && !isMobileOpen;
+  const router = useRouter();
 
   // STATE FOR PINNED ITEMS - Use lazy initialization to avoid setState in useEffect
   const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>(() => {
@@ -395,7 +396,7 @@ const Sidebar: React.FC = () => {
               } catch (error) {
                 console.error("Logout failed", error);
               } finally {
-                window.location.href = "/signin";
+                router.push("/signin");
               }
             }}
             className={`menu-item group menu-item-inactive cursor-pointer w-full ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"

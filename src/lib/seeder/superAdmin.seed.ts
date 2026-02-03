@@ -32,7 +32,7 @@ async function seedSuperAdmin() {
 
             emailVerified: true,
             emailVerifiedAt: new Date(),
-            mfaEnabled: true,
+            mfaEnabled: false,
             country: "India",
 
             image: "https://zuno.ai/logo.png",
