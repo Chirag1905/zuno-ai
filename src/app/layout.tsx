@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Outfit } from "next/font/google";
+import "@/app/globals.css";
+import { Toaster } from "react-hot-toast";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -27,6 +29,20 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} antialiased`}
       >
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            loading: {
+              duration: Infinity,
+            },
+            success: {
+              duration: 5000, // success toast visible for 5s
+            },
+            error: {
+              duration: 3000,
+            },
+          }}
+        />
         {children}
       </body>
     </html>

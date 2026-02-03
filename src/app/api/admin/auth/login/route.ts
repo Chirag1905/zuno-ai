@@ -3,7 +3,6 @@ import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { getRequestMeta } from "@/lib/request";
 import { apiResponse } from "@/types/apiResponse";
 import { cookies } from "next/headers";
-import { getCookieOptions } from "@/lib/auth/cookie";
 
 export async function POST(req: Request) {
     try {
@@ -31,7 +30,12 @@ export async function POST(req: Request) {
             }
 
             const cookieStore = await cookies();
-            cookieStore.set("session", result.session.token, getCookieOptions(result.session.expiresAt));
+            cookieStore.set("session", result.session.token, {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                expires: result.session.expiresAt,
+            });
 
             return apiResponse(
                 true,

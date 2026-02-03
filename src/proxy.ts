@@ -1,102 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function proxy(req: NextRequest) {
-    const { pathname } = req.nextUrl;
+export function proxy(request: NextRequest) {
+    const url = request.nextUrl;
+    const hostname = request.headers.get('host') || '';
 
-    // -------------------------------------------------------------------------
-    // 1️⃣ Route Definitions
-    // -------------------------------------------------------------------------
+    // Check if it's the admin subdomain
+    // Matches admin.zunoai.com or admin.localhost (for dev)
+    const isAdminSubdomain = hostname.startsWith('admin.');
 
-    // Auth routes (Accessible only when NOT logged in)
-    const authRoutes = [
-        "/signin",
-        "/signup",
-        "/forgotpassword",
-        "/resetpassword",
-        "/verify-otp",
-        "/verify-email"
+    // Shared routes that should pass through on both subdomains
+    // (auth) folder routes map to root URLs
+    const sharedRoutes = [
+        '/signin',
+        '/signup',
+        '/verify-otp',
+        '/forgotpassword',
+        '/verify-email',
+        '/resetpassword',
+        '/_next', // Next.js assets
+        '/api',   // API routes
+        '/static',
+        '/public'
     ];
 
-    // Public API routes (Always accessible)
-    const publicApiPrefixes = [
-        "/api/auth",
-        "/api/webhooks",
-        "/_next",
-        "/favicon.ico",
-        "/public"
-    ];
+    /* 
+     * Helper to check if path starts with shared route
+     */
+    const isSharedRoute = sharedRoutes.some(route => url.pathname.startsWith(route));
 
-    // Admin routes (Protected + Role check needed in Layout)
-    const adminRoutePrefix = "/admin";
+    // --- Admin Subdomain Logic ---
+    if (isAdminSubdomain) {
 
-    // -------------------------------------------------------------------------
-    // 2️⃣ Helper Checks
-    // -------------------------------------------------------------------------
-
-    const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-    const isPublicApi = publicApiPrefixes.some((prefix) => pathname.startsWith(prefix));
-
-    // 🔐 Check for session cookie
-    const token = req.cookies.get("session")?.value;
-
-    // -------------------------------------------------------------------------
-    // 3️⃣ Logic Flow
-    // -------------------------------------------------------------------------
-
-    // ✅ Case A: User has session cookie
-    if (token) {
-        // Validate session exists in database
-        try {
-            const session = await prisma.session.findUnique({
-                where: { token },
-                select: { id: true }
-            });
-
-            // If session doesn't exist in DB, clear the cookie and redirect to signin
-            if (!session) {
-                const response = NextResponse.redirect(new URL("/signin", req.url));
-                response.cookies.delete("session");
-                response.cookies.delete("trusted_device");
-                return response;
-            }
-        } catch (error) {
-            // If DB check fails, clear cookie and redirect to signin
-            console.error("Session validation error:", error);
-            const response = NextResponse.redirect(new URL("/signin", req.url));
-            response.cookies.delete("session");
-            response.cookies.delete("trusted_device");
-            return response;
+        // Redirect root to dashboard
+        if (url.pathname === '/') {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
         }
 
-        // Session is valid - if trying to access Auth pages, redirect to dashboard
-        if (isAuthRoute) {
-            return NextResponse.redirect(new URL("/", req.url));
-        }
-
-        // Allow access to all other pages
-        return NextResponse.next();
-    }
-
-    // ❌ Case B: User is NOT Logged In
-    if (!token) {
-        // 1. Allow access to Auth pages and Public APIs
-        if (isAuthRoute || isPublicApi) {
+        // Pass through shared auth/api routes
+        if (isSharedRoute) {
             return NextResponse.next();
         }
 
-        // 2. Redirect all other private routes (Dashboard, Admin) to Signin
-        const signInUrl = new URL("/signin", req.url);
-        return NextResponse.redirect(signInUrl);
+        // 🔐 Check Session for Admin Routes
+        // If user is not logged in, redirect to signin
+        const token = request.cookies.get("session")?.value;
+        if (!token) {
+            return NextResponse.redirect(new URL('/signin', request.url));
+        }
+
+        // Rewrite admin-friendly URLs to actual /admin file structure
+        // e.g. /dashboard -> /admin/dashboard
+        // e.g. /users -> /admin/users
+        // Avoid double-rewriting if path already starts with /admin (though ideally requests shouldn't)
+        if (!url.pathname.startsWith('/admin')) {
+            return NextResponse.rewrite(new URL(`/admin${url.pathname}`, request.url));
+        }
+    }
+
+    // --- User/Public Subdomain Logic (zunoai.com) ---
+    else {
+        // Prevent access to /admin routes from main domain
+        if (url.pathname.startsWith('/admin')) {
+            // Redirect to root or 404
+            return NextResponse.redirect(new URL('/', request.url));
+        }
     }
 
     return NextResponse.next();
 }
 
-// -----------------------------------------------------------------------------
-// ⚙️ Config
-// -----------------------------------------------------------------------------
 export const config = {
-    // Matcher excluding static files and images
-    matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        '/((?!_next/static|_next/image|favicon.ico).*)',
+    ],
 };

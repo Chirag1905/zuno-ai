@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+
 import { AuthError } from "@/lib/errors/auth.error";
 
 export async function requireSuperAdmin() {
@@ -14,7 +14,24 @@ export async function requireSuperAdmin() {
     const session = await auth.getSession(token);
 
     if (!session || session.user.role !== "SUPER_ADMIN") {
-        redirect("/"); // or /signin
+        throw new AuthError("FORBIDDEN", 403);
+    }
+
+    return session;
+}
+
+export async function requireAdmin() {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("session")?.value;
+
+    if (!token) {
+        throw new AuthError("UNAUTHENTICATED", 401);
+    }
+
+    const session = await auth.getSession(token);
+
+    if (!session || !["ADMIN", "SUPER_ADMIN"].includes(session.user.role)) {
+        throw new AuthError("FORBIDDEN", 403);
     }
 
     return session;

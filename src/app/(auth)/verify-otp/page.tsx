@@ -1,3 +1,6 @@
+
+
+
 "use client";
 
 import { useEffect, useRef, useState, Suspense } from "react";
@@ -166,7 +169,12 @@ const VerifyOtpContent = () => {
                     err?.response?.data?.message ||
                     "Invalid or expired OTP",
             }, { duration: 5000 });
-            router.push("/");
+
+            if (window.location.hostname.startsWith("admin.")) {
+                router.push("/dashboard");
+            } else {
+                router.push("/");
+            }
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 triggerError(
@@ -257,7 +265,7 @@ const VerifyOtpContent = () => {
                     <Checkbox
                         checked={rememberDevice}
                         onChange={setRememberDevice}
-                        text="Remember this device"
+                        label="Remember this device"
                         accentColor="bg-emerald-500"
                     />
                 </div>

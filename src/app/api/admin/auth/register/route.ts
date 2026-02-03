@@ -2,31 +2,20 @@ import { auth } from "@/lib/auth";
 import { AUTH_ERROR_MESSAGES, AuthError } from "@/lib/errors/auth.error";
 import { getRequestMeta } from "@/lib/request";
 import { apiResponse } from "@/types/apiResponse";
-import { cookies } from "next/headers";
-import { getCookieOptions } from "@/lib/auth/cookie";
 
 export async function POST(req: Request) {
     try {
-        const { email, otp, rememberDevice } = await req.json();
+        const { email, password, name } = await req.json();
         const meta = await getRequestMeta();
 
-        const { user, session } = await auth.verifyMfa({
-            email,
-            otp,
-            rememberDevice,
-            ...meta,
-        });
-
-        const cookieStore = await cookies();
-
-        cookieStore.set("session", session.token, getCookieOptions(session.expiresAt));
+        await auth.registerAdmin({ name, email, password, ...meta });
 
         return apiResponse(
             true,
-            "Logged in successfully",
-            user,
+            "Admin account created successfully. Please verify your email.",
             null,
-            200
+            null,
+            201
         );
     } catch (e) {
         if (e instanceof AuthError) {

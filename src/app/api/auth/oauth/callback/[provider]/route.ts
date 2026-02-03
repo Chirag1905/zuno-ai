@@ -6,6 +6,7 @@ import { getRequestMeta } from "@/lib/request";
 import { AuthError } from "@/lib/errors/auth.error";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
+import { getCookieOptions } from "@/lib/auth/cookie";
 
 export async function GET(
     req: Request,
@@ -62,12 +63,7 @@ export async function GET(
         if (result.session) {
             const cookieStore = await cookies();
 
-            cookieStore.set("session", result.session.token, {
-                httpOnly: true,
-                sameSite: "lax",
-                path: "/",
-                expires: result.session.expiresAt,
-            });
+            cookieStore.set("session", result.session.token, getCookieOptions(result.session.expiresAt));
         }
         // ✅ Session already created
         redirect("/");

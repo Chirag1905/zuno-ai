@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { AuthError } from "@/lib/errors/auth.error";
 import DemographicCard from "@/components/admin/ecommerce/DemographicCard";
 import { EcommerceMetrics } from "@/components/admin/ecommerce/EcommerceMetrics";
 import MonthlySalesChart from "@/components/admin/ecommerce/MonthlySalesChart";
@@ -9,24 +11,23 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Analytics • Admin Panel | Zuno AI",
     description: "View analytics, sales, revenue, demographics and orders",
+    icons: {
+        icon: [
+            { url: "/favicon.svg", type: "image/svg+xml" }
+        ],
+    },
 };
+
+import { getAdminDashboardData } from "@/services/admin-dashboard.service";
 
 async function getDashboardData() {
     try {
-        const res = await fetch(
-            `${process.env.APP_URL}/api/admin/dashboard`,
-            { cache: "no-store" }
-        );
-        console.log("🚀 ~ getDashboardData ~ res:", res)
-
-        if (!res.ok) {
-            console.error("Dashboard fetch failed:", res.status);
-            return null;
-        }
-
-        const json = await res.json();
-        return json?.data ?? null;
+        const data = await getAdminDashboardData();
+        return data;
     } catch (error) {
+        if (error instanceof AuthError && error.code === "UNAUTHENTICATED") {
+            redirect("/signin");
+        }
         console.error("Dashboard error:", error);
         return null;
     }

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { apiResponse } from "@/types/apiResponse";
-import { requireSuperAdmin } from "@/lib/auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 import { hashPassword } from "@/lib/auth/password";
 
 type Params = {
@@ -12,7 +12,7 @@ type Params = {
 ========================= */
 export async function GET(_: Request, { params }: Params) {
     try {
-        await requireSuperAdmin();
+        await requireAdmin();
 
         const { id } = await params;
         const user = await prisma.user.findUnique({
@@ -46,7 +46,7 @@ export async function GET(_: Request, { params }: Params) {
 ========================= */
 export async function PUT(req: Request, { params }: Params) {
     try {
-        await requireSuperAdmin();
+        await requireAdmin();
 
         const { id } = await params;
         const body = await req.json();
@@ -102,7 +102,7 @@ export async function PUT(req: Request, { params }: Params) {
 ========================= */
 export async function DELETE(_: Request, { params }: Params) {
     try {
-        await requireSuperAdmin();
+        await requireAdmin();
         const { id } = await params;
 
         await prisma.user.delete({

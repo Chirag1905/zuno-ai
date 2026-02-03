@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
-import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch } from "lucide-react";
+import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch, LogOut } from "lucide-react";
 import { SidebarBrand } from "@/components/ui/SidebarBrand";
 import ZunoLogo from "@/components/ui/ZunoLogo";
 import SidebarWidget from "@/components/admin/layout/SidebarWidget";
 import Button from "@/components/ui/Button";
+import { authService } from "@/services/auth.api";
 
 type SubItem = {
   name: string;
@@ -289,29 +290,27 @@ const Sidebar: React.FC = () => {
 
   // AUTO OPEN SUBMENU BASED ON URL
   useEffect(() => {
-    setOpenSubmenu((prevSubmenu) => {
-      let submenuMatched = false;
-      let newSubmenu: { type: "main" | "others"; index: number } | null = null;
+    let newSubmenu: { type: "main" | "others"; index: number } | null = null;
 
-      NavItems.forEach((nav, index) => {
-        nav.subItems?.forEach((subItem) => {
-          if (isActive(subItem.path)) {
-            newSubmenu = { type: "main", index };
-            submenuMatched = true;
-          }
-        });
-      });
-
-      // Only update if there's a change
-      if (submenuMatched && newSubmenu) {
-        if (prevSubmenu?.type === newSubmenu.type && prevSubmenu?.index === newSubmenu.index) {
-          return prevSubmenu;
-        }
-        return newSubmenu;
+    NavItems.some((nav, index) => {
+      const hasMatch = nav.subItems?.some((subItem) => isActive(subItem.path));
+      if (hasMatch) {
+        newSubmenu = { type: "main", index };
+        return true; // break
       }
-
-      return submenuMatched ? prevSubmenu : null;
+      return false;
     });
+
+    if (newSubmenu) {
+      // Capture the value to avoid TS issues in closure if any
+      const targetMenu = newSubmenu;
+      setOpenSubmenu((prev) => {
+        if (prev?.type === targetMenu.type && prev?.index === targetMenu.index) {
+          return prev;
+        }
+        return targetMenu;
+      });
+    }
   }, [pathname, isActive]);
 
   return (
@@ -386,6 +385,28 @@ const Sidebar: React.FC = () => {
             {renderMenuItems(OtherItems, "others")}
           </div> */}
         </nav>
+
+        {/* Logout Section */}
+        <div className="mt-auto mb-6">
+          <button
+            onClick={async () => {
+              try {
+                await authService.logout();
+              } catch (error) {
+                console.error("Logout failed", error);
+              } finally {
+                window.location.href = "/signin";
+              }
+            }}
+            className={`menu-item group menu-item-inactive cursor-pointer w-full ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"
+              }`}
+          >
+            <span className="menu-item-icon-inactive">
+              <LogOut />
+            </span>
+            {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">Log Out</span>}
+          </button>
+        </div>
 
         {/* Sidebar Widget */}
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

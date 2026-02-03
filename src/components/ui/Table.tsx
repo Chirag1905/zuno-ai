@@ -12,8 +12,8 @@ import { useSearchParams } from "next/navigation";
 import { PaginatedResponse } from "@/types/api";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/InputSecondVersion";
 import Empty from "@/utils/Empty";
+import Input from "@/components/ui/Input";
 
 /* =====================================================
    TABLE PRIMITIVES

@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState } from "react";
@@ -77,7 +79,11 @@ export default function SignInPage() {
             }
 
             // ✅ Normal login
-            router.push("/");
+            if (window.location.hostname.startsWith("admin.")) {
+                router.push("/dashboard");
+            } else {
+                router.push("/");
+            }
         } finally {
             setLoading(false);
         }
@@ -184,3 +190,4 @@ function Divider() {
         </div>
     );
 }
+

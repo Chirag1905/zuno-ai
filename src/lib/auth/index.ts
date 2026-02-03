@@ -10,6 +10,7 @@ import { OAUTH_PROVIDERS } from "@/lib/auth/oauth";
 import { OTP_LOCK_MS, OTP_MAX_ATTEMPTS, RESET_TOKEN_EXPIRY } from "@/lib/auth/constants";
 import { createTrustedDevice } from "@/lib/auth/createTrustedDevice";
 import { assignFreePlan } from "@/lib/billing/assignFreePlan";
+import { getCookieDeleteOptions } from "@/lib/auth/cookie";
 
 // HELPERS
 const sha256 = (v: string) =>
@@ -76,6 +77,46 @@ export const auth = {
             } catch {
                 throw new AuthError("EMAIL_SEND_FAILED", 500);
             }
+            return { userId: user.id };
+        } catch (e) {
+            if (e instanceof AuthError) throw e;
+            throw new AuthError("INTERNAL", 500);
+        }
+    },
+
+    // REGISTER ADMIN
+    async registerAdmin(
+        {
+            email,
+            password,
+            name,
+        }: {
+            email: string;
+            password: string;
+            name?: string;
+        }) {
+        try {
+            const exists = await prisma.user.findUnique({ where: { email } });
+            if (exists) throw new AuthError("EMAIL_EXISTS", 409);
+
+            // Create user with ADMIN role
+            const user = await prisma.user.create({
+                data: {
+                    email,
+                    name,
+                    password: await hashPassword(password),
+                    role: "ADMIN", // Default to ADMIN role
+                },
+            });
+
+            await assignFreePlan(user.id);
+
+            try {
+                await sendEmailVerification(user.email);
+            } catch {
+                throw new AuthError("EMAIL_SEND_FAILED", 500);
+            }
+
             return { userId: user.id };
         } catch (e) {
             if (e instanceof AuthError) throw e;
@@ -706,7 +747,7 @@ export const auth = {
 
             const cookieStore = await cookies();
 
-            cookieStore.delete("session");
+            cookieStore.delete({ name: "session", ...getCookieDeleteOptions() });
 
             const result = await prisma.session.deleteMany({
                 where: { token },
@@ -734,8 +775,8 @@ export const auth = {
             }
 
             const cookieStore = await cookies();
-            cookieStore.delete("session");
-            cookieStore.delete("trusted_device");
+            cookieStore.delete({ name: "session", ...getCookieDeleteOptions() });
+            cookieStore.delete({ name: "trusted_device", ...getCookieDeleteOptions() });
 
             const result = await prisma.session.deleteMany({
                 where: { userId },

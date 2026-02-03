@@ -3,14 +3,14 @@ import { apiResponse } from "@/types/apiResponse";
 import { hashPassword } from "@/lib/auth/password";
 import { UserRole } from "@/generated/prisma/enums";
 import { Prisma } from "@/generated/prisma/client";
-import { requireSuperAdmin } from "@/lib/auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 
 /* =========================
    GET — LIST USERS
 ========================= */
 export async function GET(req: Request) {
     try {
-        await requireSuperAdmin();
+        await requireAdmin();
         const { searchParams } = new URL(req.url);
 
         const page = Number(searchParams.get("page") ?? 1);
@@ -92,7 +92,7 @@ export async function GET(req: Request) {
 ========================= */
 export async function POST(req: Request) {
     try {
-        await requireSuperAdmin();
+        await requireAdmin();
 
         const body = await req.json();
         const { name, email, password, role, country } = body;

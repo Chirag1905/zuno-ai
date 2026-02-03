@@ -1,8 +1,6 @@
 import { Metadata } from "next";
-import { Toaster } from "react-hot-toast";
+// import { Toaster } from "react-hot-toast";
 import Script from "next/script";
-
-import "@/app/globals.css";
 
 export const metadata: Metadata = {
     title: "Zuno",
@@ -26,7 +24,7 @@ export default function UserLayout({
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 strategy="afterInteractive"
             />
-            <Toaster
+            {/* <Toaster
                 position="top-right"
                 toastOptions={{
                     loading: {
@@ -39,7 +37,7 @@ export default function UserLayout({
                         duration: 3000,
                     },
                 }}
-            />
+            /> */}
             {children}
         </>
     );
