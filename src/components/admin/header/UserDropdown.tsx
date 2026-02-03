@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import Dropdown, { DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);

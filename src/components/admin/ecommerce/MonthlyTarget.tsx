@@ -3,7 +3,7 @@ import { ApexOptions } from "apexcharts";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { EllipsisVertical } from "lucide-react";
-import Dropdown, { DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

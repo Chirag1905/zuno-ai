@@ -1,5 +1,5 @@
 "use client";
-import Dropdown, { DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";

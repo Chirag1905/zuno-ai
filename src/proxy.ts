@@ -21,7 +21,8 @@ export function proxy(request: NextRequest) {
         '/_next', // Next.js assets
         '/api',   // API routes
         '/static',
-        '/public'
+        '/public',
+        '/favicon.svg'
     ];
 
     /* 

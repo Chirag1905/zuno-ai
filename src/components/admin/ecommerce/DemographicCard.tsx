@@ -1,6 +1,6 @@
 "use client";
 import CountryMap from "@/components/admin/ecommerce/CountryMap";
-import Dropdown, { DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
