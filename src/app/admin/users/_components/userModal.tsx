@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { userType } from "@/types/userType";
 import ComponentCard from "@/components/admin/common/ComponentCard";
 import Label from "@/components/ui/Label";
-import Input from "@/components/ui/InputSecondVersion";
+import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { generatePassword } from "@/lib/passwordGenerator";
 import { KeyIcon } from "lucide-react";
@@ -127,7 +127,8 @@ const UserModal: React.FC<userModalProps> = ({
                 <div className="flex items-center mt-2">
                     <Switch
                         label="Email Verified"
-                        checked={formData.emailVerified}
+                        checked={formData.emailVerified ?? false}
+                        accentColor="bg-blue-500"
                         onChange={(v) =>
                             setFormData((p: userType) => ({ ...p, emailVerified: v }))
                         }
@@ -138,7 +139,8 @@ const UserModal: React.FC<userModalProps> = ({
                 <div className="flex items-center mt-2">
                     <Switch
                         label="MFA Enabled"
-                        checked={formData.mfaEnabled}
+                        checked={formData.mfaEnabled ?? false}
+                        accentColor="bg-blue-500"
                         onChange={(v) =>
                             setFormData((p: userType) => ({ ...p, mfaEnabled: v }))
                         }
