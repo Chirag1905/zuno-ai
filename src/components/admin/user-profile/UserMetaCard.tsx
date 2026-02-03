@@ -3,10 +3,9 @@ import React from "react";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/InputSecondVersion";
+import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import Image from "next/image";
-
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();

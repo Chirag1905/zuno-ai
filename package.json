@@ -6,11 +6,12 @@
     "dev": "next dev",
     "build": "prisma migrate deploy && next build",
     "start": "next start",
-    "seed": "bun src/seed.ts",
+    "seed": "bun seed.ts",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
     "@fullcalendar/list": "^6.1.20",

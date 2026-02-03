@@ -303,8 +303,7 @@ const Sidebar: React.FC = () => {
     });
 
     if (newSubmenu) {
-      // Capture the value to avoid TS issues in closure if any
-      const targetMenu = newSubmenu;
+      const targetMenu = newSubmenu as { type: "main" | "others"; index: number };
       setOpenSubmenu((prev) => {
         if (prev?.type === targetMenu.type && prev?.index === targetMenu.index) {
           return prev;
