@@ -138,7 +138,7 @@ export default function RecentOrders({ payments }: RecentOrdersProps) {
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    ${(item.amount / 100).toFixed(2)}
+                    ${item.amount.toFixed(2)}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {new Date(item.createdAt).toLocaleDateString()}

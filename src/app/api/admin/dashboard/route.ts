@@ -76,7 +76,7 @@ export async function GET() {
 
         payments.forEach((p) => {
             const m = p.createdAt.getUTCMonth();
-            monthlySales[m].value += p.amount / 100;
+            monthlySales[m].value += p.amount;
         });
 
         /* ---------- MONTHLY TARGET ---------- */
@@ -105,13 +105,13 @@ export async function GET() {
         ]);
 
         const TARGET = 20000;
-        const revenue = (currentMonth._sum?.amount ?? 0) / 100;
-        const prevRevenue = (lastMonth._sum?.amount ?? 0) / 100;
+        const revenue = currentMonth._sum?.amount ?? 0;
+        const prevRevenue = lastMonth._sum?.amount ?? 0;
 
         const MonthlyTarget = {
             target: TARGET,
             revenue,
-            today: (todayRevenue._sum?.amount ?? 0) / 100,
+            today: todayRevenue._sum?.amount ?? 0,
             progress: Math.min(Math.round((revenue / TARGET) * 100), 100),
             growth: calculateGrowth(revenue, prevRevenue),
         };
@@ -130,7 +130,7 @@ export async function GET() {
         });
 
         payments.forEach((p) => {
-            revenuePerMonth[p.createdAt.getUTCMonth()].value += p.amount / 100;
+            revenuePerMonth[p.createdAt.getUTCMonth()].value += p.amount;
         });
 
         /* ---------- DEMOGRAPHICS ---------- */

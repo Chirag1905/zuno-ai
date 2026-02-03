@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
-import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserStar, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch } from "lucide-react";
+import { ChevronDownIcon, FlipVertical2, LayoutDashboard, Store, Users, UserPlus, UserCog, CreditCard, BarChart3, TableOfContents, ScanSearch } from "lucide-react";
 import { SidebarBrand } from "@/components/ui/SidebarBrand";
 import ZunoLogo from "@/components/ui/ZunoLogo";
 import SidebarWidget from "@/components/admin/layout/SidebarWidget";
@@ -104,16 +104,14 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const isCollapsed = !isExpanded && !isHovered && !isMobileOpen;
 
-  // STATE FOR PINNED ITEMS
-  const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>([]);
-
-  // Load pinned items from localStorage
-  useEffect(() => {
-    const savedPins = localStorage.getItem("pinnedItems");
-    if (savedPins) {
-      setPinnedItems(JSON.parse(savedPins));
+  // STATE FOR PINNED ITEMS - Use lazy initialization to avoid setState in useEffect
+  const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedPins = localStorage.getItem("pinnedItems");
+      return savedPins ? JSON.parse(savedPins) : [];
     }
-  }, []);
+    return [];
+  });
 
   // Save pinned items to localStorage whenever they change
   useEffect(() => {
@@ -291,17 +289,29 @@ const Sidebar: React.FC = () => {
 
   // AUTO OPEN SUBMENU BASED ON URL
   useEffect(() => {
-    let submenuMatched = false;
-    NavItems.forEach((nav, index) => {
-      nav.subItems?.forEach((subItem) => {
-        if (isActive(subItem.path)) {
-          setOpenSubmenu({ type: "main", index });
-          submenuMatched = true;
-        }
-      });
-    });
+    setOpenSubmenu((prevSubmenu) => {
+      let submenuMatched = false;
+      let newSubmenu: { type: "main" | "others"; index: number } | null = null;
 
-    if (!submenuMatched) setOpenSubmenu(null);
+      NavItems.forEach((nav, index) => {
+        nav.subItems?.forEach((subItem) => {
+          if (isActive(subItem.path)) {
+            newSubmenu = { type: "main", index };
+            submenuMatched = true;
+          }
+        });
+      });
+
+      // Only update if there's a change
+      if (submenuMatched && newSubmenu) {
+        if (prevSubmenu?.type === newSubmenu.type && prevSubmenu?.index === newSubmenu.index) {
+          return prevSubmenu;
+        }
+        return newSubmenu;
+      }
+
+      return submenuMatched ? prevSubmenu : null;
+    });
   }, [pathname, isActive]);
 
   return (

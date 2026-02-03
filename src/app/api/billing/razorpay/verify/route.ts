@@ -66,7 +66,7 @@ export async function POST(req: Request) {
             prisma.payment.create({
                 data: {
                     user: { connect: { id: userId } },
-                    amount: Math.round(plan.price * 100),
+                    amount: plan.price, // Store in rupees
                     currency: plan.currency,
                     status: "SUCCESS",
                     provider: "razorpay",

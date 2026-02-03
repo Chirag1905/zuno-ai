@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowDownNarrowWide, ArrowRightIcon, ArrowUpNarrowWide } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { ArrowRightIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 type PaginationProps = {
@@ -62,13 +63,12 @@ export default function Pagination({
         <div className="flex items-center gap-4">
           {/* Rows per page selector */}
           <div className="relative" ref={dropdownRef}>
-            <button
+            <Button
               onClick={() => setIsDropdownOpen((s) => !s)}
               className="flex w-15 items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-            >
-              {rowsPerPage}
-              {isDropdownOpen ? <ArrowUpNarrowWide /> : <ArrowDownNarrowWide />}
-            </button>
+              text={rowsPerPage.toString()}
+              icon={isDropdownOpen ? "ArrowUpNarrowWide" : "ArrowDownNarrowWide"}
+            />
 
             {isDropdownOpen && (
               <div className="absolute z-10 mt-2 w-15 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">

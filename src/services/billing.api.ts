@@ -10,23 +10,23 @@ import {
 
 export const billingService = {
     getPlans: () =>
-        api.get<ApiResponse<Plan[]>>("/api/billing/plans"),
+        api.get<ApiResponse<Plan[]>>("/billing/plans"),
 
     createRazorpayCheckout: (planId: string) =>
-        api.post<ApiResponse<RazorpayCheckoutResponse>>("/api/billing/razorpay/checkout", { planId }),
+        api.post<ApiResponse<RazorpayCheckoutResponse>>("/billing/razorpay/checkout", { planId }),
 
     verifyRazorpayPayment: (payload: RazorpayVerifyPayload) =>
-        api.post<ApiResponse<null>>("/api/billing/razorpay/verify", payload),
+        api.post<ApiResponse<null>>("/billing/razorpay/verify", payload),
 
     createStripeCheckout: (planId: string) =>
-        api.post<ApiResponse<StripeCheckoutResponse>>("/api/billing/stripe/checkout", { planId }),
+        api.post<ApiResponse<StripeCheckoutResponse>>("/billing/stripe/checkout", { planId }),
 
     cancelSubscription: () =>
-        api.post<ApiResponse<null>>("/api/billing/cancel"),
+        api.post<ApiResponse<null>>("/billing/cancel"),
 
     upgradePlan: (newPlanId: string) =>
-        api.post<ApiResponse<Subscription>>("/api/billing/upgrade", { newPlanId }),
+        api.post<ApiResponse<Subscription>>("/billing/upgrade", { newPlanId }),
 
     downgradePlan: (newPlanId: string) =>
-        api.post<ApiResponse<null>>("/api/billing/downgrade", { newPlanId }),
+        api.post<ApiResponse<null>>("/billing/downgrade", { newPlanId }),
 };

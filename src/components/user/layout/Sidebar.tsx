@@ -74,7 +74,7 @@ export default function Sidebar() {
     /* ------------------------------ Fetch Session ------------------------ */
     useEffect(() => {
         authService.getSession()
-            .then((res) => setUser(res.data.data.user as any))
+            .then((res) => setUser(res.data.data.user as User))
             .catch(() => router.push("/signin"))
             .finally(() => setLoading(false));
     }, [router]);

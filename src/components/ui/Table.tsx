@@ -303,9 +303,8 @@ export default function SmartTable<T extends RowWithId>({
               icon="BadgePlus"
               onClick={onAdd}
               variant="optional"
-            >
-              {buttonName}
-            </Button>
+              text={buttonName}
+            />
           )}
         </div>
       </div>

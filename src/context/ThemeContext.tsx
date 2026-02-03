@@ -15,15 +15,18 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    // This code will only run once on the client side
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem("theme") as Theme | null;
+      return savedTheme || "light"; // Default to light theme
+    }
+    return "light";
+  });
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Mark as initialized after first render
   useEffect(() => {
-    // This code will only run on the client side
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const initialTheme = savedTheme || "light"; // Default to light theme
-
-    setTheme(initialTheme);
     setIsInitialized(true);
   }, []);
 

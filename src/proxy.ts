@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -27,7 +28,6 @@ export async function proxy(req: NextRequest) {
     ];
 
     // Admin routes (Protected + Role check needed in Layout)
-    // Note: Middleware checks for "Logged In", Layouts check for "Is Admin"
     const adminRoutePrefix = "/admin";
 
     // -------------------------------------------------------------------------
@@ -36,7 +36,6 @@ export async function proxy(req: NextRequest) {
 
     const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
     const isPublicApi = publicApiPrefixes.some((prefix) => pathname.startsWith(prefix));
-    const isAdminRoute = pathname.startsWith(adminRoutePrefix);
 
     // 🔐 Check for session cookie
     const token = req.cookies.get("session")?.value;
@@ -45,17 +44,37 @@ export async function proxy(req: NextRequest) {
     // 3️⃣ Logic Flow
     // -------------------------------------------------------------------------
 
-    // ✅ Case A: User is Logged In
+    // ✅ Case A: User has session cookie
     if (token) {
-        // 1. If trying to access Auth pages (Signin, Signup), redirect to dashboard
+        // Validate session exists in database
+        try {
+            const session = await prisma.session.findUnique({
+                where: { token },
+                select: { id: true }
+            });
+
+            // If session doesn't exist in DB, clear the cookie and redirect to signin
+            if (!session) {
+                const response = NextResponse.redirect(new URL("/signin", req.url));
+                response.cookies.delete("session");
+                response.cookies.delete("trusted_device");
+                return response;
+            }
+        } catch (error) {
+            // If DB check fails, clear cookie and redirect to signin
+            console.error("Session validation error:", error);
+            const response = NextResponse.redirect(new URL("/signin", req.url));
+            response.cookies.delete("session");
+            response.cookies.delete("trusted_device");
+            return response;
+        }
+
+        // Session is valid - if trying to access Auth pages, redirect to dashboard
         if (isAuthRoute) {
-            // Default redirect for logged in users
             return NextResponse.redirect(new URL("/", req.url));
         }
 
-        // 2. Allow access to all other pages (Admin, Dashboard, etc.)
-        // Note: Specific role protection (Admin vs User) is best handled 
-        // in the Page/Layout server-side to avoid DB calls in Edge Middleware.
+        // Allow access to all other pages
         return NextResponse.next();
     }
 
@@ -68,8 +87,6 @@ export async function proxy(req: NextRequest) {
 
         // 2. Redirect all other private routes (Dashboard, Admin) to Signin
         const signInUrl = new URL("/signin", req.url);
-        // Optional: Add ?callbackUrl=... to redirect back after login
-        // signInUrl.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(signInUrl);
     }
 
@@ -83,204 +100,3 @@ export const config = {
     // Matcher excluding static files and images
     matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
-
-// import { NextRequest, NextResponse } from "next/server";
-// import prisma from "@/lib/prisma";
-
-// export async function proxy(req: NextRequest) {
-//     const { pathname } = req.nextUrl;
-
-//     // Auth pages
-//     const authRoutes = [
-//         "/signin",
-//         "/signup",
-//         "/forgotpassword",
-//         "/resetpassword",
-//         "/verify-otp",
-//         "/verify-email"
-//     ];
-
-//     // Public routes (no auth needed)
-//     const publicRoutes = [
-//         "/signin",
-//         "/signup",
-//         "/forgotpassword",
-//         "/resetpassword",
-//         "/verify-otp",
-//         "/verify-email",
-//     ];
-
-//     // 🔐 Get session token
-//     const token = req.cookies.get("session")?.value;
-
-//     /**
-//      * ✅ If user is already logged in
-//      * ❌ block signin/signup pages
-//      */
-//     if (token && authRoutes.some((p) => pathname.startsWith(p))) {
-//         const session = await prisma.session.findUnique({
-//             where: { token },
-//             include: {
-//                 user: { select: { role: true } },
-//             },
-//         });
-
-//         if (session?.user?.role === "ADMIN") {
-//             return NextResponse.redirect(new URL("/admin", req.url));
-//         }
-
-//         return NextResponse.redirect(new URL("/", req.url));
-//     }
-
-//     // 🔓 Allow public routes if not logged in
-//     if (publicRoutes.some((p) => pathname.startsWith(p))) {
-//         return NextResponse.next();
-//     }
-
-//     // ❌ Not logged in → redirect to signin
-//     if (!token) {
-//         return NextResponse.redirect(new URL("/signin", req.url));
-//     }
-
-//     // 🔎 Fetch session + role
-//     const session = await prisma.session.findUnique({
-//         where: { token },
-//         include: {
-//             user: { select: { role: true } },
-//         },
-//     });
-
-//     if (!session) {
-//         return NextResponse.redirect(new URL("/signin", req.url));
-//     }
-
-//     const role = session.user.role;
-
-//     // 👤 USER → chat only
-//     if (pathname.startsWith("/") && role !== "USER") {
-//         return NextResponse.redirect(new URL("/admin", req.url));
-//     }
-
-//     // 🛠 ADMIN → admin only
-//     if (pathname.startsWith("/admin") && role === "USER") {
-//         return NextResponse.redirect(new URL("/", req.url));
-//     }
-
-//     return NextResponse.next();
-// }
-
-// export const config = {
-//     matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
-// };
-
-
-// import { NextRequest, NextResponse } from "next/server";
-
-// export async function proxy(request: NextRequest) {
-//     const path = request.nextUrl.pathname;
-//     const token = request.cookies.get("session")?.value || "";
-
-//     // 1️⃣ Auth Routes (Accessible only when NOT logged in)
-//     const authRoutes = [
-//         "/signin",
-//         "/signup",
-//         "/forgotpassword",
-//         "/resetpassword",
-//         "/verify-otp",
-//     ];
-
-//     // 2️⃣ Public APIs (Always accessible)
-//     const publicApiPrefixes = ["/api/auth", "/api/webhooks"];
-
-//     const isAuthRoute = authRoutes.some((route) => path.startsWith(route));
-//     const isPublicApi = publicApiPrefixes.some((prefix) => path.startsWith(prefix));
-
-//     // ✅ LOGGED IN LOGIC
-//     if (token) {
-//         // If user is logged in and tries to access auth pages (signin, signup...)
-//         if (isAuthRoute) {
-//             return NextResponse.redirect(new URL("/", request.nextUrl));
-//         }
-//         // Allow access to protected routes
-//         return NextResponse.next();
-//     }
-
-//     // ❌ NOT LOGGED IN LOGIC
-//     if (!token) {
-//         // Allow access to auth pages and public APIs
-//         if (isAuthRoute || isPublicApi) {
-//             return NextResponse.next();
-//         }
-
-//         // Redirect all other protected routes to signin
-//         return NextResponse.redirect(new URL("/signin", request.nextUrl));
-//     }
-
-//     return NextResponse.next();
-// }
-
-
-// import { NextRequest, NextResponse } from "next/server";
-// import prisma from "@/lib/prisma";
-
-// export async function proxy(req: NextRequest) {
-//     const { pathname } = req.nextUrl;
-
-//     // Auth pages
-//     const authRoutes = ["/signin", "/signup"];
-
-//     // 🔓 Public routes
-//     const publicRoutes = [
-//         "/signin",
-//         "/signup",
-//         "/forgotpassword",
-//         "/resetpassword",
-//         "/verify-otp",
-//         "/api/auth",
-//     ];
-
-//     if (publicRoutes.some((p) => pathname.startsWith(p))) {
-//         return NextResponse.next();
-//     }
-
-//     // 🔐 Get session token
-//     const token = req.cookies.get("session")?.value;
-
-//     if (!token) {
-//         return NextResponse.redirect(new URL("/signin", req.url));
-//     }
-
-//     // 🔎 Fetch session + user role
-//     const session = await prisma.session.findUnique({
-//         where: { token },
-//         include: {
-//             user: {
-//                 select: { role: true },
-//             },
-//         },
-//     });
-
-//     if (!session) {
-//         return NextResponse.redirect(new URL("/signin", req.url));
-//     }
-
-//     const role = session.user.role;
-
-//     // 👤 USER → chat only
-//     if (pathname.startsWith("/c") && role !== "USER") {
-//         return NextResponse.redirect(new URL("/admin", req.url));
-//     }
-
-//     // 🛠 ADMIN → admin only
-//     if (pathname.startsWith("/admin") && role === "USER") {
-//         return NextResponse.redirect(new URL("/c", req.url));
-//     }
-
-//     return NextResponse.next();
-// }
-
-// export const config = {
-//     matcher: [
-//         "/((?!_next/static|_next/image|favicon.ico).*)",
-//     ],
-// };

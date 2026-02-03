@@ -177,7 +177,6 @@ const VerifyEmailContent = () => {
                             icon={current.action.icon}
                             text={current.action.label}
                             iconPosition={status === "error" ? "left" : "right"}
-                            size="md"
                             onClick={current.action.onClick}
                             className={`w-full justify-center rounded-xl ${current.action.success
                                 ? "bg-emerald-500! hover:bg-emerald-400!"

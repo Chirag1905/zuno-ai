@@ -7,8 +7,8 @@ import Link from "next/link";
 import AuthCard from "@/components/user/layout/AuthCard";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import SocialButtons from "@/components/admin/auth/SocialButtons";
 import { authService } from "@/services/auth.api";
+import SocialButtons from "@/utils/SocialButtons";
 
 export default function SignInPage() {
     const router = useRouter();

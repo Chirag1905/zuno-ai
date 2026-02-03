@@ -51,92 +51,114 @@ const countryOptions: CountryOption[] = [
 const customStyles: StylesConfig<CountryOption, false> = {
     control: (base, state) => ({
         ...base,
-        height: 45,
-        minHeight: 45,
-        background: state.isFocused
-            ? "rgba(38, 31, 66, 0.85)"
-            : "rgba(38, 31, 66, 0.6)",
-        borderRadius: 14,
-        border: `1px solid ${state.isFocused
-            ? "rgba(255,255,255,0.55)"
-            : "rgba(255,255,255,0.15)"
-            }`,
-        boxShadow: "none",
-        cursor: "text",
-        transition: "all 0.25s ease",
-        "&:hover": {
-            borderColor: "rgba(255,255,255,0.35)",
-            background: "rgba(38, 31, 66, 0.75)",
-        },
-    }),
+        height: 40,
+        minHeight: 40,
+        borderRadius: 12,
 
-    dropdownIndicator: (base) => ({
-        ...base,
-        padding: 4,
+        /* Same background as Input */
+        backgroundColor: "rgba(255,255,255,0.05)",
+
+        /* Same border logic */
+        border: `1px solid ${state.isFocused
+            ? "rgb(99 102 241)" // brand-500 (CHANGE if your brand differs)
+            : "rgb(64 64 64)"   // neutral-700
+            }`,
+
+        /* 🔥 EXACT Tailwind focus:ring-1 ring-brand-500/20 */
+        boxShadow: state.isFocused
+            ? "0 0 0 1px rgba(99,102,241,0.2)"
+            : "none",
+
+        cursor: "text",
+        transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+
+        "&:hover": {
+            borderColor: state.isFocused
+                ? "rgb(99 102 241)"
+                : "rgb(82 82 82)",
+        },
     }),
 
     valueContainer: (base) => ({
         ...base,
-        padding: "0 12px",
+        padding: "0 16px",
     }),
 
     placeholder: (base) => ({
         ...base,
-        color: "rgba(255,255,255,0.45)",
-        fontSize: 16,
+        color: "#a3a3a3",
+        fontSize: 14,
     }),
 
     singleValue: (base) => ({
         ...base,
         color: "#ffffff",
-        fontSize: 16,
+        fontSize: 14,
     }),
 
     input: (base) => ({
         ...base,
         color: "#ffffff",
-        fontSize: 16,
+        fontSize: 14,
     }),
 
-    indicatorsContainer: (base) => ({
+    dropdownIndicator: (base) => ({
         ...base,
-        paddingRight: 12,
+        padding: 8,
+        color: "#a3a3a3",
+        "&:hover": { color: "#ffffff" },
     }),
 
     clearIndicator: (base) => ({
         ...base,
-        padding: 4,
-        color: "rgba(255,255,255,0.6)",
+        padding: 8,
+        color: "#a3a3a3",
+        "&:hover": { color: "#ffffff" },
+    }),
+
+    indicatorSeparator: () => ({
+        display: "none",
     }),
 
     menu: (base) => ({
         ...base,
         marginTop: 8,
-        background: "rgba(38, 31, 66, 0.95)",
+
+        backgroundColor: "rgba(30, 27, 75, 0.95)",
         borderRadius: 16,
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 25px 60px rgba(0,0,0,0.45)",
+
+        border: "1px solid rgba(255,255,255,0.12)",
+        boxShadow:
+            "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
+
+        backdropFilter: "blur(16px)",
         overflow: "hidden",
-        backdropFilter: "blur(12px)",
     }),
 
     menuList: (base) => ({
         ...base,
-        padding: 8,
+        padding: 6,
+        maxHeight: 220,
+
+        scrollbarWidth: "thin",
+        scrollbarColor: "rgba(255,255,255,0.25) transparent",
     }),
 
     option: (base, state) => ({
         ...base,
-        borderRadius: 16,
-        padding: "12px 16px",
-        fontSize: 15,
+        borderRadius: 12,
+        padding: "10px 14px",
+        fontSize: 14,
         color: "#fff",
+
         backgroundColor: state.isSelected
-            ? "rgba(255,255,255,0.14)"
+            ? "rgba(99,102,241,0.25)"
             : state.isFocused
-                ? "rgba(255,255,255,0.08)"
+                ? "rgba(255,255,255,0.10)"
                 : "transparent",
+
         cursor: "pointer",
+        transition: "all 0.15s ease",
     }),
 };
 

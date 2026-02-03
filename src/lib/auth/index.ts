@@ -685,7 +685,7 @@ export const auth = {
                 },
             });
             if (!session) {
-                throw new AuthError("SESSION_NOT_FOUND", 404);
+                throw new AuthError("SESSION_NOT_FOUND", 401);
             }
 
             return session;
@@ -714,7 +714,7 @@ export const auth = {
 
             // Optional strict mode
             if (result.count === 0) {
-                throw new AuthError("SESSION_NOT_FOUND", 404);
+                throw new AuthError("SESSION_NOT_FOUND", 401);
             }
 
             return true;
@@ -742,7 +742,7 @@ export const auth = {
             });
 
             if (result.count === 0) {
-                throw new AuthError("SESSION_NOT_FOUND", 404);
+                throw new AuthError("SESSION_NOT_FOUND", 401);
             }
 
             return true;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface DropdownItemProps {
   children: React.ReactNode;
@@ -61,12 +61,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
     }
   };
 
-  const closeDropdown = () => {
+  const closeDropdown = useCallback(() => {
     if (onClose) {
       onClose();
     }
     setInternalIsOpen(false);
-  };
+  }, [onClose]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -82,7 +82,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, closeDropdown]);
 
   // Determine position classes
   const positionClasses =

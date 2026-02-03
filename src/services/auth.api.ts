@@ -13,31 +13,31 @@ export const authService = {
         api.post<AuthResponse>("/auth/login", payload),
 
     register: (payload: RegisterPayload) =>
-        api.post<ApiResponse<any>>("/auth/register", payload),
+        api.post<ApiResponse<unknown>>("/auth/register", payload),
 
     logout: () =>
-        api.post<ApiResponse<any>>("/auth/logout"),
+        api.post<ApiResponse<unknown>>("/auth/logout"),
 
     logoutAll: () =>
-        api.post<ApiResponse<any>>("/auth/logout-all"),
+        api.post<ApiResponse<unknown>>("/auth/logout-all"),
 
     forgotPassword: (email: string) =>
-        api.post<ApiResponse<any>>("/auth/forgot-password", { email }),
+        api.post<ApiResponse<unknown>>("/auth/forgot-password", { email }),
 
     resetPassword: (payload: ResetPasswordPayload) =>
-        api.post<ApiResponse<any>>("/auth/reset-password", payload),
+        api.post<ApiResponse<unknown>>("/auth/reset-password", payload),
 
     resendVerification: (email: string) =>
-        api.post<ApiResponse<any>>("/auth/verification/resend-verification", { email }),
+        api.post<ApiResponse<unknown>>("/auth/verification/resend-verification", { email }),
 
     verifyEmail: (token: string) =>
-        api.post<ApiResponse<any>>("/auth/verification/send-verification", { token }),
+        api.post<ApiResponse<unknown>>("/auth/verification/send-verification", { token }),
 
     verifyMfa: (payload: VerifyMfaPayload) =>
-        api.post<ApiResponse<any>>("/auth/mfa/verify", payload),
+        api.post<ApiResponse<unknown>>("/auth/mfa/verify", payload),
 
     resendMfa: (email: string) =>
-        api.post<ApiResponse<any>>("/auth/mfa/resend", { email }),
+        api.post<ApiResponse<unknown>>("/auth/mfa/resend", { email }),
 
     getSession: () =>
         api.get<AuthResponse>("/auth/session"),

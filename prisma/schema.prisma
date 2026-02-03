@@ -277,7 +277,7 @@ model Subscription {
 model Payment {
   id            String        @id @default(cuid())
   userId        String
-  amount        Int
+  amount        Float // Stored in rupees (e.g., 199.00), not paise
   currency      String
   status        PaymentStatus
   provider      String

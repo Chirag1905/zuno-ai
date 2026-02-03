@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         update: { status: "SUCCESS" },
         create: {
           userId,
-          amount: paymentEntity.amount,
+          amount: paymentEntity.amount / 100, // Convert paise to rupees
           currency: paymentEntity.currency,
           status: "SUCCESS",
           provider: "razorpay",

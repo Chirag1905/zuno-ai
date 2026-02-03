@@ -1,36 +1,37 @@
 "use client";
 
-import Icon from "@/components/ui/Icon";
 import React, { useId } from "react";
+import Icon from "@/components/ui/Icon";
+import clsx from "clsx";
 
 interface CheckboxProps {
     checked: boolean;
     onChange: (checked: boolean) => void;
-    text?: string;
+    label?: string;
     disabled?: boolean;
-    accentColor?: string;
+    accentColor: string;
     className?: string;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
     checked,
     onChange,
-    text,
+    label,
     disabled = false,
-    accentColor = "bg-emerald-500",
+    accentColor,
     className = "",
 }) => {
     const id = useId();
 
     return (
-        <div
-            className={`
-                flex items-center gap-3 select-none
-                ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
-                ${className}
-            `}
+        <label
+            htmlFor={id}
+            className={clsx(
+                "flex items-center gap-3 select-none",
+                disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+                className
+            )}
         >
-            {/* Hidden native checkbox (for accessibility) */}
             <input
                 id={id}
                 type="checkbox"
@@ -40,29 +41,19 @@ const Checkbox: React.FC<CheckboxProps> = ({
                 className="sr-only"
             />
 
-            {/*  checkbox */}
-            <label
-                htmlFor={id}
-                className={`
-                    w-4 h-4 rounded-md flex items-center justify-center
-                    border border-white/40
-                    transition-all
-                    ${checked ? `${accentColor} border-transparent scale-110 shadow-sm` : ""}
-                `}
+            <span
+                className={clsx(
+                    "w-4 h-4 rounded-md border flex items-center justify-center transition-all",
+                    checked
+                        ? `${accentColor} border-transparent scale-110`
+                        : "border-white/40"
+                )}
             >
                 {checked && <Icon name="Check" size={12} color="white" />}
-            </label>
+            </span>
 
-            {/* Text */}
-            {text && (
-                <label
-                    htmlFor={id}
-                    className="text-sm text-white"
-                >
-                    {text}
-                </label>
-            )}
-        </div>
+            {label && <span className="text-sm text-white">{label}</span>}
+        </label>
     );
 };
 

@@ -2,18 +2,18 @@ import api from "@/lib/axios";
 import { ApiResponse, PaginatedResponse } from "@/types/api";
 
 export const adminService = {
-    getUsers: (params: Record<string, any>) =>
-        api.get<PaginatedResponse<any>>("/admin/users", { params }),
+    getUsers: (params: Record<string, string | number | boolean>) =>
+        api.get<PaginatedResponse<unknown>>("/admin/users", { params }),
 
     getUserById: (id: string) =>
-        api.get<ApiResponse<any>>(`/admin/users/${id}`),
+        api.get<ApiResponse<unknown>>(`/admin/users/${id}`),
 
-    createUser: (payload: any) =>
-        api.post<ApiResponse<any>>("/admin/users", payload),
+    createUser: (payload: Record<string, unknown>) =>
+        api.post<ApiResponse<unknown>>("/admin/users", payload),
 
-    updateUser: (id: string, payload: any) =>
-        api.put<ApiResponse<any>>(`/admin/users/${id}`, payload),
+    updateUser: (id: string, payload: Record<string, unknown>) =>
+        api.put<ApiResponse<unknown>>(`/admin/users/${id}`, payload),
 
     deleteUser: (id: string) =>
-        api.delete<ApiResponse<any>>(`/admin/users/${id}`),
+        api.delete<ApiResponse<unknown>>(`/admin/users/${id}`),
 };

@@ -2,8 +2,8 @@
 import { ApexOptions } from "apexcharts";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Dot, EllipsisVertical } from "lucide-react";
 import Dropdown, { DropdownItem } from "@/components/ui/Dropdown";
+import Icon from "@/components/ui/Icon";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -105,7 +105,7 @@ export default function MonthlySalesChart({ data }: MonthlySalesChartProps) {
 
         <div className="relative inline-block">
           <button onClick={toggleDropdown} className="dropdown-toggle">
-            <EllipsisVertical className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+            <Icon name="EllipsisVertical" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
           </button>
           <Dropdown
             isOpen={isOpen}

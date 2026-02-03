@@ -1,89 +1,79 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useId } from "react";
+import clsx from "clsx";
 
 interface SwitchProps {
-  label: string;
-  defaultChecked?: boolean;
-  checked?: boolean;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: string;
+  description?: string;
   disabled?: boolean;
-  onChange?: (checked: boolean) => void;
-  color?: "blue" | "gray";
+  accentColor: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
+const sizes = {
+  sm: { track: "w-9 h-5", knob: "w-4 h-4 translate-x-4" },
+  md: { track: "w-11 h-6", knob: "w-5 h-5 translate-x-5" },
+  lg: { track: "w-14 h-7", knob: "w-6 h-6 translate-x-7" },
+};
+
 const Switch: React.FC<SwitchProps> = ({
-  label,
-  defaultChecked = false,
   checked,
-  disabled = false,
   onChange,
-  color = "blue",
+  label,
+  description,
+  disabled = false,
+  accentColor,
+  size = "md",
+  className = "",
 }) => {
-  const [internalChecked, setInternalChecked] = useState(defaultChecked);
-
-  // Sync with controlled checked prop
-  useEffect(() => {
-    if (checked !== undefined) {
-      setInternalChecked(checked);
-    }
-  }, [checked]);
-
-  const handleToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (disabled) return;
-
-    const newChecked = !internalChecked;
-
-    // Update internal state only if uncontrolled
-    if (checked === undefined) {
-      setInternalChecked(newChecked);
-    }
-
-    onChange?.(newChecked);
-  };
-
-  const currentChecked = checked !== undefined ? checked : internalChecked;
-
-  /** Dynamic colors */
-  const switchColors =
-    color === "blue"
-      ? {
-        background: currentChecked
-          ? "bg-brand-500"
-          : "bg-gray-200 dark:bg-white/10",
-        knob: "bg-white",
-      }
-      : {
-        background: currentChecked
-          ? "bg-gray-800 dark:bg-white/10"
-          : "bg-gray-200 dark:bg-white/10",
-        knob: "bg-white",
-      };
+  const id = useId();
 
   return (
     <label
-      className={`flex cursor-pointer select-none items-center gap-3 text-sm font-medium ${disabled ? "text-gray-400" : "text-gray-700 dark:text-gray-400"
-        }`}
-      onClick={handleToggle}
+      htmlFor={id}
+      className={clsx(
+        "flex items-start gap-3 select-none",
+        disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+        className
+      )}
     >
-      {/* Switch Container */}
-      <div className="relative w-11 h-6">
-        {/* Background */}
-        <div
-          className={`block transition duration-200 ease-in-out w-11 h-6 rounded-full ${disabled
-            ? "bg-gray-100 pointer-events-none dark:bg-gray-800"
-            : switchColors.background
-            }`}
-        ></div>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
 
-        {/* Knob */}
+      <div
+        className={clsx(
+          "relative rounded-full transition-colors",
+          sizes[size].track,
+          checked ? accentColor : "bg-white/20"
+        )}
+      >
         <div
-          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full shadow-theme-sm transform transition-transform duration-200 ease-in-out ${switchColors.knob} ${currentChecked ? "translate-x-5.5" : "translate-x-0"
-            }`}
-        ></div>
+          className={clsx(
+            "absolute top-0.5 left-0.5 rounded-full bg-white transition-transform",
+            checked ? sizes[size].knob : "translate-x-0",
+            sizes[size].knob.replace(/translate-x-\d/, "")
+          )}
+        />
       </div>
 
-      {/* Label */}
-      {label}
+      {(label || description) && (
+        <div>
+          {label && <p className="text-sm text-white">{label}</p>}
+          {description && (
+            <p className="text-xs text-white/60">{description}</p>
+          )}
+        </div>
+      )}
     </label>
   );
 };

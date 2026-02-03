@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import SocialButtons from "@/components/admin/auth/SocialButtons";
 import { authService } from "@/services/auth.api";
 import Link from "next/link";
 import AuthCard from "@/components/user/layout/AuthCard";
 import CountrySelect from "@/utils/CountrySelect";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import SocialButtons from "@/utils/SocialButtons";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -100,6 +100,7 @@ export default function SignUpPage() {
                     placeholder="Password"
                     errorMessage={errors.password}
                     disabled={loading}
+                    allowPasswordGenerate
                 />
 
                 <CountrySelect

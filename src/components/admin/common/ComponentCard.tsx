@@ -49,14 +49,19 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
       {showFooter && (
         <div className="flex justify-end gap-3 px-6 py-5">
           {onCancel && (
-            <Button size="sm" variant="outline" onClick={onCancel}>
-              {cancelLabel}
-            </Button>
+            <Button
+              size="sm"
+              text={cancelLabel}
+              variant="outline"
+              onClick={onCancel}
+            />
           )}
           {onSubmit && (
-            <Button size="sm" onClick={onSubmit}>
-              {submitLabel}
-            </Button>
+            <Button
+              size="sm"
+              text={submitLabel}
+              onClick={onSubmit}
+            />
           )}
         </div>
       )}

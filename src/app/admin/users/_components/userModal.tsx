@@ -6,7 +6,7 @@ import Label from "@/components/ui/Label";
 import Input from "@/components/ui/InputSecondVersion";
 import Button from "@/components/ui/Button";
 import { generatePassword } from "@/lib/passwordGenerator";
-import { EyeClosedIcon, EyeIcon, KeyIcon } from "lucide-react";
+import { KeyIcon } from "lucide-react";
 import CountrySelect from "@/utils/CountrySelect";
 import Switch from "@/components/ui/Switch";
 
@@ -150,6 +150,7 @@ const UserModal: React.FC<userModalProps> = ({
                     <div className="flex items-center mb-1.5">
                         <Label>Password</Label>
                         <Button
+                            text="Generate"
                             className="ml-3 py-0 px-2 rounded-full"
                             startIcon={<KeyIcon size={14} />}
                             variant="outline"
@@ -159,9 +160,7 @@ const UserModal: React.FC<userModalProps> = ({
                                     password: generatePassword(),
                                 }))
                             }
-                        >
-                            Generate
-                        </Button>
+                        />
                     </div>
 
                     <div className="relative">
@@ -177,13 +176,12 @@ const UserModal: React.FC<userModalProps> = ({
                             }
                             errorMessage={errors?.password}
                         />
-                        <button
+                        <Button
                             type="button"
+                            icon={showPassword ? "EyeIcon" : "EyeClosedIcon"}
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-4 top-1/2 -translate-y-1/2"
-                        >
-                            {showPassword ? <EyeIcon /> : <EyeClosedIcon />}
-                        </button>
+                        />
                     </div>
                 </div>
             </div>
