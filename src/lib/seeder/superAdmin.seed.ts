@@ -3,9 +3,8 @@ import prisma from "@/lib/prisma";
 import argon2 from "argon2";
 
 async function seedSuperAdmin() {
-    const SUPER_ADMIN_EMAIL = "owner@zuno.ai";
-    const SUPER_ADMIN_PASSWORD =
-        process.env.SUPER_ADMIN_PASSWORD || "ChangeThisStrongPassword123!";
+    const SUPER_ADMIN_EMAIL =  process.env.SUPER_ADMIN_EMAIL || "owner@zuno.ai";
+    const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || "ChangeThisStrongPassword123!";
 
     const existingAdmin = await prisma.user.findUnique({
         where: { email: SUPER_ADMIN_EMAIL },

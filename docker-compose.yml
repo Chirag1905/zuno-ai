@@ -24,8 +24,9 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://admin:admin@postgres:5432/zuno_db?schema=public
+      - DATABASE_URL=postgres://969bbb461f3e27e05596f57fd3ec3e3df7a8069ed42763bd1a3a9882eebf8660:sk_N1HhSVJM91-7P3k_C-uh0@db.prisma.io:5432/postgres?sslmode=verify-full
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      # - DATABASE_URL=postgresql://admin:admin@postgres:5432/zuno_db?schema=public
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
