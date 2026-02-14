@@ -1,8 +1,10 @@
 export async function GET() {
     try {
-        const res = await fetch("http://127.0.0.1:11434/api/tags", {
-            cache: "no-store",
-        });
+        const res = await fetch(
+            `${process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434"}/api/tags`,
+            {
+                cache: "no-store",
+            });
 
         if (!res.ok) throw new Error("offline");
 

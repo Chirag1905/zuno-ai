@@ -15,7 +15,7 @@ const MODEL_MAP: Record<string, string> = {
     llama: "llama3.1:8b",
     mistral: "mistral:7b-instruct",
     qwen: "qwen2.5:7b",
-    deepseek: "deepseek-r1:7b",
+    deepseek: "deepseek-r1:8b",
 };
 
 const MAX_CONTEXT_MESSAGES = 12;
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     let ollamaRes;
     try {
         ollamaRes = await axios.post(
-            "http://127.0.0.1:11434/api/generate",
+            `${process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434"}/api/generate`,
             {
                 model: MODEL_MAP[model] ?? MODEL_MAP.llama,
                 // prompt: context,
