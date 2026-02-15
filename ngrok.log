@@ -1,1 +1,19 @@
-Flag --host-header has been deprecated, use traffic policy instead
+t=2026-02-15T18:09:35+0530 lvl=info msg="no configuration paths supplied"
+t=2026-02-15T18:09:35+0530 lvl=info msg="using configuration at default config path" path="/Users/chiragvadhavana/Library/Application Support/ngrok/ngrok.yml"
+t=2026-02-15T18:09:35+0530 lvl=info msg="open config file" path="/Users/chiragvadhavana/Library/Application Support/ngrok/ngrok.yml" err=nil
+t=2026-02-15T18:09:35+0530 lvl=info msg="FIPS 140 mode" enabled=false
+t=2026-02-15T18:09:35+0530 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040 allow_hosts=[]
+t=2026-02-15T18:09:35+0530 lvl=info msg="client session established" obj=tunnels.session
+t=2026-02-15T18:09:35+0530 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2026-02-15T18:09:36+0530 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:11434 url=https://blameless-alijah-driest.ngrok-free.dev
+t=2026-02-15T18:09:58+0530 lvl=warn msg="failed to open private leg" id=6945900d724f privaddr=localhost:11434 err="dial tcp [::1]:11434: connect: connection refused"
+t=2026-02-15T18:11:44+0530 lvl=info msg="join connections" obj=join id=8d1570f6c732 l=127.0.0.1:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:50099
+t=2026-02-15T18:12:37+0530 lvl=info msg="join connections" obj=join id=942f150e8698 l=127.0.0.1:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:50130
+t=2026-02-15T18:12:54+0530 lvl=info msg="join connections" obj=join id=6b82ad2a932b l=127.0.0.1:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:50134
+t=2026-02-15T18:14:01+0530 lvl=info msg="join connections" obj=join id=9b051924c599 l=[::1]:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:50192
+t=2026-02-15T18:14:55+0530 lvl=info msg="join connections" obj=join id=f12692b5fd82 l=[::1]:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:50215
+t=2026-02-15T18:14:55+0530 lvl=info msg="join connections" obj=join id=01e18ebe34af l=[::1]:11434 r=[2402:a00:404:eddc:bd25:d10:1e3e:9507]:61436
+t=2026-02-15T18:15:30+0530 lvl=eror msg="heartbeat timeout, terminating session" obj=tunnels.session obj=csess id=f707dba51d1d clientid=a5a4c9edcbd457614256dd7cc596126e
+t=2026-02-15T18:15:30+0530 lvl=eror msg="session closed, starting reconnect loop" obj=tunnels.session obj=csess id=a96274615446 err="session closed"
+t=2026-02-15T18:15:35+0530 lvl=info msg="client session established" obj=tunnels.session
+t=2026-02-15T18:15:35+0530 lvl=info msg="tunnel session started" obj=tunnels.session
