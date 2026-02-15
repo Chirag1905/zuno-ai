@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "@/app/globals.css";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next"
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -36,7 +37,7 @@ export default function RootLayout({
               duration: Infinity,
             },
             success: {
-              duration: 5000, // success toast visible for 5s
+              duration: 5000,
             },
             error: {
               duration: 3000,
@@ -44,6 +45,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -17,3 +17,11 @@ t=2026-02-15T18:15:30+0530 lvl=eror msg="heartbeat timeout, terminating session"
 t=2026-02-15T18:15:30+0530 lvl=eror msg="session closed, starting reconnect loop" obj=tunnels.session obj=csess id=a96274615446 err="session closed"
 t=2026-02-15T18:15:35+0530 lvl=info msg="client session established" obj=tunnels.session
 t=2026-02-15T18:15:35+0530 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2026-02-15T18:40:30+0530 lvl=info msg="join connections" obj=join id=c1c63e362424 l=[::1]:11434 r=3.209.80.59:48152
+t=2026-02-15T18:40:30+0530 lvl=info msg="join connections" obj=join id=24b9b00c5cca l=[::1]:11434 r=3.209.80.59:60150
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=76c5d9129572 l=[::1]:11434 r=3.209.80.59:57276
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=661536cc618a l=[::1]:11434 r=100.48.65.214:47916
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=78fbcd83143e l=[::1]:11434 r=54.235.231.108:33908
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=9979a3d90475 l=[::1]:11434 r=54.235.231.108:33916
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=fcf2b5a9da99 l=[::1]:11434 r=3.87.54.246:60620
+t=2026-02-15T18:40:31+0530 lvl=info msg="join connections" obj=join id=857976bea1e2 l=[::1]:11434 r=3.87.54.246:60608
