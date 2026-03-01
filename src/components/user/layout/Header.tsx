@@ -40,19 +40,8 @@ export default function Header() {
       )}
 
       <header
-        className="fixed top-4 right-4 z-50 flex items-center bg-gray-900/60 backdrop-blur-xl border border-gray-700/60 rounded-full px-1 shadow-xl"
+        className="fixed top-4 right-4 z-50 flex items-center bg-gray-900/60 backdrop-blur-xl border border-gray-700/60 rounded-full px-1 py-0.5 shadow-xl"
       >
-        <div className="block md:hidden">
-          <Button
-            icon={`${sidebarOpen ? "X" : "Menu"}`}
-            size="lg"
-            variant="minimal"
-            iconClassName="p-2 rounded-lg md:hidden bg-gray-800/60 hover:bg-gray-700 transition"
-            textClassName="text-gray-300 text-sm font-medium"
-            compact
-            onClick={toggleSidebar}
-          />
-        </div>
         <LLMStatus />
         <Button
           icon="Droplet"

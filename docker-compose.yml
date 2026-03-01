@@ -1,5 +1,5 @@
 services:
-  postgres:
+  1:
     image: postgres:16
     container_name: zuno_db
     restart: always

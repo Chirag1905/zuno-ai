@@ -33,7 +33,7 @@ export default function ChatComposer({
         });
     };
 
-    /* -------------------- Auto resize + multiline detection -------------------- */
+    /* -------------------- Auto resize -------------------- */
     useEffect(() => {
         const el = textareaRef.current;
         if (!el) return;
@@ -45,7 +45,7 @@ export default function ChatComposer({
         setIsMultiline(height > 64);
     }, [input]);
 
-    /* -------------------- Restore focus after generation -------------------- */
+    /* -------------------- Restore focus -------------------- */
     useEffect(() => {
         if (!generating) {
             focusInput();
@@ -53,13 +53,13 @@ export default function ChatComposer({
     }, [generating]);
 
     return (
-        <div className="w-full pb-4">
-            <div className="w-full max-w-210 mx-auto px-2">
-                <div className="flex flex-col gap-2 px-5 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
+        <div className="w-full px-2 sm:px-4 md:px-6 pb-4">
+            <div className="w-full max-w-3xl mx-auto">
+                <div className="flex flex-col gap-2 px-3 sm:px-4 md:px-5 rounded-3xl bg-linear-to-t from-black/40 to-transparent backdrop-blur-xl border border-white/10 shadow-xl">
 
-                    {/* TOP ROW */}
+                    {/* INPUT ROW */}
                     <div
-                        className={`flex gap-3 py-2.5 ${isMultiline ? "items-start" : "items-center"
+                        className={`flex gap-2 sm:gap-3 py-2 ${isMultiline ? "items-start" : "items-center"
                             }`}
                     >
                         <textarea
@@ -68,7 +68,7 @@ export default function ChatComposer({
                             rows={1}
                             disabled={generating}
                             placeholder="Message Zuno"
-                            className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none leading-6 max-h-40 overflow-y-auto chat-input-scroll"
+                            className="flex-1 bg-transparent resize-none text-sm sm:text-base text-white focus:outline-none leading-6 max-h-40 overflow-y-auto chat-input-scroll"
                             onChange={(e) => setValue(e.target.value)}
                             onKeyDown={(e) => {
                                 if (
@@ -83,20 +83,21 @@ export default function ChatComposer({
                             }}
                         />
 
-                        {/* INLINE ACTIONS (single-line mode) */}
+                        {/* Inline Actions (Desktop & single-line mode) */}
                         {!isMultiline && (
-                            <>
-                                <ModelSelector />
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="hidden sm:block">
+                                    <ModelSelector />
+                                </div>
+
                                 <Button
                                     icon={generating ? "Square" : "ArrowUp"}
                                     size="lg"
                                     variant="minimal"
                                     compact
-                                    className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
+                                    className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-lg w-10 h-10 sm:w-auto sm:h-auto"
                                     iconClassName={
-                                        generating
-                                            ? "text-red-400"
-                                            : "text-blue-400"
+                                        generating ? "text-red-400" : "text-blue-400"
                                     }
                                     onClick={() => {
                                         if (generating) {
@@ -107,34 +108,45 @@ export default function ChatComposer({
                                         }
                                     }}
                                 />
-                            </>
+                            </div>
                         )}
                     </div>
 
-                    {/* BOTTOM ACTION ROW (multiline mode) */}
-                    {isMultiline && (
-                        <div className="flex justify-end gap-2 py-2">
-                            <ModelSelector />
-                            <Button
-                                icon={generating ? "Square" : "ArrowUp"}
-                                size="lg"
-                                variant="minimal"
-                                compact
-                                className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
-                                iconClassName={
-                                    generating
-                                        ? "text-red-400"
-                                        : "text-blue-400"
-                                }
-                                onClick={() => {
-                                    if (generating) {
-                                        stopResponse?.();
-                                    } else {
-                                        sendMessage();
-                                        focusInput();
+                    {/* Bottom Actions (Multiline OR Mobile) */}
+                    {(isMultiline || true) && (
+                        <div className="flex justify-between sm:justify-end items-center gap-2 py-2 border-t border-white/5">
+
+                            {/* Show model selector on mobile here */}
+                            <div className="sm:hidden">
+                                <ModelSelector />
+                            </div>
+
+                            {isMultiline && (
+                                <div className="hidden sm:block">
+                                    <ModelSelector />
+                                </div>
+                            )}
+
+                            {isMultiline && (
+                                <Button
+                                    icon={generating ? "Square" : "ArrowUp"}
+                                    size="lg"
+                                    variant="minimal"
+                                    compact
+                                    className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-lg w-10 h-10 sm:w-auto sm:h-auto"
+                                    iconClassName={
+                                        generating ? "text-red-400" : "text-blue-400"
                                     }
-                                }}
-                            />
+                                    onClick={() => {
+                                        if (generating) {
+                                            stopResponse?.();
+                                        } else {
+                                            sendMessage();
+                                            focusInput();
+                                        }
+                                    }}
+                                />
+                            )}
                         </div>
                     )}
                 </div>
@@ -142,115 +154,3 @@ export default function ChatComposer({
         </div>
     );
 }
-
-
-// "use client";
-
-// import Button from "@/components/ui/Button";
-// import ModelSelector from "@/components/ui/ModelSelector";
-// import { useChatStore, useStreamStore } from "@/store";
-// import { useEffect, useRef, useState } from "react";
-
-// type ChatComposerProps = {
-//     sendMessage: () => void;
-//     stopResponse?: () => void;
-//     value?: string;
-//     onChange?: (value: string) => void;
-// };
-
-// export default function ChatComposer({
-//     sendMessage,
-//     stopResponse,
-//     value,
-//     onChange,
-// }: ChatComposerProps) {
-//     const { input: storeInput, setInput } = useChatStore();
-//     const { generating } = useStreamStore();
-
-//     const textareaRef = useRef<HTMLTextAreaElement>(null);
-//     const [isMultiline, setIsMultiline] = useState(false);
-
-//     const input = value ?? storeInput;
-//     const setValue = onChange ?? setInput;
-
-//     /* -------------------- Auto resize + multiline detection -------------------- */
-//     useEffect(() => {
-//         const el = textareaRef.current;
-//         if (!el) return;
-
-//         el.style.height = "0px";
-//         const height = Math.min(el.scrollHeight, 160);
-//         el.style.height = height + "px";
-
-//         // ~3 lines threshold (depends on font-size & leading)
-//         setIsMultiline(height > 64);
-//     }, [input]);
-
-//     return (
-//         <div className="w-full pb-4">
-//             <div className="w-full max-w-210 mx-auto px-2">
-//                 <div className="flex flex-col gap-2 px-5 rounded-4xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.6)]">
-
-//                     {/* TOP ROW */}
-//                     <div className={`flex gap-3 py-2.5 ${isMultiline ? "items-start" : "items-center"}`}>
-//                         <textarea
-//                             ref={textareaRef}
-//                             value={input}
-//                             rows={1}
-//                             disabled={generating}
-//                             placeholder="Message Zuno"
-//                             className="flex-1 bg-transparent resize-none text-sm text-white focus:outline-none leading-6 max-h-40 overflow-y-auto chat-input-scroll"
-//                             onChange={(e) => setValue(e.target.value)}
-//                             onKeyDown={(e) => {
-//                                 if (
-//                                     e.key === "Enter" &&
-//                                     !e.shiftKey &&
-//                                     !e.nativeEvent.isComposing
-//                                 ) {
-//                                     e.preventDefault();
-//                                     sendMessage();
-//                                 }
-//                             }}
-//                         />
-
-//                         {/* INLINE ACTIONS (single-line mode) */}
-//                         {!isMultiline && (
-//                             <>
-//                                 <ModelSelector />
-//                                 <Button
-//                                     icon={generating ? "Square" : "ArrowUp"}
-//                                     size="lg"
-//                                     variant="minimal"
-//                                     compact
-//                                     className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
-//                                     iconClassName={
-//                                         generating ? "text-red-400" : "text-blue-400"
-//                                     }
-//                                     onClick={generating ? stopResponse : sendMessage}
-//                                 />
-//                             </>
-//                         )}
-//                     </div>
-
-//                     {/* BOTTOM ACTION ROW (multiline mode) */}
-//                     {isMultiline && (
-//                         <div className="flex justify-end gap-2 py-2">
-//                             <ModelSelector />
-//                             <Button
-//                                 icon={generating ? "Square" : "ArrowUp"}
-//                                 size="lg"
-//                                 variant="minimal"
-//                                 compact
-//                                 className="bg-gray-800 hover:bg-gray-900 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.45)]"
-//                                 iconClassName={
-//                                     generating ? "text-red-400" : "text-blue-400"
-//                                 }
-//                                 onClick={generating ? stopResponse : sendMessage}
-//                             />
-//                         </div>
-//                     )}
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }

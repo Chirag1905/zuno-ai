@@ -67,6 +67,21 @@ body {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
 }
 
+/* Safe area support (iOS notch devices) */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Prevent layout break from long words */
+.break-anywhere {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
 /* ================================
    Chat Input (Textarea) Scrollbar
    ================================ */

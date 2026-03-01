@@ -54,6 +54,10 @@ export default function Sidebar() {
     const handleSubmit = () => {
         startDraftChat();
         router.push('/');
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth < 768) {
+            toggleSidebar();
+        }
     };
 
     /* ------------------------------ Auth -------------------------------- */
@@ -67,7 +71,6 @@ export default function Sidebar() {
             },
             { duration: 5000 }
         );
-
         router.push("/signin");
     }, [router]);
 
@@ -92,7 +95,6 @@ export default function Sidebar() {
     /* ------------------------------ Delete Chat -------------------------- */
     const handleDeleteChat = async (chatId: string | null) => {
         if (!chatId) return;
-
         setDeleting(true);
         try {
             await toast.promise(
@@ -113,7 +115,6 @@ export default function Sidebar() {
     /* ------------------------------ Update Title ------------------------- */
     const handleUpdateTitle = async () => {
         if (!editingChatId || !titleDraft.trim()) return;
-
         setUpdatingTitle(true);
         try {
             await toast.promise(
@@ -140,14 +141,15 @@ export default function Sidebar() {
         <>
             {/* SIDEBAR */}
             <aside
-                className={`fixed top-5 bottom-5 z-40 w-80 transition-all duration-500 ease-in-out
-                        ${sidebarOpen
+                className={`
+                    fixed top-0 bottom-0 left-0 z-40 w-80 transition-transform duration-300 ease-in-out md:top-5 md:bottom-5 md:left-3
+                    ${sidebarOpen
                         ? "translate-x-0 opacity-100"
                         : "-translate-x-full opacity-0 pointer-events-none"
                     }
-                        `}
+                `}
             >
-                <div className="h-full flex flex-col rounded-4xl bg-linear-to-b from-gray-900/95 to-gray-950/95 backdrop-blur-xl border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.8)]">
+                <div className="h-full flex flex-col rounded-none md:rounded-4xl bg-linear-to-b from-gray-900/95 to-gray-950/95 backdrop-blur-xl border-r md:border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.8)]">
                     {/* HEADER */}
                     <div className="px-5 py-4 flex justify-between items-center border-b border-white/10">
                         <SidebarBrand />
@@ -187,9 +189,13 @@ export default function Sidebar() {
                                     }}
                                     onClick={() => {
                                         router.push(`/c/${chat.id}`);
+                                        // Close sidebar on mobile after selecting a chat
+                                        if (window.innerWidth < 768) {
+                                            toggleSidebar();
+                                        }
                                     }}
                                     className={`group flex items-center justify-between px-3 py-2 rounded-2xl cursor-pointer transition-all
-                ${chat.id === activeChatId
+                                        ${chat.id === activeChatId
                                             ? "bg-blue-600/20 text-blue-300 font-bold"
                                             : "hover:bg-white/5"
                                         }`}
@@ -228,25 +234,18 @@ export default function Sidebar() {
                                 </motion.div>
                             ))}
                         </AnimatePresence>
-
                     </div>
 
                     {/* FOOTER */}
                     <div className="px-5 py-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
                         <span className="truncate">{user.name ?? "User"}</span>
-
                         <Button
                             icon="MoreVertical"
                             variant="ghost"
                             onClick={(e) => {
                                 e.stopPropagation();
-
                                 const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                setFooterMenuPos({
-                                    x: rect.right,
-                                    y: rect.top,
-                                });
-
+                                setFooterMenuPos({ x: rect.right, y: rect.top });
                                 setFooterMenuOpen((prev) => !prev);
                             }}
                         />
@@ -271,7 +270,6 @@ export default function Sidebar() {
                             onClick={() => {
                                 const chat = chatSessions.find((c) => c.id === openMenuId);
                                 if (!chat) return;
-
                                 setEditingChatId(chat.id);
                                 setTitleDraft(chat.title);
                                 setOpenMenuId(null);

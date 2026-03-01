@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.9
+FROM oven/bun:1.3.10
 
 # Install system dependencies
 RUN apt-get update -y && apt-get install -y openssl libssl-dev

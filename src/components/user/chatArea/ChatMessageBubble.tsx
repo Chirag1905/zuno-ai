@@ -16,7 +16,7 @@ const styles = {
     premium: "bg-gray-800 text-gray-100 border border-gray-700 shadow-md",
 };
 
-function CodeBlock({
+const CodeBlock = ({
     inline,
     className,
     children,
@@ -24,52 +24,60 @@ function CodeBlock({
     inline?: boolean;
     className?: string;
     children?: ReactNode;
-}) {
+}) => {
     const match = /language-(\w+)/.exec(className || "");
     const codeText = String(children).replace(/\n$/, "");
     const [copied, setCopied] = useState(false);
 
-    // ✅ Inline code → stays inline (no div)
     if (inline) {
         return (
-            <code className="px-1 py-0.5 rounded bg-black/40 text-blue-300">
+            <code className="px-1 py-0.5 rounded bg-black/40 text-blue-300 wrap-break-word">
                 {children}
             </code>
         );
     }
 
-    // ✅ Block code → wrapped safely
     return (
         <div className="relative my-3">
-            {/* COPY BUTTON */}
-            <div className="absolute right-2 top-2 z-10 opacity-100 transition-opacity duration-200">
-                <Button
-                    icon={copied ? "Check" : "Copy"}
-                    size="sm"
-                    variant="ghost"
-                    text={copied ? "Copied" : "Copy"}
-                    textClassName="text-sm text-gray-100"
-                    className="bg-black/60 hover:bg-black/10 px-2"
-                    onClick={() => {
-                        navigator.clipboard.writeText(codeText);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 1500);
+
+            {/* SCROLL WRAPPER (CRITICAL) */}
+            <div className="w-full overflow-x-auto rounded-xl">
+
+                {/* COPY BUTTON */}
+                <div className="absolute right-2 top-2 z-10">
+                    <Button
+                        icon={copied ? "Check" : "Copy"}
+                        size="sm"
+                        variant="ghost"
+                        text={copied ? "Copied" : "Copy"}
+                        textClassName="text-sm text-gray-100"
+                        className="bg-black/60 px-2"
+                        onClick={() => {
+                            navigator.clipboard.writeText(codeText);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 1500);
+                        }}
+                    />
+                </div>
+
+                <SyntaxHighlighter
+                    language={match?.[1] || "javascript"}
+                    style={vscDarkPlus}
+                    PreTag="div"
+                    wrapLongLines={true} // IMPORTANT
+                    customStyle={{
+                        margin: 0,
+                        borderRadius: "12px",
+                        padding: "16px",
+                        fontSize: "13px",
+                        background: "rgba(0,0,0,0.85)",
+                        minWidth: "100%",
+                        maxWidth: "100%",
                     }}
-                />
+                >
+                    {codeText}
+                </SyntaxHighlighter>
             </div>
-            <SyntaxHighlighter
-                language={match?.[1] || "javascript"}
-                style={vscDarkPlus}
-                PreTag="div"
-                customStyle={{
-                    borderRadius: "18px",
-                    padding: "16px",
-                    fontSize: "14px",
-                    background: "rgba(0,0,0,0.75)",
-                }}
-            >
-                {codeText}
-            </SyntaxHighlighter>
         </div>
     );
 }

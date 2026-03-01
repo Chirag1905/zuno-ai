@@ -19,38 +19,29 @@ export default function ChatLayout({
     sendMessage,
     stopResponse,
 }: ChatLayoutProps) {
-    /* ----------------------------- Store State ----------------------------- */
     const activeChatId = useChatStore((s) => s.activeChatId);
     const messagesByChat = useChatStore((s) => s.messagesByChat);
     const typing = useStreamStore((s) => s.typing);
 
-    /* ------------------------------ Memoized Data --------------------------- */
     const messages = useMemo<readonly ChatMessage[]>(() => {
         if (!activeChatId) return EMPTY_MESSAGES;
         return messagesByChat[activeChatId] ?? EMPTY_MESSAGES;
     }, [activeChatId, messagesByChat]);
 
-    /* ------------------------------ Refs ------------------------------------ */
-    const scrollRef = useRef<HTMLDivElement | null>(null) as React.RefObject<HTMLDivElement>;
-    const bottomRef = useRef<HTMLDivElement | null>(null) as React.RefObject<HTMLDivElement>;
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const [isAtBottom, setIsAtBottom] = useState(true);
 
-    /* ------------------------------ State ----------------------------------- */
-    // const [showScrollDown, setShowScrollDown] = useState<boolean>(false);
-    const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
-
-    /* ------------------------------ Helpers ---------------------------------- */
     const scrollToBottom = useCallback(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, []);
-    /* ------------------------------ Scroll Tracking -------------------------- */
+
     const handleScroll = useCallback(() => {
         const el = scrollRef.current;
         if (!el) return;
 
-        const THRESHOLD = 120;
-
         const atBottom =
-            el.scrollHeight - el.scrollTop - el.clientHeight < THRESHOLD;
+            el.scrollHeight - el.scrollTop - el.clientHeight < 120;
 
         setIsAtBottom(atBottom);
     }, []);
@@ -60,25 +51,20 @@ export default function ChatLayout({
         if (!el) return;
 
         el.addEventListener("scroll", handleScroll);
-        handleScroll(); // initial check
-
         return () => el.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
 
-    /* ------------------------------ Auto Scroll ------------------------------ */
     useEffect(() => {
-        // ONLY auto-scroll if user is already at bottom
-        if (isAtBottom) {
-            scrollToBottom();
-        }
+        if (isAtBottom) scrollToBottom();
     }, [messages, typing, isAtBottom, scrollToBottom]);
 
-    /* ------------------------------ Empty State ------------------------------ */
+    /* ---------------- EMPTY STATE ---------------- */
+
     if (messages.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center transition-opacity duration-300 animate-fade-in">
+            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center safe-top safe-bottom">
                 <SidebarBrand />
-                <p className="mt-2 mb-8 text-gray-200 font-bold text-lg">
+                <p className="mt-4 mb-8 text-gray-200 font-semibold text-lg">
                     How can I help you?
                 </p>
                 <ChatComposer
@@ -89,12 +75,15 @@ export default function ChatLayout({
         );
     }
 
-    /* ------------------------------ Chat UI ---------------------------------- */
+    /* ---------------- CHAT UI ---------------- */
+
     return (
-        <div className="relative flex-1 flex flex-col overflow-hidden transition-opacity duration-300 animate-fade-in">
+        <div className="relative flex-1 flex flex-col h-dvh pt-20 safe-bottom">
+
+            {/* MESSAGE AREA */}
             <div
                 ref={scrollRef}
-                className="flex-1 min-h-0 overflow-y-auto py-6 chat-scroll"
+                className="flex-1 overflow-y-auto chat-scroll px-2 sm:px-4"
             >
                 <ChatMessageList
                     messages={messages}
@@ -103,18 +92,20 @@ export default function ChatLayout({
                 />
             </div>
 
+            {/* SCROLL BUTTON */}
             {!isAtBottom && (
-                <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-md rounded-full hover:scale-105 transition-all"
-                >
+                <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-40">
                     <Button
                         icon="ArrowDown"
                         size="lg"
                         variant="default"
+                        className="rounded-full shadow-lg backdrop-blur-md"
                         onClick={scrollToBottom}
                     />
                 </div>
             )}
 
+            {/* COMPOSER */}
             <ChatComposer
                 sendMessage={sendMessage}
                 stopResponse={stopResponse}
