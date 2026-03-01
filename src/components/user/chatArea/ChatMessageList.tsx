@@ -7,7 +7,7 @@ import type { ChatMessage } from "@/types/chat";
 type ChatMessageListProps = {
     messages: readonly ChatMessage[];
     typing: boolean;
-    bottomRef?: React.RefObject<HTMLDivElement>;
+    bottomRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 export default function ChatMessageList({
